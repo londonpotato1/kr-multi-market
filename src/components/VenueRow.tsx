@@ -38,8 +38,13 @@ export function VenueRow({ source, pp, note }: Props) {
   const statusClass = `status-${pp.status}`;
   const statusGlyph = pp.status === 'ok' ? '●' : '○';
 
+  const isStale = pp.status === 'stale';
+  const staleTitle = isStale
+    ? `STALE${pp.staleReason ? ` — ${pp.staleReason}` : ''}`
+    : pp.status;
+
   return (
-    <div className="venue-row">
+    <div className={`venue-row${isStale ? ' venue-stale' : ''}`}>
       <span className="venue-label">{SOURCE_LABELS[source]}</span>
       <span className="venue-price">
         {formatPriceByUnit(pp.price, pp.unit)}
@@ -58,7 +63,7 @@ export function VenueRow({ source, pp, note }: Props) {
           V:{fmtCompactUsd(pp.volume24hUsd)}
         </span>
       )}
-      <span className={`venue-status ${statusClass}`} title={pp.status}>
+      <span className={`venue-status ${statusClass}`} title={staleTitle}>
         {statusGlyph}
       </span>
       {note && (

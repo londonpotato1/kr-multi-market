@@ -58,7 +58,7 @@ export function PriceCard({ label, ticker, payload }: Props) {
         <div><dt>Status</dt><dd className="status-ok">{hl.status}</dd></div>
       </dl>
       {payload?.naver && (
-        <div className="krx-row">
+        <div className={`krx-row${payload.naver.status === 'stale' ? ' venue-stale' : ''}`}>
           <span className="krx-label">KRX</span>
           <span className="krx-value">{fmtKrw(payload.naver.price, 0)}</span>
           <span className={`krx-status status-${payload.naver.status}`}>
