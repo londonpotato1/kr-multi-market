@@ -3,6 +3,7 @@ import { PriceCard } from './components/PriceCard';
 import { IndexCompareCard } from './components/IndexCompareCard';
 import { FxHeader } from './components/FxHeader';
 import { SessionBadges } from './components/SessionBadges';
+import { DegradedBanner } from './components/DegradedBanner';
 import './App.css';
 
 const STOCK_TICKERS: Array<{ ticker: string; label: string }> = [
@@ -100,6 +101,8 @@ export default function App() {
           ) : null}
         </div>
       </header>
+
+      <DegradedBanner sourceHealth={data?.sourceHealth} />
 
       {nightMode ? (
         <>

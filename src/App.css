@@ -387,3 +387,19 @@ body::before {
   font-weight: 500;
   opacity: 0.85;
 }
+
+/* Degraded banner */
+.degraded-banner {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(248,113,113,0.10);
+  border: 1px solid rgba(248,113,113,0.35);
+  color: #FCA5A5;
+  padding: 10px 16px; border-radius: 12px;
+  font-size: 13px; font-weight: 500;
+  margin: 0 0 24px;
+  animation: pulse 3s ease-in-out infinite;
+}
+.degraded-icon { font-size: 16px; }
+.degraded-text { flex: 1; }
+.degraded-source { font-weight: 600; }
+.degraded-fail-count { opacity: 0.8; font-weight: 400; font-size: 11px; }
