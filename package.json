@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "test:integration": "INTEGRATION=1 vitest run server/tests/integration"
   },
   "dependencies": {
     "cors": "^2.8.6",
