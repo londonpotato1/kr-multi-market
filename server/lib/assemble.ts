@@ -3,26 +3,15 @@ import type {
   PricePoint,
   TickerPayload,
   FxRates,
-  SessionState,
   SourceHealth,
   SourceName,
   Result,
   Premium,
 } from '@shared/types/prices.js';
 import { buildFxRates, computePremium } from './normalize.js';
+import { getSessionState } from './session.js';
 
 const SCHEMA_VERSION = 1;
-
-const STUB_SESSION: SessionState = {
-  krx: false,
-  krxAfter: false,
-  krxNight: false,
-  nyseRegular: false,
-  nysePrePost: false,
-  cme: false,
-  hyperliquid: true,
-  binance: true,
-};
 
 // Map xyz_SYMBOL -> ticker key in response
 const HL_SYMBOL_TO_TICKER: Record<string, string> = {
@@ -98,8 +87,21 @@ function computeSpread(payload: TickerPayload): TickerPayload['spread'] | undefi
   return { maxPctDiff: maxDiff, betweenSources: pair };
 }
 
+function applyMarketCloseOverride(
+  pp: PricePoint | undefined,
+  marketOpen: boolean,
+): PricePoint | undefined {
+  if (!pp) return undefined;
+  if (marketOpen) return pp;
+  if (pp.status === 'ok') {
+    return { ...pp, status: 'stale', staleReason: 'market_closed' };
+  }
+  return pp;
+}
+
 export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
   const ts = Date.now();
+  const session = getSessionState(new Date());
   const tickers: Record<string, TickerPayload> = {};
 
   if (sources.hl.ok) {
@@ -126,6 +128,27 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
       const current = tickers[tickerKey] ?? {};
       if (current.yahoo) continue;
       tickers[tickerKey] = { ...current, yahoo: pp };
+    }
+  }
+
+  const krxOpen = session.krx || session.krxAfter;
+  for (const tickerKey of ['samsung', 'skhynix', 'hyundai']) {
+    const t = tickers[tickerKey];
+    if (t?.naver) {
+      const naver = applyMarketCloseOverride(t.naver, krxOpen);
+      tickers[tickerKey] = { ...t, naver };
+    }
+  }
+
+  const yahooMarketOpen: Record<string, boolean> = {
+    ewy: session.nyseRegular || session.nysePrePost,
+    sp500: session.cme || session.nyseRegular,
+    nq: session.cme,
+  };
+  for (const [tickerKey, isOpen] of Object.entries(yahooMarketOpen)) {
+    const t = tickers[tickerKey];
+    if (t?.yahoo) {
+      tickers[tickerKey] = { ...t, yahoo: applyMarketCloseOverride(t.yahoo, isOpen) };
     }
   }
 
@@ -178,7 +201,7 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
     ts,
     schemaVersion: SCHEMA_VERSION,
     fx,
-    session: STUB_SESSION,
+    session,
     tickers,
     sourceHealth: sourceHealth as Record<SourceName, SourceHealth>,
   };
