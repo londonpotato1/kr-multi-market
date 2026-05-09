@@ -336,14 +336,89 @@ body::before {
   .session-badge { font-size: 10px; padding: 3px 8px; }
 }
 
+/* Mobile responsive — iOS Safari 390px target (T6.5) */
 @media (max-width: 600px) {
-  .container { padding: 20px 16px 36px; }
-  .app-header { margin-bottom: 24px; }
+  .container { padding: 16px 12px 32px; }
+
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .app-header .meta {
+    align-items: flex-start;
+    width: 100%;
+  }
+  .brand h1 { font-size: 16px; }
+  .brand .sub { font-size: 11px; }
+
+  /* FX pills smaller and wrap */
+  .fx-pills { gap: 6px; width: 100%; }
+  .fx-pill, .fx-pill-warn {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  /* Session badges smaller + wrap */
+  .session-badges { gap: 4px; justify-content: flex-start; }
+  .session-badge {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+
+  /* Section title smaller spacing */
+  .section-title { margin: 24px 0 12px; font-size: 12px; }
+  .night-badge { font-size: 9px; padding: 1px 8px; }
+
+  /* Grid 1-col + tighter card padding */
   .grid { grid-template-columns: 1fr; gap: 16px; }
-  .fx-pills { width: 100%; }
-  .section-title { margin: 24px 0 12px; }
-  .venue-label { min-width: 52px; }
-  .venue-price { font-size: 15px; }
+  .card { padding: 16px 18px 18px; }
+  .card-head h3 { font-size: 13px; }
+
+  /* Price font slightly smaller */
+  .price, .price-skel { font-size: 26px; }
+
+  /* Meta-grid 2-col stays. Tighter gaps. */
+  .meta-grid { gap: 10px 16px; padding-top: 12px; }
+
+  /* KRX row + Premium row wrap labels */
+  .krx-row, .premium-row { flex-wrap: wrap; gap: 6px 10px; }
+  .krx-value { flex: 1; min-width: 0; }
+
+  /* Index card venue rows tighter */
+  .index-card .venues { gap: 6px; }
+  .venue-row {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .venue-label { min-width: 50px; font-size: 9px; }
+  .venue-price { font-size: 14px; }
+  .venue-funding, .venue-vol { display: none; }
+
+  /* Spread row tighter, hide pair name on mobile */
+  .spread-row { gap: 6px; flex-wrap: wrap; }
+  .spread-pair { display: none; }
+
+  /* Signal badge slightly smaller */
+  .signal-badge { font-size: 9px; padding: 1px 7px; }
+  .signal-z, .signal-collecting { font-size: 8px; }
+
+  /* Degraded banner: smaller + no padding overflow */
+  .degraded-banner {
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+  .degraded-icon { font-size: 14px; }
+}
+
+/* Extra-small (≤400px) — iPhone Safari */
+@media (max-width: 400px) {
+  .container { padding: 12px 10px 28px; }
+  .price { font-size: 22px; }
+  .session-badge { font-size: 9px; padding: 2px 6px; }
 }
 
 /* Signal badge */
