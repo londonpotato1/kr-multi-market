@@ -141,8 +141,74 @@ body::before {
 
 .card-loading { opacity: 0.5; }
 
+.fx-pills {
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+.fx-pill {
+  display: inline-flex; gap: 8px; align-items: baseline;
+  background: var(--hl-teal-soft);
+  border: 1px solid var(--hl-teal-border);
+  color: var(--hl-teal);
+  padding: 6px 14px; border-radius: 999px;
+  font-size: 12px; font-variant-numeric: tabular-nums;
+}
+.fx-pill .fx-label { color: var(--text-dim); font-weight: 400; }
+.fx-pill .fx-value { font-weight: 500; }
+.fx-pill-warn {
+  display: inline-flex; gap: 8px; align-items: baseline;
+  background: rgba(248,113,113,0.15);
+  border: 1px solid rgba(248,113,113,0.4);
+  color: #FCA5A5;
+  padding: 6px 14px; border-radius: 999px;
+  font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;
+  animation: pulse 2s ease-in-out infinite;
+}
+.fx-pill-warn .fx-label { color: rgba(252,165,165,0.7); font-weight: 400; }
+
+.krx-row {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 10px 0 6px;
+  border-top: 1px dashed rgba(151,252,228,0.10);
+  margin-top: 12px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  flex-wrap: wrap;
+}
+.krx-label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-size: 10px; }
+.krx-value { color: var(--text); font-weight: 500; flex: 1; }
+.krx-status { color: var(--text-dim); font-size: 11px; }
+.status-ok { color: var(--up); }
+.status-stale { color: var(--text-dim); }
+.status-degraded { color: #FBBF24; }
+.status-down { color: var(--down); }
+
+.premium-row {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  padding: 8px 0 4px;
+  font-size: 12px; font-variant-numeric: tabular-nums;
+}
+.premium-label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-size: 10px; flex: 1; }
+.premium-value { font-size: 14px; font-weight: 600; }
+.premium-up { color: var(--up); }
+.premium-down { color: var(--down); }
+.premium-usdt { color: var(--text-dim); font-size: 11px; }
+.premium-warn-chip {
+  background: rgba(251,191,36,0.15);
+  border: 1px solid rgba(251,191,36,0.4);
+  color: #FCD34D;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 500;
+}
+.premium-blocked .premium-warn-chip {
+  background: rgba(248,113,113,0.15);
+  border-color: rgba(248,113,113,0.4);
+  color: #FCA5A5;
+}
+.premium-pending { opacity: 0.5; }
+
 @media (max-width: 600px) {
   .container { padding: 20px 16px 36px; }
   .app-header { margin-bottom: 24px; }
   .grid { grid-template-columns: 1fr; gap: 16px; }
+  .fx-pills { width: 100%; }
 }

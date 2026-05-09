@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { TickerPayload } from '@shared/types/prices.js';
-import { fmtUsd, fmtPct, fmtCompactUsd, fmtFunding } from '../lib/format';
+import { fmtUsd, fmtPct, fmtCompactUsd, fmtFunding, fmtKrw } from '../lib/format';
+import { PremiumRow } from './PremiumRow';
 
 type Props = {
   label: string;
@@ -56,6 +57,16 @@ export function PriceCard({ label, ticker, payload }: Props) {
         <div><dt>OI</dt><dd>{fmtCompactUsd(hl.openInterestUsd ?? 0)}</dd></div>
         <div><dt>Status</dt><dd className="status-ok">{hl.status}</dd></div>
       </dl>
+      {payload?.naver && (
+        <div className="krx-row">
+          <span className="krx-label">KRX</span>
+          <span className="krx-value">{fmtKrw(payload.naver.price, 0)}</span>
+          <span className={`krx-status status-${payload.naver.status}`}>
+            {payload.naver.status === 'ok' ? '● live' : '○ ' + (payload.naver.staleReason ?? payload.naver.status)}
+          </span>
+        </div>
+      )}
+      {payload?.premium && <PremiumRow premium={payload.premium} />}
     </article>
   );
 }

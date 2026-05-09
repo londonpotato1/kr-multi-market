@@ -1,5 +1,6 @@
 import { usePrices } from './hooks/usePrices';
 import { PriceCard } from './components/PriceCard';
+import { FxHeader } from './components/FxHeader';
 import './App.css';
 
 const TICKERS: Array<{ ticker: string; label: string }> = [
@@ -23,9 +24,10 @@ export default function App() {
           <span className="logo-dot" aria-hidden />
           <div>
             <h1>kr-multi-market</h1>
-            <div className="sub">Hyperliquid xyz · Phase 1 (HL only)</div>
+            <div className="sub">Hyperliquid xyz · Phase 2 (HL + KRX + FX)</div>
           </div>
         </div>
+        <FxHeader fx={data?.fx} />
         <div className="meta">
           {error ? <span className="err-pill">⚠ {(error as Error).message}</span> :
            isLoading ? <span className="muted">loading…</span> :
