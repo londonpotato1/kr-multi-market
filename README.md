@@ -128,15 +128,42 @@ pnpm build
 - Telegram alert hook (DISLOCATED z-score)
 - Calendar 2027+ refresh
 
-## Deploy (Vercel)
+## Deploy Status — Local Only (v0.1.0)
 
-[Phase 7 will populate full deploy steps. Preview:]
+**현재 v0.1.0은 로컬 운영 전용입니다.** Vercel 어댑터 코드 (`api/*.ts` + `vercel.json`)는 준비되어 있으나, 계정 결제 이슈로 production deploy 보류 상태입니다.
+
+### 로컬 운영 (사용자 권장)
 
 ```bash
-vercel link
-vercel env add HEALTH_TOKEN production
+# 처음 한 번
+pnpm install
+cp .env.example .env.local
+# .env.local에 HEALTH_TOKEN 채우기 (openssl rand -hex 32)
+
+# 매번 실행
+pnpm dev
+# http://localhost:5173 접속
+```
+
+데이터는 5초마다 자동 갱신됩니다. 브라우저 localStorage에 z-score 히스토리가 7일간 누적되며, 8분(100 샘플) 이후부터 z-score 기반 시그널이 표시됩니다.
+
+### Vercel 배포 (계정 활성화 후)
+
+코드는 이미 Vercel-ready. 결제 활성화 (https://vercel.com/teams/londonpotato1s-projects/settings/billing) 후:
+
+```bash
+vercel link --yes --project kr-multi-market
+vercel env add HEALTH_TOKEN production   # openssl rand -hex 32
+vercel env add HL_USE_WS production       # false
 vercel --prod
 ```
+
+`api/*.ts` (Vercel serverless) 와 `dist/` (Vite 정적 빌드) 가 자동 라우팅됩니다.
+
+**Vercel 배포 시 알려진 제약**:
+- Naver finance polling — Vercel 미국 IP에서 차단 가능. `.KS` Yahoo fallback 으로 graceful degrade.
+- Yahoo 429 — 현재 한국 IP에서도 발생 중. xyz_KRW (Hyperliquid) 가 `officialUsdKrw` fallback.
+- localStorage z-score는 클라이언트별이라 deploy/local 모두 동일하게 동작.
 
 ## Why "KIS deferred to v2"?
 
