@@ -1118,3 +1118,128 @@ body::before {
   }
 }
 
+/* === v0.2.0 Mobile 390px sweep (T5.3) === */
+@media (max-width: 600px) {
+  .container { padding: 16px 12px 32px; }
+
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .app-header .meta {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 8px;
+  }
+  .meta-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .brand h1 { font-size: 16px; }
+  .brand .sub { font-size: 11px; }
+
+  /* FX pills smaller + wrap */
+  .fx-pills { gap: 6px; }
+  .fx-pill, .fx-pill-warn {
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+  .fx-pill .fx-label, .fx-pill-warn .fx-label { font-size: 8px; }
+
+  /* Session badges smaller */
+  .session-badges { gap: 4px; }
+  .session-badge {
+    padding: 2px 7px;
+    font-size: 8px;
+  }
+
+  /* Section title tighter */
+  .section-title { margin: 24px 0 12px; font-size: 11px; padding: 6px 0; }
+  .section-subtitle { font-size: 9px; }
+
+  /* Hero card */
+  .hero-section .card { padding: 24px 20px; }
+  .hero-section .card-head h3 { font-size: 13px; }
+  .hero-section .price { font-size: 36px; }
+
+  /* Dense stocks: shrink */
+  .dense-stocks { font-size: 11px; }
+  .dense-stocks th, .dense-stocks td { padding: 8px 10px; }
+  .dense-stocks th { font-size: 8px; }
+
+  /* Bento: 1-col */
+  .bento { grid-template-columns: 1fr; gap: 12px; }
+  .bento .card { padding: 16px 18px; min-height: auto; }
+
+  /* Card defaults tighter */
+  .card { padding: 16px 18px; }
+  .card-head h3 { font-size: 13px; }
+  .price { font-size: 26px; }
+  .meta-grid { gap: 10px 16px; padding-top: 12px; }
+  .krx-row, .premium-row { flex-wrap: wrap; gap: 6px 10px; }
+
+  /* Venue rows: hide secondary metrics */
+  .venue-row { gap: 8px; flex-wrap: wrap; }
+  .venue-pill { min-width: 52px; font-size: 8px; padding: 1px 6px; }
+  .venue-funding, .venue-vol { display: none; }
+
+  /* Spread row tighter */
+  .spread-row { gap: 6px; flex-wrap: wrap; }
+  .spread-pair { display: none; }
+
+  /* Signal badge */
+  .signal-badge { font-size: 8px; padding: 1px 6px; }
+  .signal-z, .signal-collecting { font-size: 7px; }
+
+  /* Degraded banner */
+  .degraded-banner {
+    padding: 8px 12px;
+    font-size: 11px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+  .degraded-icon { font-size: 14px; }
+
+  /* Theme toggle */
+  .theme-toggle { padding: 4px 10px; font-size: 10px; }
+}
+
+/* iPhone Safari 390px extreme */
+@media (max-width: 400px) {
+  .container { padding: 12px 10px 28px; }
+  .hero-section .price { font-size: 28px; }
+  .price { font-size: 22px; }
+
+  /* Dense stocks → stacked card list */
+  .dense-stocks thead { display: none; }
+  .dense-stocks, .dense-stocks tbody, .dense-stocks tr {
+    display: block;
+    width: 100%;
+  }
+  .dense-stocks tr {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .dense-stocks td {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0 !important;
+    text-align: right !important;
+  }
+  .dense-stocks td.ticker-label {
+    border-bottom: 1px dashed var(--border-divider);
+    padding-bottom: 8px !important;
+    margin-bottom: 4px;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left !important;
+  }
+
+  /* Krw conversions tighter */
+  .krw-conversions { font-size: 9px; }
+}
+/* === End mobile sweep === */
+
