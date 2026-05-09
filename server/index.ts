@@ -9,6 +9,7 @@ import { fetchHyperliquid } from './lib/sources/hyperliquid.js';
 import { fetchNaver } from './lib/sources/naver.js';
 import { fetchYahoo } from './lib/sources/yahoo.js';
 import { fetchUpbit } from './lib/sources/upbit.js';
+import { fetchBinanceFutures } from './lib/sources/binance.js';
 import { startHyperliquidWs, getLatestMids } from './lib/sources/hyperliquid-ws.js';
 import { assemblePricesResponse } from './lib/assemble.js';
 import type { PricesResponse } from '@shared/types/prices.js';
@@ -55,13 +56,14 @@ app.get('/api/prices', async (_req: Request, res: Response) => {
   try {
     // Single-flight: dedup concurrent requests, cache 4s
     const response = await singleFlight<PricesResponse>('prices', 4000, async () => {
-      const [hl, naver, yahoo, upbit] = await Promise.all([
+      const [hl, naver, yahoo, upbit, binance] = await Promise.all([
         fetchHyperliquid(),
         fetchNaver(),
-        fetchYahoo(['KRW=X']),
+        fetchYahoo(['KRW=X', 'EWY', 'NQ=F', 'ES=F', '^NDX', '^GSPC']),
         fetchUpbit(),
+        fetchBinanceFutures(),
       ]);
-      return assemblePricesResponse({ hl, naver, yahoo, upbit });
+      return assemblePricesResponse({ hl, naver, yahoo, upbit, binance });
     });
     if (HL_USE_WS) {
       const ws = getLatestMids();
