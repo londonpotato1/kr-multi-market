@@ -1,0 +1,11 @@
+[
+  {
+    "universe": [
+      { "name": "SMSN", "szDecimals": 3, "maxLeverage": 10, "marginTableId": 20, "onlyIsolated": true, "marginMode": "noCross" },
+      { "name": "KR200", "szDecimals": 4, "maxLeverage": 20, "marginTableId": 20, "onlyIsolated": true, "marginMode": "noCross" }
+    ]
+  },
+  [
+    { "markPx": "205.23", "prevDayPx": "203.10", "openInterest": "123.45", "dayNtlVlm": "4567890.12", "funding": "0.0000386", "premium": "0.001", "oraclePx": "205.20", "midPx": "205.22", "impactPxs": ["205.20", "205.25"], "dayBaseVlm": "22.34" }
+  ]
+]

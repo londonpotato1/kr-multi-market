@@ -10,7 +10,10 @@
     "build": "tsc -b && vite build",
     "build:server": "tsc -p server/tsconfig.json",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "cors": "^2.8.6",
