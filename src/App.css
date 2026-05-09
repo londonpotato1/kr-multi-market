@@ -206,9 +206,71 @@ body::before {
 }
 .premium-pending { opacity: 0.5; }
 
+.section-title {
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin: 32px 0 16px;
+  padding-left: 4px;
+}
+.section-title:first-of-type { margin-top: 8px; }
+
+.index-card .venues {
+  display: flex; flex-direction: column; gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed rgba(151,252,228,0.10);
+}
+
+.venue-row {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+.venue-label {
+  font-size: 10px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  min-width: 60px; flex-shrink: 0;
+}
+.venue-price { font-size: 16px; font-weight: 600; color: var(--text); flex: 1; }
+.venue-unit { font-size: 10px; color: var(--text-muted); margin-left: 4px; }
+.venue-change { font-size: 12px; font-weight: 500; }
+.venue-funding, .venue-vol { font-size: 10px; color: var(--text-muted); }
+.venue-status { font-size: 11px; }
+.venue-status.status-ok { color: var(--up); }
+.venue-status.status-stale { color: var(--text-dim); }
+.venue-status.status-degraded { color: #FBBF24; }
+.venue-status.status-down { color: var(--down); }
+.venue-row.venue-missing .muted { font-size: 12px; }
+.venue-note { font-size: 11px; color: var(--text-dim); cursor: help; }
+
+.spread-row {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  padding-top: 10px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.spread-label {
+  font-size: 10px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.spread-value { font-size: 14px; font-weight: 600; color: var(--hl-teal); }
+.spread-pair { font-size: 10px; color: var(--text-muted); }
+.spread-row.spread-warn .spread-value { color: #FBBF24; }
+.spread-note {
+  font-size: 10px; color: #FCD34D;
+  background: rgba(251,191,36,0.10);
+  border: 1px solid rgba(251,191,36,0.3);
+  padding: 2px 6px; border-radius: 4px;
+}
+
 @media (max-width: 600px) {
   .container { padding: 20px 16px 36px; }
   .app-header { margin-bottom: 24px; }
   .grid { grid-template-columns: 1fr; gap: 16px; }
   .fx-pills { width: 100%; }
+  .section-title { margin: 24px 0 12px; }
+  .venue-label { min-width: 52px; }
+  .venue-price { font-size: 15px; }
 }
