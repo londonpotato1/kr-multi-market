@@ -644,6 +644,9 @@ body::before {
     font-size: 12px;
     border-radius: 10px;
     margin-bottom: 16px;
+    background: var(--ju-red-soft);
+    border: 1px solid var(--ju-red-border);
+    color: var(--danger-text);
   }
   .degraded-icon { font-size: 14px; }
 }
@@ -699,19 +702,26 @@ body::before {
 
 /* Degraded banner */
 .degraded-banner {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--danger-bg);
-  border: 1px solid var(--danger-border-mid);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--ju-red-soft);
+  border: 1px solid var(--ju-red-border);
   color: var(--danger-text);
-  padding: 10px 16px; border-radius: 12px;
-  font-size: 13px; font-weight: 500;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
   margin: 0 0 24px;
-  animation: pulse 3s ease-in-out infinite;
 }
 .degraded-icon { font-size: 16px; }
 .degraded-text { flex: 1; }
 .degraded-source { font-weight: 600; }
-.degraded-fail-count { opacity: 0.8; font-weight: 400; font-size: 11px; }
+.degraded-fail-count {
+  opacity: 0.8;
+  font-weight: 400;
+  font-size: 11px;
+}
 
 /* KRX closed indicator (replaces SignalBadge during stale) */
 .signal-stale {
