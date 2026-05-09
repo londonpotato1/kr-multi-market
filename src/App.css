@@ -1,176 +1,252 @@
 :root,
 [data-theme="dark"] {
-  /* Brand teal */
-  --hl-teal: #97FCE4;
-  --hl-teal-dim: #50D2C1;
-  --hl-teal-soft: rgba(151,252,228,0.12);
-  --hl-teal-border: rgba(151,252,228,0.25);
+  /* Korean × Bloomberg base — backgrounds */
+  --bg-0: #0A0E0F;          /* deepest BG */
+  --bg-1: #0E1315;          /* intermediate */
+  --bg-2: #13191B;          /* surface base */
+  --bg-deep: #060809;       /* extra deep gradient stop */
+  --surface: rgba(19,25,27,0.85);
+  --surface-2: rgba(14,19,21,0.95);
 
-  /* Backgrounds */
-  --bg-0: #061E20;
-  --bg-1: #0B2A2C;
-  --bg-2: #0F3537;
-  --bg-deep: #03100F;
-  --surface: rgba(15,53,55,0.55);
-  --surface-2: rgba(11,42,44,0.85);
+  /* 한지 베이지 (Hanji warm beige — signature accent) */
+  --hanji: #D4A574;
+  --hanji-soft: rgba(212,165,116,0.08);
+  --hanji-mid: rgba(212,165,116,0.15);
+  --hanji-strong: rgba(212,165,116,0.30);
+  --hanji-border: rgba(212,165,116,0.20);
+
+  /* 청자 teal (Celadon — secondary accent) */
+  --celadon: #3E8E7E;
+  --celadon-soft: rgba(62,142,126,0.10);
+  --celadon-mid: rgba(62,142,126,0.20);
+  --celadon-strong: rgba(62,142,126,0.35);
+  --celadon-border: rgba(62,142,126,0.25);
+
+  /* 적 (Ju red — alert/danger) */
+  --ju-red: #C44545;
+  --ju-red-soft: rgba(196,69,69,0.08);
+  --ju-red-mid: rgba(196,69,69,0.15);
+  --ju-red-strong: rgba(196,69,69,0.30);
+  --ju-red-border: rgba(196,69,69,0.40);
+
+  /* 황금 (Hwanggeum gold — WATCH state) */
+  --hwanggeum: #C9A961;
+  --hwanggeum-soft: rgba(201,169,97,0.10);
+  --hwanggeum-border: rgba(201,169,97,0.30);
+
+  /* 주황 (Juhwang orange — TRADE state) */
+  --juhwang: #E08A4A;
+  --juhwang-soft: rgba(224,138,74,0.12);
+  --juhwang-border: rgba(224,138,74,0.35);
 
   /* Text */
-  --text: #E8FFFA;
-  --text-dim: #7FA8A4;
-  --text-muted: #4F7773;
+  --text: #E8E4DA;
+  --text-dim: #9A9385;
+  --text-muted: #5C5648;
 
-  /* Sentiment (price up/down) */
-  --up: #4ADE80;
-  --down: #F87171;
+  /* Sentiment (semantic, kept names for downstream) */
+  --up: #5DAE8B;            /* softer 청자 green */
+  --down: var(--ju-red);
 
-  /* Effects */
-  --shadow: 0 4px 30px rgba(0,0,0,0.4);
-  --glass-blur: blur(12px);
+  /* Backwards-compatible semantic aliases (downstream uses --hl-teal*) */
+  --hl-teal: var(--celadon);
+  --hl-teal-dim: var(--celadon);
+  --hl-teal-soft: var(--celadon-soft);
+  --hl-teal-border: var(--celadon-border);
 
   /* Borders & dividers */
-  --border-subtle: rgba(151,252,228,0.08);
-  --border-divider: rgba(151,252,228,0.10);
+  --border-subtle: rgba(212,165,116,0.06);
+  --border-divider: rgba(212,165,116,0.12);
+
+  /* Effects */
+  --shadow: 0 4px 20px rgba(0,0,0,0.5);
+  --glass-blur: blur(8px);
 
   /* Atmospheric radial glows */
-  --bg-radial-1: rgba(151,252,228,0.08);
-  --bg-radial-2: rgba(80,210,193,0.06);
+  --bg-radial-1: rgba(212,165,116,0.04);
+  --bg-radial-2: rgba(62,142,126,0.03);
 
-  /* Warn (yellow/amber) — alpha ladder */
-  --warn-bg-soft: rgba(251,191,36,0.10);
-  --warn-bg: rgba(251,191,36,0.12);
-  --warn-bg-strong: rgba(251,191,36,0.15);
-  --warn-border-soft: rgba(251,191,36,0.30);
-  --warn-border: rgba(251,191,36,0.40);
-  --warn-text: #FCD34D;
-  --warn-text-strong: #FBBF24;
+  /* Warn (semantic — replaces yellow with 황금 gold) */
+  --warn-bg: var(--hwanggeum-soft);
+  --warn-bg-soft: rgba(201,169,97,0.08);
+  --warn-bg-mid: rgba(201,169,97,0.12);
+  --warn-bg-strong: rgba(201,169,97,0.15);
+  --warn-border: var(--hwanggeum-border);
+  --warn-border-soft: var(--hwanggeum-border);  /* legacy alias */
+  --warn-border-mid: rgba(201,169,97,0.35);
+  --warn-border-strong: rgba(201,169,97,0.40);
+  --warn-text: var(--hanji);
+  --warn-text-strong: var(--hwanggeum);         /* legacy alias */
 
-  /* Danger (red) — alpha ladder */
-  --danger-bg: rgba(248,113,113,0.10);
-  --danger-bg-mid: rgba(248,113,113,0.12);
-  --danger-bg-strong: rgba(248,113,113,0.15);
-  --danger-bg-stronger: rgba(248,113,113,0.18);
-  --danger-border: rgba(248,113,113,0.30);
-  --danger-border-mid: rgba(248,113,113,0.35);
-  --danger-border-strong: rgba(248,113,113,0.40);
-  --danger-border-stronger: rgba(248,113,113,0.55);
-  --danger-text: #FCA5A5;
-  --danger-text-soft: rgba(252,165,165,0.7);
-  --danger-glow: rgba(248,113,113,0.35);
-  --danger-glow-strong: rgba(248,113,113,0.65);
+  /* Danger (적 red — alpha ladder) */
+  --danger-bg: var(--ju-red-soft);
+  --danger-bg-soft: rgba(196,69,69,0.06);
+  --danger-bg-mid: var(--ju-red-mid);
+  --danger-bg-strong: rgba(196,69,69,0.20);
+  --danger-bg-stronger: rgba(196,69,69,0.25);
+  --danger-border: var(--ju-red-border);
+  --danger-border-mid: rgba(196,69,69,0.35);
+  --danger-border-strong: rgba(196,69,69,0.45);
+  --danger-border-stronger: rgba(196,69,69,0.55);
+  --danger-text: #E89090;
+  --danger-text-soft: rgba(232,144,144,0.7);    /* legacy alias */
+  --danger-glow: rgba(196,69,69,0.30);
+  --danger-glow-strong: rgba(196,69,69,0.50);
 
-  /* Trade signal (orange) */
-  --trade-bg: rgba(249,115,22,0.15);
-  --trade-border: rgba(249,115,22,0.45);
-  --trade-text: #FDBA74;
+  /* Trade signal (주황 orange) */
+  --trade-bg: var(--juhwang-soft);
+  --trade-border: var(--juhwang-border);
+  --trade-text: var(--juhwang);
 
-  /* Neutral (gray-teal) */
-  --neutral-bg: rgba(127,168,164,0.06);
-  --neutral-bg-mid: rgba(127,168,164,0.08);
-  --neutral-bg-strong: rgba(127,168,164,0.10);
-  --neutral-border: rgba(127,168,164,0.20);
-  --neutral-border-mid: rgba(127,168,164,0.25);
-  --neutral-border-strong: rgba(127,168,164,0.30);
+  /* Neutral (warm gray-beige) */
+  --neutral-bg: rgba(154,147,133,0.06);
+  --neutral-bg-mid: rgba(154,147,133,0.08);
+  --neutral-bg-strong: rgba(154,147,133,0.12);
+  --neutral-border: rgba(154,147,133,0.15);
+  --neutral-border-mid: rgba(154,147,133,0.20);
+  --neutral-border-strong: rgba(154,147,133,0.25);
 
   /* Up (green) backgrounds/borders */
-  --up-bg: rgba(74,222,128,0.10);
-  --up-border: rgba(74,222,128,0.30);
+  --up-bg: rgba(93,174,139,0.10);
+  --up-border: rgba(93,174,139,0.30);
 
   /* Down (red) — semantic separation from danger */
-  --down-bg: rgba(248,113,113,0.10);
+  --down-bg: var(--ju-red-soft);
 
-  /* Price flash glows (Phase 3 prep) */
-  --price-flash-up-glow: rgba(74,222,128,0.5);
-  --price-flash-down-glow: rgba(248,113,113,0.5);
+  /* Price flash glows — softer for Korean aesthetic */
+  --price-flash-up-glow: rgba(93,174,139,0.4);
+  --price-flash-down-glow: rgba(196,69,69,0.4);
 
   /* Night badge */
-  --night-badge-bg: rgba(151,252,228,0.15);
+  --night-badge-bg: var(--hanji-soft);
+
+  /* Live indicator — single accent, preserves HL mint identity */
+  --live-indicator: #97FCE4;
 }
 
 [data-theme="light"] {
-  /* Brand teal — slightly darker for white BG contrast */
-  --hl-teal: #00B894;
-  --hl-teal-dim: #4FC3A1;
-  --hl-teal-soft: rgba(0,184,148,0.08);
-  --hl-teal-border: rgba(0,184,148,0.25);
+  /* Korean light variant — 한지 paper background */
+  --bg-0: #F5F1E8;          /* 한지 raw paper */
+  --bg-1: #EFEAD8;
+  --bg-2: #FFFFFF;
+  --bg-deep: #FAF6E8;
+  --surface: rgba(255,255,255,0.92);
+  --surface-2: rgba(248,244,232,0.95);
 
-  /* Backgrounds — light gradient */
-  --bg-0: #F8FAFA;
-  --bg-1: #EEF4F4;
-  --bg-2: #E0EBEB;
-  --bg-deep: #FAFCFC;
-  --surface: rgba(255,255,255,0.85);
-  --surface-2: rgba(248,250,250,0.95);
+  /* 한지 베이지 — darker for white BG contrast */
+  --hanji: #A87B4A;
+  --hanji-soft: rgba(168,123,74,0.06);
+  --hanji-mid: rgba(168,123,74,0.10);
+  --hanji-strong: rgba(168,123,74,0.20);
+  --hanji-border: rgba(168,123,74,0.25);
+
+  /* 청자 — darker */
+  --celadon: #2C6B5F;
+  --celadon-soft: rgba(44,107,95,0.06);
+  --celadon-mid: rgba(44,107,95,0.12);
+  --celadon-strong: rgba(44,107,95,0.25);
+  --celadon-border: rgba(44,107,95,0.20);
+
+  /* 적 — darker */
+  --ju-red: #A02828;
+  --ju-red-soft: rgba(160,40,40,0.06);
+  --ju-red-mid: rgba(160,40,40,0.12);
+  --ju-red-strong: rgba(160,40,40,0.25);
+  --ju-red-border: rgba(160,40,40,0.30);
+
+  /* 황금 */
+  --hwanggeum: #8B7635;
+  --hwanggeum-soft: rgba(139,118,53,0.08);
+  --hwanggeum-border: rgba(139,118,53,0.25);
+
+  /* 주황 */
+  --juhwang: #B8632A;
+  --juhwang-soft: rgba(184,99,42,0.10);
+  --juhwang-border: rgba(184,99,42,0.30);
 
   /* Text */
-  --text: #0F1F1F;
-  --text-dim: #5A7575;
-  --text-muted: #8A9F9F;
+  --text: #1A1815;
+  --text-dim: #6B6557;
+  --text-muted: #9A9385;
 
-  /* Sentiment (price up/down) — darker for white BG */
-  --up: #16A34A;
-  --down: #DC2626;
+  /* Sentiment */
+  --up: #2C6B5F;
+  --down: var(--ju-red);
+
+  /* Backwards-compatible semantic aliases */
+  --hl-teal: var(--celadon);
+  --hl-teal-dim: var(--celadon);
+  --hl-teal-soft: var(--celadon-soft);
+  --hl-teal-border: var(--celadon-border);
+
+  /* Borders & dividers */
+  --border-subtle: rgba(168,123,74,0.08);
+  --border-divider: rgba(168,123,74,0.15);
 
   /* Effects */
   --shadow: 0 4px 20px rgba(0,0,0,0.08);
-  --glass-blur: blur(8px);
-
-  /* Borders & dividers */
-  --border-subtle: rgba(0,184,148,0.12);
-  --border-divider: rgba(0,0,0,0.08);
+  --glass-blur: blur(6px);
 
   /* Atmospheric radial glows */
-  --bg-radial-1: rgba(0,184,148,0.06);
-  --bg-radial-2: rgba(79,195,161,0.04);
+  --bg-radial-1: rgba(212,165,116,0.05);
+  --bg-radial-2: rgba(62,142,126,0.04);
 
-  /* Warn (orange — replaces yellow on white for legibility) — alpha ladder */
-  --warn-bg-soft: rgba(217,119,6,0.10);
-  --warn-bg: rgba(217,119,6,0.12);
-  --warn-bg-strong: rgba(217,119,6,0.15);
-  --warn-border-soft: rgba(217,119,6,0.30);
-  --warn-border: rgba(217,119,6,0.40);
-  --warn-text: #B45309;
-  --warn-text-strong: #92400E;
+  /* Warn (황금 gold) */
+  --warn-bg: var(--hwanggeum-soft);
+  --warn-bg-soft: rgba(139,118,53,0.06);
+  --warn-bg-mid: rgba(139,118,53,0.10);
+  --warn-bg-strong: rgba(139,118,53,0.12);
+  --warn-border: var(--hwanggeum-border);
+  --warn-border-soft: var(--hwanggeum-border);  /* legacy alias */
+  --warn-border-mid: rgba(139,118,53,0.30);
+  --warn-border-strong: rgba(139,118,53,0.35);
+  --warn-text: var(--hwanggeum);
+  --warn-text-strong: #5C4F22;                  /* legacy alias — darker hwanggeum */
 
-  /* Danger (darker red for white BG) — alpha ladder */
-  --danger-bg: rgba(220,38,38,0.06);
-  --danger-bg-mid: rgba(220,38,38,0.08);
-  --danger-bg-strong: rgba(220,38,38,0.10);
-  --danger-bg-stronger: rgba(220,38,38,0.12);
-  --danger-border: rgba(220,38,38,0.25);
-  --danger-border-mid: rgba(220,38,38,0.30);
-  --danger-border-strong: rgba(220,38,38,0.35);
-  --danger-border-stronger: rgba(220,38,38,0.45);
-  --danger-text: #B91C1C;
-  --danger-text-soft: rgba(185,28,28,0.7);
-  --danger-glow: rgba(220,38,38,0.30);
-  --danger-glow-strong: rgba(220,38,38,0.50);
+  /* Danger (적 red — darker for white BG) */
+  --danger-bg: var(--ju-red-soft);
+  --danger-bg-soft: rgba(160,40,40,0.04);
+  --danger-bg-mid: rgba(160,40,40,0.10);
+  --danger-bg-strong: rgba(160,40,40,0.15);
+  --danger-bg-stronger: rgba(160,40,40,0.20);
+  --danger-border: var(--ju-red-border);
+  --danger-border-mid: rgba(160,40,40,0.30);
+  --danger-border-strong: rgba(160,40,40,0.35);
+  --danger-border-stronger: rgba(160,40,40,0.45);
+  --danger-text: #8B1A1A;
+  --danger-text-soft: rgba(139,26,26,0.7);      /* legacy alias */
+  --danger-glow: rgba(160,40,40,0.25);
+  --danger-glow-strong: rgba(160,40,40,0.40);
 
-  /* Trade signal (orange) */
-  --trade-bg: rgba(234,88,12,0.10);
-  --trade-border: rgba(234,88,12,0.35);
-  --trade-text: #C2410C;
+  /* Trade signal (주황 orange) */
+  --trade-bg: var(--juhwang-soft);
+  --trade-border: var(--juhwang-border);
+  --trade-text: var(--juhwang);
 
-  /* Neutral (slate-gray for white BG) */
-  --neutral-bg: rgba(100,116,139,0.06);
-  --neutral-bg-mid: rgba(100,116,139,0.08);
-  --neutral-bg-strong: rgba(100,116,139,0.10);
-  --neutral-border: rgba(100,116,139,0.15);
-  --neutral-border-mid: rgba(100,116,139,0.20);
-  --neutral-border-strong: rgba(100,116,139,0.25);
+  /* Neutral (warm gray-beige for white BG) */
+  --neutral-bg: rgba(107,101,87,0.05);
+  --neutral-bg-mid: rgba(107,101,87,0.08);
+  --neutral-bg-strong: rgba(107,101,87,0.12);
+  --neutral-border: rgba(107,101,87,0.15);
+  --neutral-border-mid: rgba(107,101,87,0.20);
+  --neutral-border-strong: rgba(107,101,87,0.25);
 
   /* Up (green) backgrounds/borders */
-  --up-bg: rgba(22,163,74,0.08);
-  --up-border: rgba(22,163,74,0.25);
+  --up-bg: rgba(44,107,95,0.08);
+  --up-border: rgba(44,107,95,0.25);
 
   /* Down (red) — semantic separation from danger */
-  --down-bg: rgba(220,38,38,0.06);
+  --down-bg: var(--ju-red-soft);
 
-  /* Price flash glows — stronger for visibility on white */
-  --price-flash-up-glow: rgba(22,163,74,0.40);
-  --price-flash-down-glow: rgba(220,38,38,0.40);
+  /* Price flash glows */
+  --price-flash-up-glow: rgba(44,107,95,0.3);
+  --price-flash-down-glow: rgba(160,40,40,0.3);
 
   /* Night badge */
-  --night-badge-bg: rgba(0,184,148,0.10);
+  --night-badge-bg: var(--hanji-soft);
+
+  /* Live indicator */
+  --live-indicator: #00B894;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
