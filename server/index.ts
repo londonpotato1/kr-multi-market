@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import cors from 'cors';
 import { log } from './lib/logger.js';
@@ -12,13 +9,8 @@ import { fetchUpbit } from './lib/sources/upbit.js';
 import { fetchBinanceFutures } from './lib/sources/binance.js';
 import { startHyperliquidWs, getLatestMids } from './lib/sources/hyperliquid-ws.js';
 import { assemblePricesResponse } from './lib/assemble.js';
+import { buildHealthzResponse } from './lib/healthz.js';
 import type { PricesResponse } from '@shared/types/prices.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const pkgPath = resolve(__dirname, '..', 'package.json');
-const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8')) as { version: string };
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
@@ -49,7 +41,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 app.get('/api/healthz', (_req: Request, res: Response) => {
-  res.json({ ok: true, version: pkg.version });
+  res.json(buildHealthzResponse());
 });
 
 app.get('/api/prices', async (_req: Request, res: Response) => {
