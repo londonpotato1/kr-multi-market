@@ -3,13 +3,13 @@ import type {
   PricePoint,
   TickerPayload,
   FxRates,
-  SourceHealth,
   SourceName,
   Result,
   Premium,
 } from '@shared/types/prices.js';
 import { buildFxRates, computePremium } from './normalize.js';
 import { getSessionState } from './session.js';
+import { recordSourceAttempt, getSourceHealth } from './health.js';
 
 const SCHEMA_VERSION = 1;
 
@@ -104,6 +104,12 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
   const session = getSessionState(new Date());
   const tickers: Record<string, TickerPayload> = {};
 
+  recordSourceAttempt('hyperliquid', sources.hl, ts);
+  recordSourceAttempt('naver', sources.naver, ts);
+  recordSourceAttempt('yahoo', sources.yahoo, ts);
+  recordSourceAttempt('binance', sources.binance, ts);
+  recordSourceAttempt('upbit', sources.upbit, ts);
+
   if (sources.hl.ok) {
     for (const pp of sources.hl.data) {
       const tickerKey = HL_SYMBOL_TO_TICKER[pp.symbol];
@@ -189,20 +195,12 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
     tickers[tickerKey] = { ...t, spread };
   }
 
-  const sourceHealth: Partial<Record<SourceName, SourceHealth>> = {
-    hyperliquid: { lastSuccess: sources.hl.ok ? ts : 0, consecutiveFailures: sources.hl.ok ? 0 : 1 },
-    naver: { lastSuccess: sources.naver.ok ? ts : 0, consecutiveFailures: sources.naver.ok ? 0 : 1 },
-    yahoo: { lastSuccess: sources.yahoo.ok ? ts : 0, consecutiveFailures: sources.yahoo.ok ? 0 : 1 },
-    upbit: { lastSuccess: sources.upbit.ok ? ts : 0, consecutiveFailures: sources.upbit.ok ? 0 : 1 },
-    binance: { lastSuccess: sources.binance.ok ? ts : 0, consecutiveFailures: sources.binance.ok ? 0 : 1 },
-  };
-
   return {
     ts,
     schemaVersion: SCHEMA_VERSION,
     fx,
     session,
     tickers,
-    sourceHealth: sourceHealth as Record<SourceName, SourceHealth>,
+    sourceHealth: getSourceHealth(),
   };
 }
