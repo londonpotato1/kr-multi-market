@@ -3,13 +3,28 @@ import path from 'node:path';
 
 export default defineConfig({
   test: {
-    environment: 'node',
-    include: [
-      'server/tests/**/*.test.ts',
-      'server/tests/integration/**/*.test.ts',
-      'client/src/tests/**/*.test.ts',
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'client',
+          include: ['src/**/*.test.ts'],
+          environment: 'happy-dom',
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'server',
+          include: [
+            'server/tests/**/*.test.ts',
+            'server/tests/integration/**/*.test.ts',
+          ],
+          environment: 'node',
+        },
+      },
     ],
-    coverage: { provider: 'v8' }
+    coverage: { provider: 'v8' },
   },
-  resolve: { alias: { '@shared': path.resolve(__dirname, 'shared') } }
+  resolve: { alias: { '@shared': path.resolve(__dirname, 'shared') } },
 });
