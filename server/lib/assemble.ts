@@ -61,6 +61,8 @@ const BINANCE_SYMBOL_TO_TICKER: Record<string, string> = {
   QQQUSDT: 'nq',
 };
 
+// NQ has no Hyperliquid xyz equivalent in the current matrix, so its spread
+// is Yahoo + Binance only when Yahoo is available.
 const MULTI_VENUE_TICKERS = ['ewy', 'sp500', 'nq'] as const;
 
 export type SourceInputs = {
@@ -73,18 +75,20 @@ export type SourceInputs = {
 
 function computeSpread(payload: TickerPayload): TickerPayload['spread'] | undefined {
   const venues: Array<[SourceName, number]> = [];
-  if (payload.hl?.price) venues.push(['hyperliquid', payload.hl.price]);
-  if (payload.yahoo?.price) venues.push(['yahoo', payload.yahoo.price]);
-  if (payload.binance?.price) venues.push(['binance', payload.binance.price]);
+  if (payload.hl && payload.hl.price > 0) venues.push(['hyperliquid', payload.hl.price]);
+  if (payload.yahoo && payload.yahoo.price > 0) venues.push(['yahoo', payload.yahoo.price]);
+  if (payload.binance && payload.binance.price > 0) venues.push(['binance', payload.binance.price]);
   if (venues.length < 2) return undefined;
 
   let maxDiff = 0;
-  let pair: [SourceName, SourceName] = [venues[0][0], venues[0][0]];
+  let pair: [SourceName, SourceName] = [venues[0][0], venues[1][0]];
   for (let i = 0; i < venues.length; i++) {
     for (let j = i + 1; j < venues.length; j++) {
       const [, a] = venues[i];
       const [, b] = venues[j];
-      const diffPct = Math.abs(a - b) / Math.min(a, b) * 100;
+      const denominator = Math.min(a, b);
+      if (denominator <= 0) continue;
+      const diffPct = Math.abs(a - b) / denominator * 100;
       if (diffPct > maxDiff) {
         maxDiff = diffPct;
         pair = [venues[i][0], venues[j][0]];
