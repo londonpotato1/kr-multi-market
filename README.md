@@ -1,77 +1,171 @@
 # kr-multi-market
 
-Multi-venue realtime price comparison dashboard for Korean stocks, KOSPI200, EWY, and US indices.
+> 한국 주식 (Naver KRX) + Hyperliquid xyz dex + Yahoo + Binance Futures 멀티 venue 실시간 가격 비교 대시보드
+> Reference site (영감만): https://hl-kr-stocks.vercel.app/
 
-> Reference site (inspiration only): https://hl-kr-stocks.vercel.app/
-> See [PLAN.md](./PLAN.md) for the full implementation plan (v5 FINAL, post-2-round peer review).
-
-## Tickers
-
-| Symbol | Hyperliquid xyz | KRX (Naver) | Yahoo | Binance Futures |
-|---|---|---|---|---|
-| Samsung 005930 | xyz_SMSN | 005930 | 005930.KS (fb) | — |
-| SK Hynix 000660 | xyz_SKHX | 000660 | 000660.KS (fb) | — |
-| Hyundai 005380 | xyz_HYUNDAI | 005380 | 005380.KS (fb) | — |
-| KOSPI200F | xyz_KR200 | — | — | — |
-| EWY (iShares Korea ETF) | xyz_EWY | — | EWY | EWYUSDT |
-| S&P 500 | xyz_SP500 | — | ES=F, ^GSPC | SPYUSDT |
-| Nasdaq 100 | — | — | NQ=F, ^NDX | QQQUSDT |
-| USDKRW | xyz_KRW | Upbit USDT-KRW | KRW=X | — |
-
-## Stack
-
-- **Vite + React 18 + TypeScript** (frontend)
-- **Express + Node** (API server)
-- **Tailwind CSS** (styling)
-- **SWR** (5s polling)
-- **Client-side localStorage z-score** (premium history, server stays stateless)
-- **No external DB** (Vercel serverless friendly)
-
-## Local development
+## Quickstart
 
 ```bash
-# Install dependencies
+# 1. Install
 pnpm install
 
-# Copy env template
+# 2. Setup env
 cp .env.example .env.local
-# Edit .env.local and fill in HEALTH_TOKEN (use: openssl rand -hex 32)
+# Edit .env.local: generate HEALTH_TOKEN with `openssl rand -hex 32`
 
-# Start dev server (frontend on :5173, API on :3001)
+# 3. Run dev (concurrently: Vite client :5173 + Express server :3001)
 pnpm dev
+
+# Open browser: http://localhost:5173
 ```
 
-Visit http://localhost:5173.
+## 종목 매트릭스
 
-## Production deploy (Vercel)
+| 종목 | Hyperliquid xyz | KRX (Naver) | Yahoo | Binance Futures | venues |
+|---|---|---|---|---|---|
+| 삼성전자 | xyz_SMSN | 005930 | 005930.KS (fb) | — | 2-3 |
+| SK하이닉스 | xyz_SKHX | 000660 | 000660.KS (fb) | — | 2-3 |
+| 현대차 | xyz_HYUNDAI | 005380 | 005380.KS (fb) | — | 2-3 |
+| KOSPI200F | xyz_KR200 | — | — | — | 1 |
+| EWY | xyz_EWY | — | EWY | EWYUSDT | 3 |
+| S&P 500 | xyz_SP500 | — | ES=F + ^GSPC | SPYUSDT | 3-4 |
+| Nasdaq 100 | — | — | NQ=F + ^NDX | QQQUSDT | 2-3 |
+| USDKRW | xyz_KRW | Upbit USDT-KRW | KRW=X | — | 2-3 |
+
+## Architecture
+
+```
+┌─ Browser (Vite + React 18) ─────────────────────────┐
+│  SWR refreshInterval=5s -> /api/prices               │
+│  localStorage z-score signal (per-user, 7d)          │
+│  PriceCard / IndexCompareCard / SessionBadges        │
+└─────────────────────────────────────────────────────┘
+                           ↓ /api/prices
+┌─ Express server (Node) ──────────────────────────────┐
+│  singleFlight 4s cache                               │
+│  Promise.all([HL, Naver, Yahoo, Upbit, Binance])    │
+│  buildFxRates + GDR guard + computePremium          │
+│  getSessionState (DST + KRX/NYSE/CME holidays)       │
+│  source health tracker (consecutiveFailures)        │
+│  Cache-Control: s-maxage=4, stale-while-revalidate=10│
+└─────────────────────────────────────────────────────┘
+                           ↓ vendor APIs
+┌─ Vendor sources ─────────────────────────────────────┐
+│  Hyperliquid xyz dex (POST metaAndAssetCtxs + WS)   │
+│  Naver finance polling (multi-symbol with fallback) │
+│  Yahoo Finance v7/v8 chart (3-tier fallback)        │
+│  Upbit ticker (KRW-USDT)                             │
+│  Binance Futures (TradFi equity perp)                │
+└─────────────────────────────────────────────────────┘
+```
+
+## Environment Variables
+
+| Name | Required | Description |
+|---|---|---|
+| `PORT` | No (3001) | Express server port |
+| `NODE_ENV` | No | `development` (default) or `production` |
+| `HEALTH_TOKEN` | Yes for production | Bearer token for /api/internal/health (use `openssl rand -hex 32`) |
+| `HL_USE_WS` | No (false) | `true` enables Hyperliquid WebSocket allMids subscription |
+| `FINNHUB_TOKEN` | No | Yahoo fallback if rate-limited (sign up at https://finnhub.io/) |
+
+v2 (deferred):
+- `KIS_APP_KEY`, `KIS_APP_SECRET`, `KIS_ACCOUNT` — KIS Open API for KRX night futures cross-validation
+
+## Endpoints
+
+- `GET /api/healthz` — public `{ok, version}` minimal liveness
+- `GET /api/internal/health` — token-protected detailed source health (Bearer auth required)
+- `GET /api/prices` — main payload, 4s server-side cache + 10s stale-while-revalidate
+
+## Testing
 
 ```bash
-pnpm vercel link
-pnpm vercel env add HEALTH_TOKEN production
-pnpm vercel --prod
+# Unit + UI tests (Vitest, default skip integration)
+pnpm test
+
+# Live network integration tests (KRX hours preferred)
+pnpm test:integration
+
+# Type check
+pnpm exec tsc --noEmit                           # client
+pnpm exec tsc --noEmit -p server/tsconfig.json  # server
+
+# Production build
+pnpm build
 ```
 
-## Project structure
+## Project Structure
 
 ```
 .
-├── PLAN.md              # Full implementation plan (v5 FINAL)
+├── PLAN.md              # Full implementation plan (v5 FINAL, post-2-round peer review)
+├── IMPLEMENTATION_PLAN.md  # 48-task breakdown
 ├── src/                 # Vite React frontend
+│   ├── components/      # PriceCard, IndexCompareCard, SessionBadges
+│   ├── hooks/           # usePrices (SWR), useZScore (localStorage)
+│   └── App.tsx
 ├── server/              # Express API server
 │   ├── index.ts
 │   ├── lib/
 │   │   ├── sources/     # Vendor adapters (hyperliquid, naver, yahoo, upbit, binance)
-│   │   ├── session.ts   # KST session matrix
-│   │   ├── calendar.ts  # KRX/NYSE/CME holidays
-│   │   ├── normalize.ts # Premium calc + GDR guard
+│   │   ├── session.ts   # KST session matrix + DST handling
+│   │   ├── calendar.ts  # KRX/NYSE/CME holidays (2025-2026)
+│   │   ├── normalize.ts # Premium calc + GDR guard + buildFxRates
 │   │   └── cache.ts     # 4s single-flight
-│   └── tests/           # Vitest unit tests
-├── shared/types/        # Shared TypeScript types
+│   └── tests/           # Vitest unit + integration tests
+├── shared/types/        # Shared TypeScript types (@shared/* alias)
 └── public/
 ```
 
-## Notes
+## v2 Backlog
 
-- **KIS integration deferred to v2** — `xyz_KR200` provides 24/7 KOSPI200 monitoring, sufficient for night-session gap detection.
-- **5-second polling** — server-side single-flight cache (4s) ensures vendor calls remain bounded regardless of client count.
-- **Public deployment safe** — no API keys for primary data sources; `HEALTH_TOKEN` only protects internal health endpoint.
+- KIS night futures cross-validation (xyz_KR200 vs official KOSPI200F)
+- EWY NAV premium/discount (T-1 stale, currently not displayed)
+- Order book depth indicator (slippage estimation per venue)
+- Position context (user PnL on each venue via read-only API keys)
+- Tradeable threshold indicator (round-trip cost subtraction)
+- Telegram alert hook (DISLOCATED z-score)
+- Calendar 2027+ refresh
+
+## Deploy (Vercel)
+
+[Phase 7 will populate full deploy steps. Preview:]
+
+```bash
+vercel link
+vercel env add HEALTH_TOKEN production
+vercel --prod
+```
+
+## Why "KIS deferred to v2"?
+
+User decision (Q16 in PLAN v5): xyz_KR200 perp on Hyperliquid trades 24/7 and is sufficient for KOSPI200 night-session monitoring. KIS Open API (한국투자증권) was the original Phase 5 plan for cross-validation but adds:
+- 1-3 day account approval wait
+- Token race condition complexity
+- Korean IP requirement (not Vercel-friendly)
+- Extra 2 days to MVP
+
+Trade-off: lose precise night-futures price; gain 4 days + Vercel-friendly deploy.
+
+## Tech Stack
+
+- **Vite 8** + **React 19** (frontend)
+- **Express 4** + **Node 22** (server, ESM NodeNext)
+- **TypeScript 6** (strict, single-package monorepo via `@shared/*` alias)
+- **Vitest 4** (happy-dom for client, node for server, `test.projects` split)
+- **SWR 2** (client polling, 5s refresh + 4s dedup)
+- **pnpm 11** (package manager)
+- No Tailwind/CSS-in-JS — plain CSS with Hyperliquid mint `#97FCE4`
+
+## Reviewers
+
+This codebase passed 2 rounds of peer review:
+- **Round 1**: Codex (adversarial), Oracle (architecture), Momus (plan critic), Metis (hidden intent)
+- **Round 2**: same 4 reviewers verifying v3.1→v4 changes
+
+See PLAN.md and IMPLEMENTATION_PLAN.md for the full plan + 48-task breakdown.
+
+## License
+
+MIT
