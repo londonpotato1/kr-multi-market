@@ -86,6 +86,93 @@
   --night-badge-bg: rgba(151,252,228,0.15);
 }
 
+[data-theme="light"] {
+  /* Brand teal — slightly darker for white BG contrast */
+  --hl-teal: #00B894;
+  --hl-teal-dim: #4FC3A1;
+  --hl-teal-soft: rgba(0,184,148,0.08);
+  --hl-teal-border: rgba(0,184,148,0.25);
+
+  /* Backgrounds — light gradient */
+  --bg-0: #F8FAFA;
+  --bg-1: #EEF4F4;
+  --bg-2: #E0EBEB;
+  --bg-deep: #FAFCFC;
+  --surface: rgba(255,255,255,0.85);
+  --surface-2: rgba(248,250,250,0.95);
+
+  /* Text */
+  --text: #0F1F1F;
+  --text-dim: #5A7575;
+  --text-muted: #8A9F9F;
+
+  /* Sentiment (price up/down) — darker for white BG */
+  --up: #16A34A;
+  --down: #DC2626;
+
+  /* Effects */
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --glass-blur: blur(8px);
+
+  /* Borders & dividers */
+  --border-subtle: rgba(0,184,148,0.12);
+  --border-divider: rgba(0,0,0,0.08);
+
+  /* Atmospheric radial glows */
+  --bg-radial-1: rgba(0,184,148,0.06);
+  --bg-radial-2: rgba(79,195,161,0.04);
+
+  /* Warn (orange — replaces yellow on white for legibility) — alpha ladder */
+  --warn-bg-soft: rgba(217,119,6,0.10);
+  --warn-bg: rgba(217,119,6,0.12);
+  --warn-bg-strong: rgba(217,119,6,0.15);
+  --warn-border-soft: rgba(217,119,6,0.30);
+  --warn-border: rgba(217,119,6,0.40);
+  --warn-text: #B45309;
+  --warn-text-strong: #92400E;
+
+  /* Danger (darker red for white BG) — alpha ladder */
+  --danger-bg: rgba(220,38,38,0.06);
+  --danger-bg-mid: rgba(220,38,38,0.08);
+  --danger-bg-strong: rgba(220,38,38,0.10);
+  --danger-bg-stronger: rgba(220,38,38,0.12);
+  --danger-border: rgba(220,38,38,0.25);
+  --danger-border-mid: rgba(220,38,38,0.30);
+  --danger-border-strong: rgba(220,38,38,0.35);
+  --danger-border-stronger: rgba(220,38,38,0.45);
+  --danger-text: #B91C1C;
+  --danger-text-soft: rgba(185,28,28,0.7);
+  --danger-glow: rgba(220,38,38,0.30);
+  --danger-glow-strong: rgba(220,38,38,0.50);
+
+  /* Trade signal (orange) */
+  --trade-bg: rgba(234,88,12,0.10);
+  --trade-border: rgba(234,88,12,0.35);
+  --trade-text: #C2410C;
+
+  /* Neutral (slate-gray for white BG) */
+  --neutral-bg: rgba(100,116,139,0.06);
+  --neutral-bg-mid: rgba(100,116,139,0.08);
+  --neutral-bg-strong: rgba(100,116,139,0.10);
+  --neutral-border: rgba(100,116,139,0.15);
+  --neutral-border-mid: rgba(100,116,139,0.20);
+  --neutral-border-strong: rgba(100,116,139,0.25);
+
+  /* Up (green) backgrounds/borders */
+  --up-bg: rgba(22,163,74,0.08);
+  --up-border: rgba(22,163,74,0.25);
+
+  /* Down (red) — semantic separation from danger */
+  --down-bg: rgba(220,38,38,0.06);
+
+  /* Price flash glows — stronger for visibility on white */
+  --price-flash-up-glow: rgba(22,163,74,0.40);
+  --price-flash-down-glow: rgba(220,38,38,0.40);
+
+  /* Night badge */
+  --night-badge-bg: rgba(0,184,148,0.10);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body, #root {
@@ -573,3 +660,38 @@ body::before {
   margin-bottom: 4px;
   cursor: help;
 }
+
+/* Theme toggle button (Phase 3) */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--hl-teal-soft);
+  border: 1px solid var(--hl-teal-border);
+  color: var(--hl-teal);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  font-family: inherit;
+}
+.theme-toggle:hover {
+  background: var(--hl-teal-border);
+  border-color: var(--hl-teal);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--hl-teal);
+  outline-offset: 2px;
+}
+.theme-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+.theme-label {
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+

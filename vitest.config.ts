@@ -8,7 +8,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'client',
-          include: ['src/**/*.test.ts'],
+          include: ['src/**/*.test.{ts,tsx}'],
           environment: 'happy-dom',
         },
       },

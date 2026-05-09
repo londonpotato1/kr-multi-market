@@ -4,6 +4,7 @@ import { IndexCompareCard } from './components/IndexCompareCard';
 import { FxHeader } from './components/FxHeader';
 import { SessionBadges } from './components/SessionBadges';
 import { DegradedBanner } from './components/DegradedBanner';
+import { ThemeToggle } from './components/ThemeToggle';
 import './App.css';
 
 const STOCK_TICKERS: Array<{ ticker: string; label: string }> = [
@@ -93,6 +94,7 @@ export default function App() {
         <div className="meta">
           <FxHeader fx={data?.fx} />
           <SessionBadges session={data?.session} />
+          <ThemeToggle />
           {error ? (
             <span className="err-pill">⚠ {(error as Error).message}</span>
           ) : isLoading ? (
