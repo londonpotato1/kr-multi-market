@@ -74,6 +74,7 @@ export default function App() {
               ticker={ticker}
               label={label}
               payload={data?.tickers[ticker]}
+              fx={data?.fx}
             />
           )
         )}

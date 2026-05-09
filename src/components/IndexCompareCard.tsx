@@ -1,4 +1,4 @@
-import type { TickerPayload } from '@shared/types/prices.js';
+import type { FxRates, TickerPayload } from '@shared/types/prices.js';
 import { VenueRow } from './VenueRow';
 import { SpreadRow } from './SpreadRow';
 
@@ -6,9 +6,11 @@ type Props = {
   label: string;
   ticker: string;
   payload?: TickerPayload;
+  fx?: FxRates;
 };
 
-export function IndexCompareCard({ label, ticker, payload }: Props) {
+export function IndexCompareCard({ label, ticker, payload, fx }: Props) {
+  void fx;
   const hasAnyVenue = !!(payload?.hl || payload?.binance || payload?.yahoo);
 
   if (!payload || !hasAnyVenue) {
