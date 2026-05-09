@@ -803,3 +803,193 @@ body::before {
   font-variant-numeric: tabular-nums;
 }
 
+/* ============================================ */
+/* === v0.2.0 Korean × Bloomberg Layout === */
+/* ============================================ */
+
+/* Section title — refined, no dashed */
+.section-title {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--hanji);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin: 32px 0 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--hanji-border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-subtitle {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+
+/* Hero section — KOSPI200F full-width */
+.hero-section {
+  margin: 0 0 32px;
+}
+.hero-section .card {
+  padding: 36px 40px;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--bg-2) 100%);
+  border: 1px solid var(--hanji-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.hero-section .card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  background: linear-gradient(180deg, var(--hanji), var(--celadon));
+  border-radius: 16px 0 0 16px;
+}
+.hero-section .price {
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-top: 8px;
+}
+.hero-section .card-head h3 {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--hanji);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Dense stock table — Bloomberg style */
+.dense-stocks-wrapper {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.dense-stocks {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.dense-stocks thead {
+  background: var(--hanji-soft);
+  border-bottom: 1px solid var(--hanji-border);
+}
+.dense-stocks th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--hanji);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.dense-stocks th.num-col {
+  text-align: right;
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+}
+.dense-stocks tbody tr {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.15s ease;
+}
+.dense-stocks tbody tr:hover {
+  background: var(--hanji-soft);
+}
+.dense-stocks tbody tr:last-child {
+  border-bottom: none;
+}
+.dense-stocks td {
+  padding: 14px;
+  vertical-align: middle;
+  color: var(--text);
+}
+.dense-stocks td.num-col {
+  text-align: right;
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Bento grid for indexes */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.bento .card {
+  padding: 20px 22px;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+  min-height: 200px;
+}
+.bento .card:hover {
+  border-color: var(--celadon-border);
+}
+
+/* Section wrappers */
+.stock-section, .index-section {
+  margin-bottom: 32px;
+}
+
+/* Header meta column refinement */
+.meta-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Mobile responsive */
+@media (max-width: 900px) {
+  .bento {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .hero-section .card {
+    padding: 24px 20px;
+  }
+  .hero-section .price {
+    font-size: 36px;
+  }
+  .bento {
+    grid-template-columns: 1fr;
+  }
+  .dense-stocks {
+    font-size: 11px;
+  }
+  .dense-stocks th,
+  .dense-stocks td {
+    padding: 8px 10px;
+  }
+  .dense-stocks th.num-col,
+  .dense-stocks td.num-col {
+    font-size: 12px;
+  }
+}
+@media (max-width: 400px) {
+  /* Stack table as definition list on extra-small */
+  .dense-stocks thead { display: none; }
+  .dense-stocks, .dense-stocks tbody, .dense-stocks tr, .dense-stocks td {
+    display: block;
+    width: 100%;
+  }
+  .dense-stocks tr {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .dense-stocks td {
+    padding: 4px 0;
+    text-align: left !important;
+  }
+}
+
+/* === END v0.2.0 Layout === */
+
