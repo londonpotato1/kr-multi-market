@@ -9,9 +9,15 @@ import { fetchUpbit } from './lib/sources/upbit.js';
 import { fetchBinanceFutures } from './lib/sources/binance.js';
 import { startHyperliquidWs, getLatestMids } from './lib/sources/hyperliquid-ws.js';
 import { assemblePricesResponse } from './lib/assemble.js';
-import { buildHealthzResponse } from './lib/healthz.js';
+import { APP_VERSION } from './lib/healthz.js';
 import { getSourceHealth } from './lib/health.js';
-import type { InternalHealthResponse, PricesResponse, SourceHealth, SourceName } from '@shared/types/prices.js';
+import type {
+  HealthzResponse,
+  InternalHealthResponse,
+  PricesResponse,
+  SourceHealth,
+  SourceName,
+} from '@shared/types/prices.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
@@ -42,11 +48,12 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-app.get('/api/healthz', (_req: Request, res: Response) => {
-  res.json(buildHealthzResponse());
-});
+export async function healthzHandler(_req: Request, res: Response): Promise<void> {
+  const response: HealthzResponse = { ok: true, version: APP_VERSION };
+  res.json(response);
+}
 
-app.get('/api/internal/health', (req: Request, res: Response) => {
+export async function internalHealthHandler(req: Request, res: Response): Promise<void> {
   const auth = req.headers.authorization;
   if (!HEALTH_TOKEN) {
     res.status(503).json({ ok: false, error: 'HEALTH_TOKEN not configured' });
@@ -75,9 +82,9 @@ app.get('/api/internal/health', (req: Request, res: Response) => {
     sources,
   };
   res.json(response);
-});
+}
 
-app.get('/api/prices', async (_req: Request, res: Response) => {
+export async function pricesHandler(_req: Request, res: Response): Promise<void> {
   try {
     // Single-flight: dedup concurrent requests, cache 4s
     const response = await singleFlight<PricesResponse>('prices', 4000, async () => {
@@ -110,8 +117,17 @@ app.get('/api/prices', async (_req: Request, res: Response) => {
     log.error('[/api/prices] unhandled', err);
     res.status(500).json({ ok: false, error: 'Internal error' });
   }
-});
+}
 
-app.listen(PORT, () => {
-  log.info(`server listening on http://localhost:${PORT}`);
-});
+app.get('/api/healthz', healthzHandler);
+app.get('/api/internal/health', internalHealthHandler);
+app.get('/api/prices', pricesHandler);
+
+const isVercelEnv = !!process.env.VERCEL;
+if (!isVercelEnv && process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    log.info(`server listening on http://localhost:${PORT}`);
+  });
+}
+
+export { app };

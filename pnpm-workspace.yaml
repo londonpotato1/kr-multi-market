@@ -1,2 +1,10 @@
 allowBuilds:
   esbuild: true
+minimumReleaseAgeExclude:
+  - path-to-regexp@6.3.0
+  - minimatch@10.2.3
+  - undici@6.24.0
+overrides:
+  '@vercel/node>path-to-regexp': ^6.3.0
+  '@vercel/python-analysis>minimatch': ^10.2.3
+  '@vercel/node>undici': ^6.24.0
