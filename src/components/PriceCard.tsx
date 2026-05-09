@@ -66,7 +66,7 @@ export function PriceCard({ label, ticker, payload }: Props) {
           </span>
         </div>
       )}
-      {payload?.premium && <PremiumRow premium={payload.premium} />}
+      {payload?.premium && <PremiumRow ticker={ticker} premium={payload.premium} />}
     </article>
   );
 }

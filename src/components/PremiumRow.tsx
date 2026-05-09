@@ -1,9 +1,10 @@
 import type { Premium } from '@shared/types/prices.js';
 import { fmtPct } from '../lib/format';
+import { SignalBadge } from './SignalBadge';
 
-type Props = { premium?: Premium };
+type Props = { ticker: string; premium?: Premium };
 
-export function PremiumRow({ premium }: Props) {
+export function PremiumRow({ ticker, premium }: Props) {
   if (!premium) return null;
 
   if (premium.guard === 'blocked') {
@@ -43,6 +44,7 @@ export function PremiumRow({ premium }: Props) {
         </span>
       )}
       {guardChip}
+      <SignalBadge ticker={ticker} currentPct={premium.pctUsd} />
     </div>
   );
 }

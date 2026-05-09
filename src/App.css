@@ -345,3 +345,45 @@ body::before {
   .venue-label { min-width: 52px; }
   .venue-price { font-size: 15px; }
 }
+
+/* Signal badge */
+.signal-badge {
+  display: inline-flex; gap: 6px; align-items: baseline;
+  padding: 2px 9px; border-radius: 999px;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+  font-variant-numeric: tabular-nums;
+  cursor: help;
+}
+.sig-normal {
+  background: rgba(127,168,164,0.10);
+  border-color: rgba(127,168,164,0.30);
+  color: var(--text-dim);
+}
+.sig-watch {
+  background: rgba(251,191,36,0.12);
+  border-color: rgba(251,191,36,0.40);
+  color: #FCD34D;
+}
+.sig-trade {
+  background: rgba(249,115,22,0.15);
+  border-color: rgba(249,115,22,0.45);
+  color: #FDBA74;
+}
+.sig-dislocated {
+  background: rgba(248,113,113,0.18);
+  border-color: rgba(248,113,113,0.55);
+  color: #FCA5A5;
+  animation: dislocated-pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(248,113,113,0.35);
+}
+@keyframes dislocated-pulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(248,113,113,0.35); }
+  50% { box-shadow: 0 0 24px rgba(248,113,113,0.65); }
+}
+.signal-z, .signal-collecting {
+  font-size: 9px;
+  font-weight: 500;
+  opacity: 0.85;
+}
