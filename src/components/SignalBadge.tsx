@@ -14,9 +14,9 @@ function tierFromZScore(z: number): Tier {
 
 function tierFromAbs(pct: number): Tier {
   const a = Math.abs(pct);
-  if (a < 0.5) return { label: '정상', className: 'sig-normal' };
-  if (a < 1.5) return { label: 'WATCH', className: 'sig-watch' };
-  if (a < 3) return { label: 'TRADE', className: 'sig-trade' };
+  if (a < 1) return { label: '정상', className: 'sig-normal' };
+  if (a < 3) return { label: 'WATCH', className: 'sig-watch' };
+  if (a < 5) return { label: 'TRADE', className: 'sig-trade' };
   return { label: 'DISLOCATED', className: 'sig-dislocated' };
 }
 

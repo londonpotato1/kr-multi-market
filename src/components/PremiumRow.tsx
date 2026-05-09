@@ -1,10 +1,10 @@
-import type { Premium } from '@shared/types/prices.js';
+import type { Premium, SourceStatus } from '@shared/types/prices.js';
 import { fmtPct } from '../lib/format';
 import { SignalBadge } from './SignalBadge';
 
-type Props = { ticker: string; premium?: Premium };
+type Props = { ticker: string; premium?: Premium; krxStatus?: SourceStatus };
 
-export function PremiumRow({ ticker, premium }: Props) {
+export function PremiumRow({ ticker, premium, krxStatus }: Props) {
   if (!premium) return null;
 
   if (premium.guard === 'blocked') {
@@ -31,6 +31,7 @@ export function PremiumRow({ ticker, premium }: Props) {
   const guardChip = premium.guard === 'warn'
     ? <span className="premium-warn-chip" title="GDR ratio in [0.85,1.15]">⚠ warn</span>
     : null;
+  const krxClosed = krxStatus === 'stale';
 
   return (
     <div className="premium-row">
@@ -44,7 +45,16 @@ export function PremiumRow({ ticker, premium }: Props) {
         </span>
       )}
       {guardChip}
-      <SignalBadge ticker={ticker} currentPct={premium.pctUsd} />
+      {krxClosed ? (
+        <span
+          className="signal-stale"
+          title="KRX market closed — premium reflects stale reference price, not a tradeable signal"
+        >
+          KRX CLOSED
+        </span>
+      ) : (
+        <SignalBadge ticker={ticker} currentPct={premium.pctUsd} />
+      )}
     </div>
   );
 }
