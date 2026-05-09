@@ -1,13 +1,18 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "baseUrl": "..",
+    "ignoreDeprecations": "6.0",
+    "paths": {
+      "@shared/*": ["shared/*"]
+    },
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ES2022"],
     "types": ["node"],
     "outDir": "../dist-server",
-    "rootDir": ".",
+    "rootDir": "..",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
