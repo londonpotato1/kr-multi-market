@@ -6,6 +6,7 @@ import cors from 'cors';
 import { log } from './lib/logger.js';
 import { singleFlight } from './lib/cache.js';
 import { fetchHyperliquid } from './lib/sources/hyperliquid.js';
+import { startHyperliquidWs, getLatestMids } from './lib/sources/hyperliquid-ws.js';
 import { assemblePricesResponse } from './lib/assemble.js';
 import type { PricesResponse } from '@shared/types/prices.js';
 
@@ -18,6 +19,14 @@ const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8')) as { version: string };
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 const isProd = process.env.NODE_ENV === 'production';
+const HL_USE_WS = process.env.HL_USE_WS === 'true';
+
+if (HL_USE_WS) {
+  log.info('[hl] WS mode enabled (HL_USE_WS=true)');
+  startHyperliquidWs();
+} else {
+  log.info('[hl] REST polling mode (HL_USE_WS=false)');
+}
 
 app.use(
   cors({
@@ -46,6 +55,20 @@ app.get('/api/prices', async (_req: Request, res: Response) => {
       const hl = await fetchHyperliquid();
       return assemblePricesResponse(hl);
     });
+    if (HL_USE_WS) {
+      const ws = getLatestMids();
+      if (ws.connected && ws.mids.size > 0) {
+        for (const payload of Object.values(response.tickers)) {
+          if (payload.hl) {
+            const mid = ws.mids.get(payload.hl.symbol);
+            if (mid !== undefined) {
+              payload.hl.price = mid;
+              payload.hl.asOf = ws.lastUpdate;
+            }
+          }
+        }
+      }
+    }
     res.setHeader('Cache-Control', 's-maxage=4, stale-while-revalidate=10');
     res.json(response);
   } catch (err) {
