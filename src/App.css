@@ -427,29 +427,66 @@ body::before {
 
 .card-loading { opacity: 0.5; }
 
+/* FX pills — 한지 background tint */
 .fx-pills {
-  display: flex; gap: 10px; flex-wrap: wrap;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 .fx-pill {
-  display: inline-flex; gap: 8px; align-items: baseline;
-  background: var(--hl-teal-soft);
-  border: 1px solid var(--hl-teal-border);
-  color: var(--hl-teal);
-  padding: 6px 14px; border-radius: 999px;
-  font-size: 12px; font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--hanji-soft);
+  border: 1px solid var(--hanji-border);
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--hanji);
+  font-family: 'Pretendard', sans-serif;
+  letter-spacing: 0.04em;
 }
-.fx-pill .fx-label { color: var(--text-dim); font-weight: 400; }
-.fx-pill .fx-value { font-weight: 500; }
+.fx-pill .fx-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.fx-pill .fx-value {
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Kimchi warning — 적 */
 .fx-pill-warn {
-  display: inline-flex; gap: 8px; align-items: baseline;
-  background: var(--danger-bg-strong);
-  border: 1px solid var(--danger-border-strong);
+  background: var(--ju-red-soft);
+  border: 1px solid var(--ju-red-border);
   color: var(--danger-text);
-  padding: 6px 14px; border-radius: 999px;
-  font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;
-  animation: pulse 2s ease-in-out infinite;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-family: 'Pretendard', sans-serif;
+  letter-spacing: 0.04em;
 }
-.fx-pill-warn .fx-label { color: var(--danger-text-soft); font-weight: 400; }
+.fx-pill-warn .fx-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--danger-text);
+  opacity: 0.7;
+  font-weight: 500;
+}
+.fx-pill-warn .fx-value {
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
 
 .krx-row {
   display: flex; align-items: baseline; gap: 10px;
@@ -565,23 +602,29 @@ body::before {
   display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
 }
 
+/* Session badges — 한지 tinted with subtle gradient on live */
 .session-badges {
-  display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
-  justify-content: flex-end;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 .session-badge {
-  display: inline-flex; gap: 5px; align-items: center;
-  padding: 4px 10px; border-radius: 999px;
-  font-size: 11px; font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   border: 1px solid transparent;
-  font-variant-numeric: tabular-nums;
-  cursor: help;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  font-family: 'Pretendard', sans-serif;
 }
 .session-live {
-  background: var(--up-bg);
-  border-color: var(--up-border);
-  color: var(--up);
+  background: linear-gradient(180deg, var(--celadon-soft) 0%, var(--celadon-soft) 100%);
+  border-color: var(--celadon-border);
+  color: var(--celadon);
 }
 .session-closed {
   background: var(--neutral-bg);
@@ -589,20 +632,19 @@ body::before {
   color: var(--text-muted);
 }
 .session-247 {
-  background: var(--hl-teal-soft);
-  border-color: var(--hl-teal-border);
-  color: var(--hl-teal);
+  background: var(--hanji-soft);
+  border-color: var(--hanji-border);
+  color: var(--hanji);
 }
 .session-dot {
-  display: inline-block; width: 6px; height: 6px;
-  border-radius: 50%; background: currentColor;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
 }
 .session-dot-247 {
-  background: var(--hl-teal);
-  box-shadow: 0 0 8px var(--hl-teal);
-}
-.session-live .session-dot {
-  animation: pulse 1.8s ease-in-out infinite;
+  background: var(--live-indicator);
 }
 
 .venue-row.venue-stale,
