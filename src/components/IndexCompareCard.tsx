@@ -27,7 +27,7 @@ export function IndexCompareCard({ ticker, label, payload, fx }: Props) {
   }
 
   const usdtKrw = fx?.usdtKrw ?? 0;
-  const showKrwHeadline = usdtKrw > 0 && (payload.hl || payload.binance);
+  const showKrwHeadline = usdtKrw > 0 && !!(payload.hl || payload.binance);
   const sp500Multiplier = ticker === 'sp500' ? SP500_REFERENCE_RATIO : 1;
 
   const hlKrw = payload.hl && usdtKrw > 0 ? payload.hl.price * usdtKrw : null;
