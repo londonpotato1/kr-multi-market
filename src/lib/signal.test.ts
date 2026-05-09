@@ -28,6 +28,16 @@ describe('signal / appendPremium', () => {
     expect(sampleCount('samsung')).toBe(1);
     expect(sampleCount('skhynix')).toBe(2);
   });
+
+  test('corrupt stored snapshots are ignored', () => {
+    localStorage.setItem('kr-mm:premium:samsung', JSON.stringify([
+      { ticker: 'samsung', premiumPct: 1, ts: Date.now() },
+      null,
+      { ticker: 'samsung' },
+      { ticker: 'samsung', premiumPct: 2, ts: Date.now() },
+    ]));
+    expect(sampleCount('samsung')).toBe(2);
+  });
 });
 
 describe('signal / calcZScore', () => {
@@ -98,5 +108,24 @@ describe('signal / size cap', () => {
     clearAllPremiums();
     expect(sampleCount('samsung')).toBe(0);
     expect(localStorage.getItem('other-app:data')).toBe('preserve');
+  });
+
+  test('size cap fallback trims current ticker to 5d window', () => {
+    const now = Date.now();
+    const sixDaysAgo = now - 6 * 24 * 60 * 60 * 1000;
+    const largeTicker = 'x'.repeat(300_000);
+    const snapshots = [
+      { ticker: 'samsung', premiumPct: 1, ts: sixDaysAgo },
+      ...Array.from({ length: 16 }, (_, i) => ({
+        ticker: largeTicker,
+        premiumPct: i,
+        ts: now,
+      })),
+    ];
+    localStorage.setItem('kr-mm:premium:samsung', JSON.stringify(snapshots));
+
+    appendPremium('samsung', 99, now);
+
+    expect(sampleCount('samsung')).toBe(17);
   });
 });

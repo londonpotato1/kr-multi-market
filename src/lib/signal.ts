@@ -10,13 +10,21 @@ function key(ticker: string): string {
   return `${KEY_PREFIX}${ticker}`;
 }
 
+function isPremiumSnapshot(value: unknown): value is PremiumSnapshot {
+  if (typeof value !== 'object' || value === null) return false;
+  const snapshot = value as PremiumSnapshot;
+  return typeof snapshot.ticker === 'string'
+    && Number.isFinite(snapshot.premiumPct)
+    && Number.isFinite(snapshot.ts);
+}
+
 function safeGet(ticker: string): PremiumSnapshot[] {
   if (typeof localStorage === 'undefined') return [];
   try {
     const raw = localStorage.getItem(key(ticker));
     if (!raw) return [];
     const arr = JSON.parse(raw) as unknown;
-    return Array.isArray(arr) ? arr as PremiumSnapshot[] : [];
+    return Array.isArray(arr) ? arr.filter(isPremiumSnapshot) : [];
   } catch {
     return [];
   }
@@ -74,10 +82,11 @@ export function appendPremium(ticker: string, premiumPct: number, now: number = 
   const arr = safeGet(ticker);
   arr.push({ ticker, premiumPct, ts: now });
   // Trim to 7d window
-  const trimmed = trimToWindow(arr, MAX_AGE_MS);
+  let trimmed = trimToWindow(arr, MAX_AGE_MS);
   // Check global size; if approaching cap, force trim all keys to 5d
-  if (totalSize() > SIZE_CAP_BYTES) {
+  if (totalSize() + key(ticker).length + JSON.stringify(trimmed).length > SIZE_CAP_BYTES) {
     trimAllToWindow(FALLBACK_TRIM_MS);
+    trimmed = trimToWindow(trimmed, FALLBACK_TRIM_MS);
   }
   safeSet(ticker, trimmed);
 }
