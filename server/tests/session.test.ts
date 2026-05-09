@@ -45,6 +45,16 @@ describe('getSessionState — weekday', () => {
     const s = getSessionState(kst('2026-05-12T06:00:00'));
     expect(s.krxNight).toBe(false);
   });
+
+  test('Fri 19:00 KST = KRX night futures active (Friday night session)', () => {
+    const s = getSessionState(kst('2026-05-08T19:00:00'));
+    expect(s.krxNight).toBe(true);
+  });
+
+  test('Sat 03:00 KST = KRX night futures active until Sat 05:00 close', () => {
+    const s = getSessionState(kst('2026-05-09T03:00:00'));
+    expect(s.krxNight).toBe(true);
+  });
 });
 
 describe('getSessionState — KRX holidays', () => {
