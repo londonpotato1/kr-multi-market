@@ -21,7 +21,6 @@ const INDEX_TICKERS: Array<{
   { ticker: 'ewy',       label: 'EWY (iShares Korea ETF)', singleVenue: false },
   { ticker: 'sp500',     label: 'S&P 500', singleVenue: false },
   { ticker: 'nq',        label: 'Nasdaq 100', singleVenue: false },
-  { ticker: 'usdkrw',    label: 'USD/KRW', singleVenue: true },
 ];
 
 export default function App() {
