@@ -4,6 +4,10 @@ import { dirname, resolve } from 'node:path';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import cors from 'cors';
 import { log } from './lib/logger.js';
+import { singleFlight } from './lib/cache.js';
+import { fetchHyperliquid } from './lib/sources/hyperliquid.js';
+import { assemblePricesResponse } from './lib/assemble.js';
+import type { PricesResponse } from '@shared/types/prices.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -33,6 +37,21 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.get('/api/healthz', (_req: Request, res: Response) => {
   res.json({ ok: true, version: pkg.version });
+});
+
+app.get('/api/prices', async (_req: Request, res: Response) => {
+  try {
+    // Single-flight: dedup concurrent requests, cache 4s
+    const response = await singleFlight<PricesResponse>('prices', 4000, async () => {
+      const hl = await fetchHyperliquid();
+      return assemblePricesResponse(hl);
+    });
+    res.setHeader('Cache-Control', 's-maxage=4, stale-while-revalidate=10');
+    res.json(response);
+  } catch (err) {
+    log.error('[/api/prices] unhandled', err);
+    res.status(500).json({ ok: false, error: 'Internal error' });
+  }
 });
 
 app.listen(PORT, () => {
