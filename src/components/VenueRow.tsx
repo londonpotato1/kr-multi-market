@@ -23,14 +23,7 @@ function formatPriceByUnit(price: number, unit: PricePoint['unit']) {
 }
 
 export function VenueRow({ source, pp, note }: Props) {
-  if (!pp) {
-    return (
-      <div className="venue-row venue-missing">
-        <span className="venue-label">{SOURCE_LABELS[source]}</span>
-        <span className="muted">—</span>
-      </div>
-    );
-  }
+  if (!pp) return null;
 
   const change = pp.change24hPct ?? 0;
   const changeClass =
@@ -53,7 +46,7 @@ export function VenueRow({ source, pp, note }: Props) {
         )}
       </span>
       <span className={`venue-change ${changeClass}`}>{fmtPct(change)}</span>
-      {pp.fundingRate8h !== undefined && (
+      {pp.fundingRate8h !== undefined && pp.fundingRate8h !== 0 && (
         <span className="venue-funding" title="Funding rate (8h)">
           F:{fmtFunding(pp.fundingRate8h)}
         </span>

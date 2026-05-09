@@ -51,12 +51,21 @@ export function PriceCard({ label, ticker, payload }: Props) {
         {fmtUsd(hl.price)}
       </div>
       <div className={`change ${changeClass}`}>{fmtPct(change)}</div>
-      <dl className="meta-grid">
-        <div><dt>24h Vol</dt><dd>{fmtCompactUsd(hl.volume24hUsd ?? 0)}</dd></div>
-        <div><dt>Funding 8h</dt><dd>{hl.fundingRate8h !== undefined ? fmtFunding(hl.fundingRate8h) : '—'}</dd></div>
-        <div><dt>OI</dt><dd>{fmtCompactUsd(hl.openInterestUsd ?? 0)}</dd></div>
-        <div><dt>Status</dt><dd className="status-ok">{hl.status}</dd></div>
-      </dl>
+      {((hl.volume24hUsd !== undefined && hl.volume24hUsd > 0) ||
+        (hl.fundingRate8h !== undefined && hl.fundingRate8h !== 0) ||
+        (hl.openInterestUsd !== undefined && hl.openInterestUsd > 0)) && (
+        <dl className="meta-grid">
+          {hl.volume24hUsd !== undefined && hl.volume24hUsd > 0 && (
+            <div><dt>24h Vol</dt><dd>{fmtCompactUsd(hl.volume24hUsd)}</dd></div>
+          )}
+          {hl.fundingRate8h !== undefined && hl.fundingRate8h !== 0 && (
+            <div><dt>Funding 8h</dt><dd>{fmtFunding(hl.fundingRate8h)}</dd></div>
+          )}
+          {hl.openInterestUsd !== undefined && hl.openInterestUsd > 0 && (
+            <div><dt>OI</dt><dd>{fmtCompactUsd(hl.openInterestUsd)}</dd></div>
+          )}
+        </dl>
+      )}
       {payload?.naver && (
         <div className={`krx-row${payload.naver.status === 'stale' ? ' venue-stale' : ''}`}>
           <span className="krx-label">KRX</span>
