@@ -94,11 +94,19 @@ export function validateMetaAndAssetCtxs(raw: unknown, schemaVersion = 1): Parse
       schemaError(`assetCtxs[${index}] must be object`, rawCtx);
     }
 
-    const markPx = readNumericString(rawCtx, 'markPx', index);
-    const prevDayPx = readNumericString(rawCtx, 'prevDayPx', index);
-    const openInterest = readNumericString(rawCtx, 'openInterest', index);
-    const dayNtlVlm = readNumericString(rawCtx, 'dayNtlVlm', index);
-    const funding = readNumericString(rawCtx, 'funding', index);
+    const numericValues = REQUIRED_NUMERIC_FIELDS.reduce<Record<RequiredNumericField, number>>(
+      (values, field) => {
+        values[field] = readNumericString(rawCtx, field, index);
+        return values;
+      },
+      {} as Record<RequiredNumericField, number>,
+    );
+
+    const markPx = numericValues.markPx;
+    const prevDayPx = numericValues.prevDayPx;
+    const openInterest = numericValues.openInterest;
+    const dayNtlVlm = numericValues.dayNtlVlm;
+    const funding = numericValues.funding;
 
     if (prevDayPx === 0) {
       schemaError(`assetCtxs[${index}].prevDayPx must not be zero`, rawCtx);
