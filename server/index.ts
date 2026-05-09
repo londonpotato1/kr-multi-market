@@ -10,12 +10,14 @@ import { fetchBinanceFutures } from './lib/sources/binance.js';
 import { startHyperliquidWs, getLatestMids } from './lib/sources/hyperliquid-ws.js';
 import { assemblePricesResponse } from './lib/assemble.js';
 import { buildHealthzResponse } from './lib/healthz.js';
-import type { PricesResponse } from '@shared/types/prices.js';
+import { getSourceHealth } from './lib/health.js';
+import type { InternalHealthResponse, PricesResponse, SourceHealth, SourceName } from '@shared/types/prices.js';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 const isProd = process.env.NODE_ENV === 'production';
 const HL_USE_WS = process.env.HL_USE_WS === 'true';
+const HEALTH_TOKEN = process.env.HEALTH_TOKEN;
 
 if (HL_USE_WS) {
   log.info('[hl] WS mode enabled (HL_USE_WS=true)');
@@ -42,6 +44,37 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.get('/api/healthz', (_req: Request, res: Response) => {
   res.json(buildHealthzResponse());
+});
+
+app.get('/api/internal/health', (req: Request, res: Response) => {
+  const auth = req.headers.authorization;
+  if (!HEALTH_TOKEN) {
+    res.status(503).json({ ok: false, error: 'HEALTH_TOKEN not configured' });
+    return;
+  }
+  if (auth !== `Bearer ${HEALTH_TOKEN}`) {
+    res.status(401).json({ ok: false, error: 'Unauthorized' });
+    return;
+  }
+
+  const health = getSourceHealth();
+  const now = Date.now();
+  const sources = {} as InternalHealthResponse['sources'];
+
+  for (const [src, h] of Object.entries(health) as Array<[SourceName, SourceHealth]>) {
+    const ageMs = h.lastSuccess > 0 ? now - h.lastSuccess : Number.POSITIVE_INFINITY;
+    let status: InternalHealthResponse['sources'][SourceName]['status'];
+    if (h.consecutiveFailures === 0 && ageMs < 30_000) status = 'ok';
+    else if (h.consecutiveFailures < 3) status = 'degraded';
+    else status = 'down';
+    sources[src] = { status, lastSuccessAgoMs: h.lastSuccess > 0 ? ageMs : -1 };
+  }
+
+  const response: InternalHealthResponse = {
+    ok: true,
+    sources,
+  };
+  res.json(response);
 });
 
 app.get('/api/prices', async (_req: Request, res: Response) => {
