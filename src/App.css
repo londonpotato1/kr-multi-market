@@ -254,10 +254,18 @@
 html, body, #root {
   background: radial-gradient(ellipse at top, var(--bg-2) 0%, var(--bg-0) 60%, var(--bg-deep) 100%);
   color: var(--text);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   letter-spacing: -0.01em;
+}
+
+/* === Numeric utility — Bloomberg-style mono === */
+.num {
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  font-feature-settings: 'tnum' 1, 'cv02' 1, 'cv03' 1;
 }
 
 body::before {
