@@ -53,6 +53,14 @@ export type Premium = {
   guard: GuardState;
 };
 
+export type Spread = {
+  maxPctDiff: number;
+  betweenSources: [SourceName, SourceName];
+  normalized?: boolean;
+  impliedRatio?: number;
+  ratioRange?: [number, number];
+};
+
 export type TickerPayload = {
   hl?: PricePoint;
   naver?: PricePoint;
@@ -60,7 +68,7 @@ export type TickerPayload = {
   binance?: PricePoint;
   upbit?: PricePoint;
   premium?: Premium;
-  spread?: { maxPctDiff: number; betweenSources: [SourceName, SourceName] };
+  spread?: Spread;
 };
 
 export type SourceHealth = {

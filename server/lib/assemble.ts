@@ -6,10 +6,12 @@ import type {
   SourceName,
   Result,
   Premium,
+  Spread,
 } from '@shared/types/prices.js';
 import { buildFxRates, computePremium } from './normalize.js';
 import { getSessionState } from './session.js';
 import { recordSourceAttempt, getSourceHealth } from './health.js';
+import { log } from './logger.js';
 
 const SCHEMA_VERSION = 1;
 
@@ -53,6 +55,8 @@ const BINANCE_SYMBOL_TO_TICKER: Record<string, string> = {
 // NQ has no Hyperliquid xyz equivalent in the current matrix, so its spread
 // is Yahoo + Binance only when Yahoo is available.
 const MULTI_VENUE_TICKERS = ['ewy', 'sp500', 'nq'] as const;
+const SP500_RATIO_RANGE: [number, number] = [8, 12];
+const SP500_REFERENCE_RATIO = 10.0;
 
 export type SourceInputs = {
   hl: Result<PricePoint[]>;
@@ -62,11 +66,49 @@ export type SourceInputs = {
   binance: Result<PricePoint[]>;
 };
 
-function computeSpread(payload: TickerPayload): TickerPayload['spread'] | undefined {
+export function computeSpread(payload: TickerPayload, tickerKey: string): Spread | undefined {
+  if (tickerKey === 'sp500') {
+    if (!payload.hl || !payload.binance) return undefined;
+
+    const hlPrice = payload.hl.price;
+    const binancePrice = payload.binance.price;
+    if (!Number.isFinite(hlPrice) || !Number.isFinite(binancePrice) || hlPrice <= 0 || binancePrice <= 0) {
+      return undefined;
+    }
+
+    const inferredRatio = hlPrice / binancePrice;
+    if (!Number.isFinite(inferredRatio)) return undefined;
+
+    const [lo, hi] = SP500_RATIO_RANGE;
+    if (inferredRatio < lo || inferredRatio > hi) {
+      log.warn(`[sp500] inferred ratio ${inferredRatio.toFixed(2)} outside [${lo},${hi}]; suppressing spread (likely SPY split or schema drift)`);
+      return undefined;
+    }
+
+    // HL xyz_SP500 is index points while Binance SPYUSDT is the SPY ETF.
+    // Use the fixed design ratio (10.0) for comparison so ETF drift stays visible.
+    const normalizedBinance = binancePrice * SP500_REFERENCE_RATIO;
+    const denominator = Math.min(hlPrice, normalizedBinance);
+    if (!Number.isFinite(normalizedBinance) || !Number.isFinite(denominator) || denominator <= 0) {
+      return undefined;
+    }
+
+    const diffPct = Math.abs(hlPrice - normalizedBinance) / denominator * 100;
+    if (!Number.isFinite(diffPct)) return undefined;
+
+    return {
+      maxPctDiff: diffPct,
+      betweenSources: ['hyperliquid', 'binance'],
+      normalized: true,
+      impliedRatio: inferredRatio,
+      ratioRange: SP500_RATIO_RANGE,
+    };
+  }
+
   const venues: Array<[SourceName, number]> = [];
-  if (payload.hl && payload.hl.price > 0) venues.push(['hyperliquid', payload.hl.price]);
-  if (payload.yahoo && payload.yahoo.price > 0) venues.push(['yahoo', payload.yahoo.price]);
-  if (payload.binance && payload.binance.price > 0) venues.push(['binance', payload.binance.price]);
+  if (payload.hl && Number.isFinite(payload.hl.price) && payload.hl.price > 0) venues.push(['hyperliquid', payload.hl.price]);
+  if (payload.yahoo && Number.isFinite(payload.yahoo.price) && payload.yahoo.price > 0) venues.push(['yahoo', payload.yahoo.price]);
+  if (payload.binance && Number.isFinite(payload.binance.price) && payload.binance.price > 0) venues.push(['binance', payload.binance.price]);
   if (venues.length < 2) return undefined;
 
   let maxDiff = 0;
@@ -76,8 +118,9 @@ function computeSpread(payload: TickerPayload): TickerPayload['spread'] | undefi
       const [, a] = venues[i];
       const [, b] = venues[j];
       const denominator = Math.min(a, b);
-      if (denominator <= 0) continue;
+      if (!Number.isFinite(denominator) || denominator <= 0) continue;
       const diffPct = Math.abs(a - b) / denominator * 100;
+      if (!Number.isFinite(diffPct)) continue;
       if (diffPct > maxDiff) {
         maxDiff = diffPct;
         pair = [venues[i][0], venues[j][0]];
@@ -190,7 +233,7 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
   for (const tickerKey of MULTI_VENUE_TICKERS) {
     const t = tickers[tickerKey];
     if (!t) continue;
-    const spread = computeSpread(t);
+    const spread = computeSpread(t, tickerKey);
     if (!spread) continue;
     tickers[tickerKey] = { ...t, spread };
   }
