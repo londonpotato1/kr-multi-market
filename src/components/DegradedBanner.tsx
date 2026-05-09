@@ -10,12 +10,14 @@ const SOURCE_LABELS: Record<string, string> = {
 
 type Props = { sourceHealth?: PricesResponse['sourceHealth'] };
 
+const ESSENTIAL_SOURCES = ['hyperliquid', 'naver', 'binance'] as const;
+
 export function DegradedBanner({ sourceHealth }: Props) {
   if (!sourceHealth) return null;
 
-  const degraded = Object.entries(sourceHealth).filter(
-    ([, h]) => h.consecutiveFailures > 3,
-  );
+  const degraded = Object.entries(sourceHealth)
+    .filter(([src]) => (ESSENTIAL_SOURCES as readonly string[]).includes(src))
+    .filter(([, h]) => h.consecutiveFailures > 3);
   if (degraded.length === 0) return null;
 
   const formatted = degraded
