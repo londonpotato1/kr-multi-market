@@ -2,15 +2,18 @@ import { useEffect, useRef, useState } from 'react';
 import type { TickerPayload, FxRates } from '@shared/types/prices.js';
 import { fmtUsd, fmtPct, fmtCompactUsd, fmtFunding, fmtKrw } from '../lib/format';
 import { PremiumRow } from './PremiumRow';
+import { SignalBadge } from './SignalBadge';
 
 type Props = {
   label: string;
   ticker: string;
   payload?: TickerPayload;
   fx?: FxRates;
+  hero?: boolean;
+  renderAs?: 'card' | 'row';
 };
 
-export function PriceCard({ label, ticker, payload, fx }: Props) {
+export function PriceCard({ label, ticker, payload, fx, hero = false, renderAs = 'card' }: Props) {
   const hl = payload?.hl;
   const [flashClass, setFlashClass] = useState<'' | 'flash-up' | 'flash-down'>('');
   const lastPriceRef = useRef<number | null>(null);
@@ -28,8 +31,16 @@ export function PriceCard({ label, ticker, payload, fx }: Props) {
   }, [hl?.price, hl]);
 
   if (!hl) {
+    if (renderAs === 'row') {
+      return (
+        <tr className="loading-row">
+          <td>{label}</td>
+          <td colSpan={5} className="num">—</td>
+        </tr>
+      );
+    }
     return (
-      <article className="card card-loading">
+      <article className={`card ${hero ? 'card-hero' : ''} card-loading`}>
         <header className="card-head">
           <h3>{label}</h3>
           <span className="ticker-id">{ticker}</span>
@@ -41,48 +52,81 @@ export function PriceCard({ label, ticker, payload, fx }: Props) {
 
   const change = hl.change24hPct ?? 0;
   const changeClass = change > 0 ? 'change-up' : change < 0 ? 'change-down' : 'change-flat';
-
   const usdtKrw = fx?.usdtKrw ?? 0;
   const isUsdLikeUnit = hl.unit === 'USD' || hl.unit === 'pt';
   const showKrwPrimary = isUsdLikeUnit && usdtKrw > 0;
   const krwEquivFromUsdt = showKrwPrimary ? hl.price * usdtKrw : null;
 
+  if (renderAs === 'row') {
+    const krxKrw = payload?.naver?.price;
+    const krxClosed = payload?.naver?.status === 'stale';
+    return (
+      <tr className={`stock-row ${flashClass}`}>
+        <td className="ticker-label">
+          <strong>{label}</strong>
+          <div className="ticker-id">{ticker}</div>
+        </td>
+        <td className="num num-col">
+          {krxKrw !== undefined ? fmtKrw(krxKrw, 0) : '—'}
+          {krxClosed && <span className="closed-tag"> (closed)</span>}
+        </td>
+        <td className="num num-col">
+          {krwEquivFromUsdt !== null ? fmtKrw(krwEquivFromUsdt, 0) : '—'}
+        </td>
+        <td className={`num num-col ${changeClass}`}>
+          {fmtPct(change)}
+        </td>
+        <td className={`num num-col ${payload?.premium?.pctUsd !== undefined && payload.premium.pctUsd !== null ? (payload.premium.pctUsd > 0 ? 'change-up' : 'change-down') : ''}`}>
+          {payload?.premium?.pctUsd !== undefined && payload.premium.pctUsd !== null
+            ? fmtPct(payload.premium.pctUsd)
+            : '—'}
+        </td>
+        <td>
+          {payload?.premium?.pctUsd !== undefined && payload.premium.pctUsd !== null && !krxClosed && (
+            <SignalBadge ticker={ticker} currentPct={payload.premium.pctUsd} />
+          )}
+          {krxClosed && <span className="signal-stale">KRX CLOSED</span>}
+        </td>
+      </tr>
+    );
+  }
+
   return (
-    <article className="card">
+    <article className={`card ${hero ? 'card-hero' : ''}`}>
       <header className="card-head">
         <h3>{label}</h3>
         <span className="ticker-id">{hl.symbol}</span>
       </header>
       {showKrwPrimary && krwEquivFromUsdt !== null ? (
         <>
-          <div className={`price ${flashClass}`}>{fmtKrw(krwEquivFromUsdt, 0)}</div>
-          <div className="price-usd-sub" title="원본 USD 가격 (Upbit USDT-KRW로 환산)">
+          <div className={`price num ${flashClass}`}>{fmtKrw(krwEquivFromUsdt, 0)}</div>
+          <div className="price-usd-sub num" title="원본 USD 가격 (Upbit USDT-KRW로 환산)">
             ≈ {fmtUsd(hl.price)} USD
           </div>
         </>
       ) : (
-        <div className={`price ${flashClass}`}>{fmtUsd(hl.price)}</div>
+        <div className={`price num ${flashClass}`}>{fmtUsd(hl.price)}</div>
       )}
-      <div className={`change ${changeClass}`}>{fmtPct(change)}</div>
+      <div className={`change num ${changeClass}`}>{fmtPct(change)}</div>
       {((hl.volume24hUsd !== undefined && hl.volume24hUsd > 0) ||
         (hl.fundingRate8h !== undefined && hl.fundingRate8h !== 0) ||
         (hl.openInterestUsd !== undefined && hl.openInterestUsd > 0)) && (
         <dl className="meta-grid">
           {hl.volume24hUsd !== undefined && hl.volume24hUsd > 0 && (
-            <div><dt>24h Vol</dt><dd>{fmtCompactUsd(hl.volume24hUsd)}</dd></div>
+            <div><dt>24h Vol</dt><dd className="num">{fmtCompactUsd(hl.volume24hUsd)}</dd></div>
           )}
           {hl.fundingRate8h !== undefined && hl.fundingRate8h !== 0 && (
-            <div><dt>Funding 8h</dt><dd>{fmtFunding(hl.fundingRate8h)}</dd></div>
+            <div><dt>Funding 8h</dt><dd className="num">{fmtFunding(hl.fundingRate8h)}</dd></div>
           )}
           {hl.openInterestUsd !== undefined && hl.openInterestUsd > 0 && (
-            <div><dt>OI</dt><dd>{fmtCompactUsd(hl.openInterestUsd)}</dd></div>
+            <div><dt>OI</dt><dd className="num">{fmtCompactUsd(hl.openInterestUsd)}</dd></div>
           )}
         </dl>
       )}
       {payload?.naver && (
         <div className={`krx-row${payload.naver.status === 'stale' ? ' venue-stale' : ''}`}>
           <span className="krx-label">KRX</span>
-          <span className="krx-value">{fmtKrw(payload.naver.price, 0)}</span>
+          <span className="krx-value num">{fmtKrw(payload.naver.price, 0)}</span>
           <span className={`krx-status status-${payload.naver.status}`}>
             {payload.naver.status === 'ok' ? '● live' : '○ ' + (payload.naver.staleReason ?? payload.naver.status)}
           </span>
