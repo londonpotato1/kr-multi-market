@@ -1,1 +1,76 @@
-/* stock-hero.css — placeholder, filled in Phase B */
+/* stock-hero.css — Bento 3-up main card (Wave 2) */
+.stock-hero {
+  padding: 24px;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.stock-hero .card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+.stock-hero .card-head h3 { color: var(--text); }
+.stock-hero .card-head .ts-subtitle { color: var(--text-dim); flex-basis: 100%; }
+.stock-hero .live-dot {
+  color: var(--live-indicator, #00B894);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+.stock-hero-primary {
+  font-size: clamp(36px, 5vw, 52px);
+  line-height: 1.05;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  word-break: keep-all;
+}
+.stock-hero-primary-label {
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+.stock-hero-dash { color: var(--text-muted); }
+
+.stock-hero-secondary {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 12px;
+}
+.stock-hero-premium {
+  font-size: clamp(28px, 3.2vw, 36px);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.stock-hero-premium.premium-cool { color: var(--premium-cool); }
+.stock-hero-premium.premium-warm { color: var(--premium-warm); }
+.stock-hero-premium.premium-hot  { color: var(--premium-hot); }
+.stock-hero-premium.premium-na   { color: var(--text-muted); }
+.stock-hero-premium-label { color: var(--text-dim); margin-top: 2px; }
+
+.stock-hero-tertiary {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  color: var(--text-dim);
+}
+.stock-hero-tertiary dt {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.stock-hero-tertiary dd { font-size: 15px; color: var(--text); }
+.stock-hero-tertiary .closed-tag { color: var(--text-muted); font-size: 12px; }
+
+.stock-hero-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 12px;
+}
+
+.stock-hero:hover { border-color: var(--celadon-border); }

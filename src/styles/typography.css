@@ -7,3 +7,11 @@
   letter-spacing: -0.01em;
   font-feature-settings: 'tnum' 1, 'cv02' 1, 'cv03' 1;
 }
+
+/* === Phase B 신규 ts-* utility (Wave 2) === */
+.ts-hero-price   { font-size: 52px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ts-hero-premium { font-size: 36px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.ts-card-title   { font-size: 18px; font-weight: 600; }
+.ts-subtitle     { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+.ts-meta         { font-size: 15px; font-weight: 400; font-family: 'JetBrains Mono Variable', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+.ts-index-headline { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
