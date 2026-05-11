@@ -27,3 +27,11 @@ body::before {
   margin: 0 auto;
   padding: 32px 24px 48px;
 }
+
+@media (max-width: 600px) {
+  .container { padding: 16px 12px 32px; }
+}
+
+@media (max-width: 400px) {
+  .container { padding: 12px 10px 28px; }
+}

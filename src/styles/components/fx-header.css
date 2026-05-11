@@ -60,3 +60,25 @@
   font-variant-numeric: tabular-nums;
   font-weight: 600;
 }
+
+/* Error pill — header meta-controls area */
+.err-pill {
+  background: var(--danger-bg-mid);
+  border: 1px solid var(--danger-border);
+  color: var(--danger-text);
+  padding: 4px 12px; border-radius: 999px; font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .app-header { flex-direction: column; align-items: stretch; }
+  .app-header .meta { align-items: flex-start; }
+}
+
+@media (max-width: 600px) {
+  .fx-pills { gap: 6px; }
+  .fx-pill, .fx-pill-warn {
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+  .fx-pill .fx-label, .fx-pill-warn .fx-label { font-size: 8px; }
+}

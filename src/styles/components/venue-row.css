@@ -1,0 +1,49 @@
+/* venue-row.css — venue pill rows + status classes (Phase B Task B9) */
+
+.status-ok      { color: var(--up); }
+.status-stale   { color: var(--text-dim); }
+.status-degraded { color: var(--warn-text-strong); }
+.status-down    { color: var(--down); }
+
+.venue-row {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+.venue-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--hanji-soft);
+  border: 1px solid var(--hanji-border);
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--hanji);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  min-width: 64px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.venue-price { font-size: 16px; font-weight: 600; color: var(--text); flex: 1; }
+.venue-unit  { font-size: 10px; color: var(--text-muted); margin-left: 4px; }
+.venue-change { font-size: 12px; font-weight: 500; }
+.venue-funding, .venue-vol { font-size: 10px; color: var(--text-muted); }
+.venue-status { font-size: 11px; }
+.venue-status.status-ok       { color: var(--up); }
+.venue-status.status-stale    { color: var(--text-dim); }
+.venue-status.status-degraded { color: var(--warn-text-strong); }
+.venue-status.status-down     { color: var(--down); }
+.venue-note { font-size: 11px; color: var(--text-dim); cursor: help; }
+
+.venue-row.venue-stale {
+  opacity: 0.5;
+  filter: grayscale(0.7);
+}
+
+@media (max-width: 600px) {
+  .venue-row { gap: 8px; flex-wrap: wrap; }
+  .venue-pill { min-width: 52px; font-size: 8px; padding: 1px 6px; }
+  .venue-price { font-size: 14px; }
+  .venue-funding, .venue-vol { display: none; }
+}

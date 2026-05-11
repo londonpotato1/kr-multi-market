@@ -22,3 +22,13 @@
   font-weight: 400;
   font-size: 11px;
 }
+
+@media (max-width: 600px) {
+  .degraded-banner {
+    padding: 8px 12px;
+    font-size: 11px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+  .degraded-icon { font-size: 14px; }
+}

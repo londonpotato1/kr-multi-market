@@ -13,5 +13,6 @@
 @import './styles/components/theme-toggle.css';
 @import './styles/components/degraded-banner.css';
 @import './styles/components/premium-row.css';
+@import './styles/components/venue-row.css';
+@import './styles/components/spread-row.css';
 @import './styles/utilities.css';
-@import './styles/legacy.css';

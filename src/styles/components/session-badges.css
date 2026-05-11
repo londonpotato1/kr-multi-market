@@ -44,3 +44,17 @@
 .session-dot-247 {
   background: var(--live-indicator);
 }
+
+@media (max-width: 768px) {
+  .session-badges { justify-content: flex-start; gap: 4px; }
+  .session-badge { font-size: 10px; padding: 3px 8px; }
+}
+
+@media (max-width: 600px) {
+  .session-badges { gap: 4px; }
+  .session-badge { padding: 2px 7px; font-size: 8px; }
+}
+
+@media (max-width: 400px) {
+  .session-badge { font-size: 9px; padding: 2px 6px; }
+}

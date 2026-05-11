@@ -33,3 +33,7 @@
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
 }
+
+@media (max-width: 600px) {
+  .theme-toggle { padding: 4px 10px; font-size: 10px; }
+}

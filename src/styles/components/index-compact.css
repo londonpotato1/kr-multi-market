@@ -24,3 +24,7 @@
   margin-top: 4px;
 }
 .index-compact:hover { border-color: var(--celadon-border); }
+
+@media (max-width: 400px) {
+  .krw-conversions { font-size: 9px; }
+}

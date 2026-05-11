@@ -1,0 +1,26 @@
+/* spread-row.css — max venue spread row (Phase B Task B9) */
+
+.spread-row {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  padding-top: 10px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.spread-label {
+  font-size: 10px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.spread-value { font-size: 14px; font-weight: 600; color: var(--hl-teal); }
+.spread-pair  { font-size: 10px; color: var(--text-muted); }
+.spread-row.spread-warn .spread-value { color: var(--warn-text-strong); }
+.spread-note {
+  font-size: 10px; color: var(--warn-text);
+  background: var(--warn-bg-soft);
+  border: 1px solid var(--warn-border-soft);
+  padding: 2px 6px; border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+  .spread-row { gap: 6px; flex-wrap: wrap; }
+  .spread-pair { display: none; }
+}

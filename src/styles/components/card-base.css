@@ -70,3 +70,14 @@
 .status-ok { color: var(--hl-teal-dim); }
 
 .card-loading { opacity: 0.5; }
+
+@media (max-width: 600px) {
+  .card { padding: 16px 18px; }
+  .card-head h3 { font-size: 13px; }
+  .price { font-size: 26px; }
+  .meta-grid { gap: 10px 16px; padding-top: 12px; }
+}
+
+@media (max-width: 400px) {
+  .price { font-size: 22px; }
+}

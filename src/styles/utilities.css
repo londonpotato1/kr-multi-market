@@ -41,3 +41,16 @@
   0%, 100% { box-shadow: 0 0 8px var(--ju-red-soft); }
   50% { box-shadow: 0 0 18px var(--ju-red-mid); }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .card, .bento .card, .hero-section .card {
+    transition: border-color 200ms ease;
+  }
+  .card:hover, .bento .card:hover, .hero-section .card:hover {
+    transform: none;
+  }
+  .logo-dot, .logo-dot::before, .logo-dot::after,
+  .flash-up, .flash-down {
+    animation: none !important;
+  }
+}

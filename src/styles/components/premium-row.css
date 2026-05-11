@@ -23,3 +23,7 @@
   color: var(--danger-text);
 }
 .premium-pending { opacity: 0.5; }
+
+@media (max-width: 600px) {
+  .premium-row { flex-wrap: wrap; gap: 6px 10px; }
+}
