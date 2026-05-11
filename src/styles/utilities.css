@@ -1,0 +1,43 @@
+/* utilities.css — change/flash classes + all keyframes (extracted from App.css Wave 1) */
+
+.flash-up {
+  color: var(--celadon);
+  animation: flashUp 0.7s ease;
+}
+.flash-down {
+  color: var(--ju-red);
+  animation: flashDown 0.7s ease;
+}
+
+.change-up { color: var(--up); }
+.change-down { color: var(--down); }
+.change-flat { color: var(--text-dim); }
+
+@keyframes flashUp {
+  0%   { color: var(--celadon); text-shadow: 0 0 12px var(--price-flash-up-glow); }
+  100% { color: var(--text); text-shadow: none; }
+}
+@keyframes flashDown {
+  0%   { color: var(--ju-red); text-shadow: 0 0 12px var(--price-flash-down-glow); }
+  100% { color: var(--text); text-shadow: none; }
+}
+
+/* Pulse keyframe — used by .session-live .session-dot and .night-badge */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+@keyframes inkwell-ripple {
+  0%, 100% { box-shadow: 0 0 0 0 var(--live-indicator); transform: scale(1); }
+  50%      { box-shadow: 0 0 8px 0 var(--live-indicator); transform: scale(0.92); }
+}
+@keyframes inkwell-ring {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+@keyframes dislocated-pulse {
+  0%, 100% { box-shadow: 0 0 8px var(--ju-red-soft); }
+  50% { box-shadow: 0 0 18px var(--ju-red-mid); }
+}

@@ -1,95 +1,9 @@
 @import './styles/tokens.css';
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body, #root {
-  background: radial-gradient(ellipse at top, var(--bg-2) 0%, var(--bg-0) 60%, var(--bg-deep) 100%);
-  color: var(--text);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  letter-spacing: -0.01em;
-}
-
-/* === Numeric utility — Bloomberg-style mono === */
-.num {
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
-  font-feature-settings: 'tnum' 1, 'cv02' 1, 'cv03' 1;
-}
-
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background:
-    radial-gradient(circle at 20% 10%, var(--bg-radial-1), transparent 40%),
-    radial-gradient(circle at 80% 90%, var(--bg-radial-2), transparent 50%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.container {
-  position: relative; z-index: 1;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 32px 24px 48px;
-}
-
-.app-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 36px; flex-wrap: wrap; gap: 16px;
-}
-
-.brand { display: flex; align-items: center; gap: 12px; }
-
-/* Logo: 한지 inkwell ripple (Korean ink drop) */
-.logo-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--live-indicator);
-  position: relative;
-  animation: inkwell-ripple 2.4s ease-out infinite;
-}
-.logo-dot::before,
-.logo-dot::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1px solid var(--live-indicator);
-  opacity: 0.7;
-  animation: inkwell-ring 2.4s ease-out infinite;
-}
-.logo-dot::after {
-  animation-delay: 1.2s;
-}
-@keyframes inkwell-ripple {
-  0%, 100% { box-shadow: 0 0 0 0 var(--live-indicator); transform: scale(1); }
-  50%      { box-shadow: 0 0 8px 0 var(--live-indicator); transform: scale(0.92); }
-}
-@keyframes inkwell-ring {
-  0%   { transform: scale(1);   opacity: 0.7; }
-  100% { transform: scale(2.6); opacity: 0; }
-}
-/* Pulse keyframe retained for .session-live .session-dot */
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(0.85); }
-}
-
-.brand h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
-.brand .sub { font-size: 12px; color: var(--text-dim); font-weight: 400; }
-
-.meta { font-size: 13px; color: var(--text-dim); }
-.muted { color: var(--text-dim); }
-.err-pill {
-  background: var(--danger-bg-mid);
-  border: 1px solid var(--danger-border);
-  color: var(--danger-text);
-  padding: 4px 12px; border-radius: 999px; font-size: 12px;
-}
+@import './styles/base.css';
+@import './styles/typography.css';
+@import './styles/layout.css';
+/* (컴포넌트 CSS — Task A3 에서 처리) */
+@import './styles/utilities.css';
 
 .grid {
   display: grid;
@@ -136,30 +50,10 @@ body::before {
 }
 .price-skel { font-size: 32px; color: var(--text-muted); }
 
-.flash-up {
-  color: var(--celadon);
-  animation: flashUp 0.7s ease;
-}
-.flash-down {
-  color: var(--ju-red);
-  animation: flashDown 0.7s ease;
-}
-@keyframes flashUp {
-  0%   { color: var(--celadon); text-shadow: 0 0 12px var(--price-flash-up-glow); }
-  100% { color: var(--text); text-shadow: none; }
-}
-@keyframes flashDown {
-  0%   { color: var(--ju-red); text-shadow: 0 0 12px var(--price-flash-down-glow); }
-  100% { color: var(--text); text-shadow: none; }
-}
-
 .change {
   font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;
   margin-bottom: 18px;
 }
-.change-up { color: var(--up); }
-.change-down { color: var(--down); }
-.change-flat { color: var(--text-dim); }
 
 .meta-grid {
   display: grid; grid-template-columns: 1fr 1fr;
@@ -280,17 +174,6 @@ body::before {
 }
 .premium-pending { opacity: 0.5; }
 
-.section-title {
-  font-size: 13px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-dim);
-  margin: 32px 0 16px;
-  padding-left: 4px;
-}
-.section-title:first-of-type { margin-top: 8px; }
-
 .index-card .venues {
   display: flex; flex-direction: column; gap: 8px;
   padding-bottom: 12px;
@@ -349,10 +232,6 @@ body::before {
   padding: 2px 6px; border-radius: 4px;
 }
 
-.app-header .meta {
-  display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
-}
-
 /* Session badges — 한지 tinted with subtle gradient on live */
 .session-badges {
   display: flex;
@@ -404,18 +283,11 @@ body::before {
   filter: grayscale(0.7);
 }
 
-.night-badge {
-  display: inline-block;
-  margin-left: 12px;
-  padding: 2px 10px; border-radius: 999px;
-  background: var(--night-badge-bg);
-  border: 1px solid var(--hl-teal-border);
-  color: var(--hl-teal);
-  font-size: 10px; font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: none;
-  animation: pulse 2.5s ease-in-out infinite;
-  vertical-align: middle;
+.err-pill {
+  background: var(--danger-bg-mid);
+  border: 1px solid var(--danger-border);
+  color: var(--danger-text);
+  padding: 4px 12px; border-radius: 999px; font-size: 12px;
 }
 
 @media (max-width: 768px) {
@@ -558,11 +430,6 @@ body::before {
   box-shadow: 0 0 8px var(--ju-red-soft);
 }
 
-@keyframes dislocated-pulse {
-  0%, 100% { box-shadow: 0 0 8px var(--ju-red-soft); }
-  50% { box-shadow: 0 0 18px var(--ju-red-mid); }
-}
-
 .signal-z, .signal-collecting {
   font-size: 9px;
   font-weight: 500;
@@ -650,149 +517,6 @@ body::before {
   font-variant-numeric: tabular-nums;
 }
 
-/* ============================================ */
-/* === v0.2.0 Korean × Bloomberg Layout === */
-/* ============================================ */
-
-/* Section title — refined, no dashed */
-.section-title {
-  font-family: 'Pretendard', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--hanji);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  margin: 32px 0 16px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--hanji-border);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.section-subtitle {
-  font-size: 10px;
-  font-weight: 400;
-  color: var(--text-muted);
-  text-transform: none;
-  letter-spacing: 0.04em;
-}
-
-/* Hero section — KOSPI200F full-width */
-.hero-section {
-  margin: 0 0 32px;
-}
-.hero-section .card {
-  padding: 36px 40px;
-  background: linear-gradient(135deg, var(--surface) 0%, var(--bg-2) 100%);
-  border: 1px solid var(--hanji-border);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  position: relative;
-}
-.hero-section .card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 4px; height: 100%;
-  background: linear-gradient(180deg, var(--hanji), var(--celadon));
-  border-radius: 16px 0 0 16px;
-}
-.hero-section .price {
-  font-size: 56px;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.03em;
-  line-height: 1;
-  margin-top: 8px;
-}
-.hero-section .card-head h3 {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--hanji);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-/* Dense stock table — Bloomberg style */
-.dense-stocks-wrapper {
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  overflow: hidden;
-}
-.dense-stocks {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-.dense-stocks thead {
-  background: var(--hanji-soft);
-  border-bottom: 1px solid var(--hanji-border);
-}
-.dense-stocks th {
-  padding: 10px 14px;
-  text-align: left;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--hanji);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-.dense-stocks th.num-col {
-  text-align: right;
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
-}
-.dense-stocks tbody tr {
-  border-bottom: 1px solid var(--border-subtle);
-  transition: background 0.15s ease;
-}
-.dense-stocks tbody tr:hover {
-  background: var(--hanji-soft);
-}
-.dense-stocks tbody tr:last-child {
-  border-bottom: none;
-}
-.dense-stocks td {
-  padding: 14px;
-  vertical-align: middle;
-  color: var(--text);
-}
-.dense-stocks td.num-col {
-  text-align: right;
-  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Bento grid for indexes */
-.bento {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-.bento .card {
-  padding: 20px 22px;
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  transition:
-    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    border-color 220ms ease,
-    box-shadow 220ms ease;
-  min-height: 200px;
-}
-.bento .card:hover {
-  transform: translateY(-3px);
-  border-color: var(--celadon);
-  box-shadow: 0 10px 28px rgba(0,0,0,0.32);
-}
-
-/* Hero card: subtler lift + 한지 glow */
-.hero-section .card:hover {
-  transform: translateY(-1px);
-  border-color: var(--hanji);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.35);
-}
-
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .card, .bento .card, .hero-section .card {
@@ -802,65 +526,6 @@ body::before {
     transform: none;
   }
 }
-
-/* Section wrappers */
-.stock-section, .index-section {
-  margin-bottom: 32px;
-}
-
-/* Header meta column refinement */
-.meta-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Mobile responsive */
-@media (max-width: 900px) {
-  .bento {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (max-width: 600px) {
-  .hero-section .card {
-    padding: 24px 20px;
-  }
-  .hero-section .price {
-    font-size: 36px;
-  }
-  .bento {
-    grid-template-columns: 1fr;
-  }
-  .dense-stocks {
-    font-size: 11px;
-  }
-  .dense-stocks th,
-  .dense-stocks td {
-    padding: 8px 10px;
-  }
-  .dense-stocks th.num-col,
-  .dense-stocks td.num-col {
-    font-size: 12px;
-  }
-}
-@media (max-width: 400px) {
-  /* Stack table as definition list on extra-small */
-  .dense-stocks thead { display: none; }
-  .dense-stocks, .dense-stocks tbody, .dense-stocks tr, .dense-stocks td {
-    display: block;
-    width: 100%;
-  }
-  .dense-stocks tr {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border-subtle);
-  }
-  .dense-stocks td {
-    padding: 4px 0;
-    text-align: left !important;
-  }
-}
-
-/* === END v0.2.0 Layout === */
 
 @media (prefers-reduced-motion: reduce) {
   .logo-dot, .logo-dot::before, .logo-dot::after,

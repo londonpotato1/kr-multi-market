@@ -1,0 +1,9 @@
+/* typography.css — numeric/mono font utility (extracted from App.css Wave 1) */
+
+/* === Numeric utility — Bloomberg-style mono === */
+.num {
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  font-feature-settings: 'tnum' 1, 'cv02' 1, 'cv03' 1;
+}
