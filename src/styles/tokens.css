@@ -41,7 +41,7 @@
   --juhwang-border: rgba(224,138,74,0.35);
 
   /* Text */
-  --text: #E8E4DA;
+  --text: #F2EDE2;
   --text-dim: #9A9385;
   --text-muted: #5C5648;
 
@@ -123,6 +123,14 @@
 
   /* Live indicator — single accent, preserves HL mint identity */
   --live-indicator: #97FCE4;
+
+  /* === Phase B 신규 토큰 (Wave 2~3 에서 사용) === */
+  --gauge-track:    rgba(255,255,255,0.06);
+  --gauge-positive: var(--up);
+  --gauge-negative: var(--down);
+  --premium-cool:   var(--celadon);
+  --premium-warm:   var(--hanji);
+  --premium-hot:    var(--juhwang);
 }
 
 [data-theme="light"] {
@@ -248,4 +256,13 @@
 
   /* Live indicator */
   --live-indicator: #00B894;
+
+  /* === Phase B 신규 토큰 === */
+  --gauge-track:    rgba(0,0,0,0.06);
+  --gauge-positive: var(--up);
+  --gauge-negative: var(--down);
+  --premium-cool:   var(--celadon);
+  --premium-warm:   var(--hanji);
+  --premium-hot:    var(--juhwang);
+  /* --text 변경 없음 (라이트는 충분한 대비) */
 }
