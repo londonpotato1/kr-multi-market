@@ -1,1 +1,26 @@
-/* index-compact.css — placeholder, filled in Phase B */
+/* index-compact.css — 4-up sub bento cards (지수/ETF + KOSPI demoted) (Wave 2) */
+.index-compact {
+  padding: 16px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.index-compact .card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.index-compact-headline {
+  font-size: clamp(20px, 2.5vw, 24px);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.index-compact .venues { margin-top: 4px; }
+.index-compact .krw-conversions {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+.index-compact:hover { border-color: var(--celadon-border); }
