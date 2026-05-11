@@ -1,0 +1,46 @@
+/* session-badges.css — session status badges (한지 tint + live gradient) (Wave 1) */
+
+/* Session badges — 한지 tinted with subtle gradient on live */
+.session-badges {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.session-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid transparent;
+  font-family: 'Pretendard', sans-serif;
+}
+.session-live {
+  background: linear-gradient(180deg, var(--celadon-soft) 0%, var(--celadon-soft) 100%);
+  border-color: var(--celadon-border);
+  color: var(--celadon);
+}
+.session-closed {
+  background: var(--neutral-bg);
+  border-color: var(--neutral-border);
+  color: var(--text-muted);
+}
+.session-247 {
+  background: var(--hanji-soft);
+  border-color: var(--hanji-border);
+  color: var(--hanji);
+}
+.session-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+}
+.session-dot-247 {
+  background: var(--live-indicator);
+}

@@ -1,0 +1,35 @@
+/* theme-toggle.css — dark/light theme toggle button (Wave 1) */
+
+/* Theme toggle button (Phase 3) */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--hl-teal-soft);
+  border: 1px solid var(--hl-teal-border);
+  color: var(--hl-teal);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  font-family: inherit;
+}
+.theme-toggle:hover {
+  background: var(--hl-teal-border);
+  border-color: var(--hl-teal);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--hl-teal);
+  outline-offset: 2px;
+}
+.theme-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+.theme-label {
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,25 @@
+/* premium-row.css — kimchi premium row + status classes (Wave 1) */
+
+.premium-row {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  padding: 8px 0 4px;
+  font-size: 12px; font-variant-numeric: tabular-nums;
+}
+.premium-label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-size: 10px; flex: 1; }
+.premium-value { font-size: 14px; font-weight: 600; }
+.premium-up { color: var(--up); }
+.premium-down { color: var(--down); }
+.premium-usdt { color: var(--text-dim); font-size: 11px; }
+.premium-warn-chip {
+  background: var(--warn-bg-strong);
+  border: 1px solid var(--warn-border);
+  color: var(--warn-text);
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 500;
+}
+.premium-blocked .premium-warn-chip {
+  background: var(--danger-bg-strong);
+  border-color: var(--danger-border-strong);
+  color: var(--danger-text);
+}
+.premium-pending { opacity: 0.5; }

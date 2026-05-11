@@ -1,0 +1,66 @@
+/* signal-badge.css — signal/state badges (Korean palette) (Wave 1) */
+
+/* Signal badge — Korean palette mapping (T4.4) */
+.signal-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+  font-variant-numeric: tabular-nums;
+  cursor: help;
+}
+
+/* 정상 — 청자 teal (calm, baseline) */
+.sig-normal {
+  background: var(--celadon-soft);
+  border-color: var(--celadon-border);
+  color: var(--celadon);
+}
+
+/* WATCH — 황금 베이지 (caution, soft alert) */
+.sig-watch {
+  background: var(--hwanggeum-soft);
+  border-color: var(--hwanggeum-border);
+  color: var(--hwanggeum);
+}
+
+/* TRADE — 주황 (action, opportunity) */
+.sig-trade {
+  background: var(--juhwang-soft);
+  border-color: var(--juhwang-border);
+  color: var(--juhwang);
+}
+
+/* DISLOCATED — 적색 with softer pulse (Korean restraint, not harsh) */
+.sig-dislocated {
+  background: var(--ju-red-mid);
+  border-color: var(--ju-red-border);
+  color: var(--danger-text);
+  animation: dislocated-pulse 1.8s ease-in-out infinite;
+  box-shadow: 0 0 8px var(--ju-red-soft);
+}
+
+.signal-z, .signal-collecting {
+  font-size: 9px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+/* KRX closed indicator (replaces SignalBadge during stale) */
+.signal-stale {
+  display: inline-flex;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  background: var(--neutral-bg-mid);
+  border: 1px solid var(--neutral-border-mid);
+  color: var(--text-muted);
+  cursor: help;
+}

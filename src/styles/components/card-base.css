@@ -1,0 +1,72 @@
+/* card-base.css — base card + price + meta (Wave 1) */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 20px 24px 22px;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  position: relative; overflow: hidden;
+  transition:
+    transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--celadon-border);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--hl-teal), transparent);
+  opacity: 0.4;
+}
+
+.card-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.card-head h3 { font-size: 14px; font-weight: 500; color: var(--text); }
+.ticker-id { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+.price {
+  font-size: 32px; font-weight: 600; letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums; line-height: 1;
+  margin-bottom: 6px;
+  transition: color 0.3s ease;
+}
+.price-skel { font-size: 32px; color: var(--text-muted); }
+
+/* USD subtitle under primary KRW price (PriceCard, Upbit USDT conversion) */
+.price-usd-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  margin-top: -2px;
+  margin-bottom: 4px;
+  cursor: help;
+}
+
+.change {
+  font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums;
+  margin-bottom: 18px;
+}
+
+.meta-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px 20px; padding-top: 14px;
+  border-top: 1px dashed var(--border-divider);
+}
+.meta-grid > div { display: flex; flex-direction: column; gap: 2px; }
+.meta-grid dt {
+  font-size: 10px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.meta-grid dd {
+  font-size: 13px; font-variant-numeric: tabular-nums; color: var(--text);
+}
+.status-ok { color: var(--hl-teal-dim); }
+
+.card-loading { opacity: 0.5; }

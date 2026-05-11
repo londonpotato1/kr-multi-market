@@ -1,0 +1,62 @@
+/* fx-header.css — FX pills (한지/warn tint) (Wave 1) */
+
+/* FX pills — 한지 background tint */
+.fx-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.fx-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--hanji-soft);
+  border: 1px solid var(--hanji-border);
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--hanji);
+  font-family: 'Pretendard', sans-serif;
+  letter-spacing: 0.04em;
+}
+.fx-pill .fx-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.fx-pill .fx-value {
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Kimchi warning — 적 */
+.fx-pill-warn {
+  background: var(--ju-red-soft);
+  border: 1px solid var(--ju-red-border);
+  color: var(--danger-text);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-family: 'Pretendard', sans-serif;
+  letter-spacing: 0.04em;
+}
+.fx-pill-warn .fx-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--danger-text);
+  opacity: 0.7;
+  font-weight: 500;
+}
+.fx-pill-warn .fx-value {
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
