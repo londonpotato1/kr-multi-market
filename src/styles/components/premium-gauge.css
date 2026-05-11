@@ -1,1 +1,50 @@
-/* premium-gauge.css — placeholder, filled in Phase B */
+/* premium-gauge.css — -5~+5% premium visualizer (Wave 2) */
+.premium-gauge {
+  position: relative;
+  height: 28px;
+  margin-top: 8px;
+}
+.premium-gauge-track {
+  position: absolute; left: 0; right: 0; top: 11px; height: 6px;
+  background: var(--gauge-track);
+  border-radius: 3px;
+}
+.premium-gauge-fill {
+  position: absolute; top: 11px; height: 6px;
+  border-radius: 3px;
+  transition: left 200ms ease, width 200ms ease, background-color 200ms ease;
+}
+.premium-gauge-zero {
+  position: absolute; left: 50%; top: 6px; width: 1px; height: 16px;
+  background: var(--text-muted);
+  opacity: 0.4;
+  transform: translateX(-0.5px);
+}
+.premium-gauge-dot {
+  position: absolute; top: 8px; width: 12px; height: 12px;
+  border-radius: 50%;
+  transform: translateX(-6px);
+  transition: left 200ms ease, background-color 200ms ease;
+}
+.premium-gauge-scale {
+  position: absolute; left: 0; right: 0; top: 20px;
+  display: flex; justify-content: space-between;
+  font-size: 9px; color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.premium-gauge-over {
+  position: absolute; right: 0; top: -14px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+  color: var(--juhwang);
+}
+
+/* Tier 색 */
+.premium-gauge.tier-cool .premium-gauge-fill,
+.premium-gauge.tier-cool .premium-gauge-dot { background: var(--premium-cool); }
+.premium-gauge.tier-warm .premium-gauge-fill,
+.premium-gauge.tier-warm .premium-gauge-dot { background: var(--premium-warm); }
+.premium-gauge.tier-hot  .premium-gauge-fill,
+.premium-gauge.tier-hot  .premium-gauge-dot { background: var(--premium-hot); box-shadow: 0 0 8px var(--juhwang-soft); }
+.premium-gauge.tier-na   .premium-gauge-fill,
+.premium-gauge.tier-na   .premium-gauge-dot { display: none; }
+.premium-gauge.is-null .premium-gauge-track { opacity: 0.5; }
