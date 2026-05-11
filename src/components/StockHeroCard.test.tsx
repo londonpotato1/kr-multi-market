@@ -42,6 +42,22 @@ describe('StockHeroCard', () => {
     expect(screen.getByText(/₩285,500/)).toBeInTheDocument();
   });
 
+  // Codex #2 ⚠️: HL undefined → gauge 도 NA 강제 (premium 수치는 HL 기반이므로 무의미)
+  it('forces gauge to tier-na (aria-disabled) when HL is missing even if premium present', () => {
+    const payload = { ...payloadFull, hl: undefined };
+    render(<StockHeroCard ticker="samsung" label="삼성전자" payload={payload} fx={fxOk} />);
+    const meter = screen.getByRole('meter');
+    expect(meter).toHaveAttribute('aria-disabled', 'true');
+    expect(meter.className).toContain('tier-na');
+  });
+
+  // Codex #2 ⚠️ Case 3: fx === undefined (전체 객체 없음) → USD fallback
+  it('falls back to USD primary when fx is undefined entirely', () => {
+    render(<StockHeroCard ticker="samsung" label="삼성전자" payload={payloadFull} fx={undefined} />);
+    expect(screen.getByText(/\$202\.19/)).toBeInTheDocument();
+    expect(screen.getByText(/KRW UNAVAIL/i)).toBeInTheDocument();
+  });
+
   it('renders premium "—" + tier-na gauge when premium.pctUsd is null (KRX closed)', () => {
     const payload: TickerPayload = {
       ...payloadFull,
@@ -55,13 +71,15 @@ describe('StockHeroCard', () => {
     expect(screen.getAllByText('—').length).toBeGreaterThan(0);
   });
 
-  it('shows "(closed)" marker when KRX is stale', () => {
+  it('shows "(closed)" marker AND "KRX CLOSED" footer when KRX is stale', () => {
+    // Codex #2 ⚠️ Case 6: footer 도 검증
     const payload: TickerPayload = {
       ...payloadFull,
       naver: { source: 'naver', symbol: '005930', price: 285500, unit: 'KRW', status: 'stale', asOf: now, receivedAt: now, schemaVersion: 1 },
     };
     render(<StockHeroCard ticker="samsung" label="삼성전자" payload={payload} fx={fxOk} />);
     expect(screen.getByText(/\(closed\)/)).toBeInTheDocument();
+    expect(screen.getByText('KRX CLOSED')).toBeInTheDocument();
   });
 
   it('shows "—" for KRX row when naver is missing entirely', () => {

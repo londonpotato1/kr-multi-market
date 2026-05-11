@@ -54,7 +54,8 @@ export function StockHeroCard({ ticker, label, payload, fx }: Props) {
   const showHlAsPrimary = !!hl;
 
   const premium = payload.premium;
-  const premiumPct = premium?.pctUsd ?? null;
+  // HL unavailable → premium gauge 강제 NA (premium 수치는 HL 가격을 기반으로 계산되므로 의미 없음)
+  const premiumPct = hl ? (premium?.pctUsd ?? null) : null;
   const tier = premiumTier(premiumPct);
   const change = hl?.change24hPct;
   const changeClass = change == null
