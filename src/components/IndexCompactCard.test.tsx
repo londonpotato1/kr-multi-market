@@ -74,6 +74,28 @@ describe('IndexCompactCard', () => {
     render(<IndexCompactCard ticker="kospi200f" label="KOSPI 200F" payload={payloadKospi} fx={fxOk} />);
     expect(screen.getByText('KOSPI 200F')).toBeInTheDocument();
     // 1236.40 * 1470 = 1,817,508
-    expect(screen.getByText(/₩1,817,508/)).toBeInTheDocument();
+    expect(screen.getByText(/₩1,817,508/, { selector: '.index-compact-headline' })).toBeInTheDocument();
+  });
+
+  // Codex #3 ⚠️ gap: HL undefined → Binance KRW fallback (legacy IndexCompareCard 동작 보존)
+  it('falls back to Binance KRW headline when HL is missing', () => {
+    const payload: TickerPayload = {
+      hl: undefined,
+      binance: mkPP({ source: 'binance', symbol: 'EWYUSDT', price: 193.17, unit: 'USDT', change24hPct: -1.07 }),
+    };
+    render(<IndexCompactCard ticker="ewy" label="EWY" payload={payload} fx={fxOk} />);
+    // 193.17 * 1470 = 283,960
+    expect(screen.getByText(/₩283,960/, { selector: '.index-compact-headline' })).toBeInTheDocument();
+  });
+
+  // Codex #3 ⚠️ gap: spread undefined → SpreadRow null 리턴, 카드는 정상 렌더
+  it('renders without SpreadRow when payload.spread is undefined', () => {
+    const payload: TickerPayload = {
+      hl: mkPP({ source: 'hyperliquid', symbol: 'xyz_EWY', price: 193.16, unit: 'USD', change24hPct: -1.63 }),
+      spread: undefined,
+    };
+    const { container } = render(<IndexCompactCard ticker="ewy" label="EWY" payload={payload} fx={fxOk} />);
+    expect(screen.getByText(/₩283,945/, { selector: '.index-compact-headline' })).toBeInTheDocument();
+    expect(container.querySelector('.spread-row')).toBeNull();
   });
 });
