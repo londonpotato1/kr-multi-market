@@ -265,3 +265,37 @@
     text-align: left !important;
   }
 }
+
+/* === Phase B: 새 bento grids + section tags (Wave 2) === */
+.stocks-section { margin-top: 24px; }
+.indices-section { margin-top: 32px; }
+
+.bento-3up {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.bento-4up {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1279px) {
+  .bento-3up { grid-template-columns: repeat(2, 1fr); }
+  .bento-3up > :nth-child(3) { grid-column: 1 / -1; }
+  .bento-4up { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 959px) {
+  .bento-3up { grid-template-columns: 1fr; }
+  .bento-3up > :nth-child(3) { grid-column: auto; }
+  .bento-4up { grid-template-columns: 1fr; }
+}
+
+.section-title .night-tag {
+  margin-left: 12px;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
