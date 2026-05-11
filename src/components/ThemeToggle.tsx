@@ -65,6 +65,26 @@ export function ThemeToggle() {
     setTheme((prev) => (prev === 'dark' ? 'light' : prev === 'light' ? 'system' : 'dark'));
   }, []);
 
+  // 키보드 't' shortcut — guard against form inputs + modifier combos (spec §9.2)
+  useEffect(() => {
+    function shouldIgnore(e: KeyboardEvent): boolean {
+      if (e.altKey || e.ctrlKey || e.metaKey) return true;
+      const t = e.target as HTMLElement | null;
+      if (!t) return false;
+      const tag = t.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+      if (t.isContentEditable) return true;
+      return false;
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== 't' && e.key !== 'T') return;
+      if (shouldIgnore(e)) return;
+      cycle();
+    }
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [cycle]);
+
   const icon = theme === 'dark' ? '☾' : theme === 'light' ? '☀' : '◑';
   const label = theme === 'dark' ? 'Dark' : theme === 'light' ? 'Light' : 'System';
 
@@ -73,7 +93,7 @@ export function ThemeToggle() {
       type="button"
       className="theme-toggle"
       onClick={cycle}
-      title={`Theme: ${label} (click to cycle dark → light → system)`}
+      title={`Theme: ${label} (click or press 't' to cycle dark → light → system)`}
       aria-label={`Toggle theme. Current: ${label}`}
     >
       <span className="theme-icon" aria-hidden>{icon}</span>
