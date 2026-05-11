@@ -196,11 +196,6 @@
   box-shadow: 0 12px 32px rgba(0,0,0,0.35);
 }
 
-/* Section wrappers */
-.stock-section, .index-section {
-  margin-bottom: 32px;
-}
-
 /* Header meta column refinement */
 .meta-controls {
   display: flex;
