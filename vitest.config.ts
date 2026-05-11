@@ -10,6 +10,7 @@ export default defineConfig({
           name: 'client',
           include: ['src/**/*.test.{ts,tsx}'],
           environment: 'happy-dom',
+          setupFiles: ['./src/tests/setup.ts'],
         },
       },
       {
