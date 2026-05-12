@@ -38,12 +38,13 @@ const NAVER_SYMBOL_TO_TICKER: Record<string, string> = {
 // it feeds FxRates via the existing FX path, not ticker venues.
 // ES=F and ^GSPC both represent S&P 500; first-in-wins keeps ES=F primary
 // when fetchYahoo requests futures before the cash index.
+// v0.4.2: NQ 는 QQQ ETF only (NQ=F + ^NDX 제거 — §2.7 unit 정규화).
+// 지수 pt 단위는 USDT-perp 와 scale 불일치 → 모든 source USD QQQ 통일.
 const YAHOO_SYMBOL_TO_TICKER: Record<string, string> = {
   EWY: 'ewy',
-  'NQ=F': 'nq',
+  QQQ: 'nq',
   'ES=F': 'sp500',
   '^GSPC': 'sp500',
-  '^NDX': 'nq',
 };
 
 // Map Binance Futures symbol -> ticker key
@@ -219,7 +220,7 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
   const yahooMarketOpen: Record<string, boolean> = {
     ewy: session.nyseRegular || session.nysePrePost,
     sp500: session.cme || session.nyseRegular,
-    nq: session.cme,
+    nq: session.nyseRegular,  // QQQ ETF 는 NYSE 시간 (이전 NQ=F 는 cme 였음)
   };
   for (const [tickerKey, isOpen] of Object.entries(yahooMarketOpen)) {
     const t = tickers[tickerKey];

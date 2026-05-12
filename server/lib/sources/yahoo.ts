@@ -183,6 +183,18 @@ export async function fetchYahoo(symbols: readonly string[]): Promise<Result<Pri
   const r3 = await tryChartPerSymbol(symbols);
   if (r3.ok) return r3;
   log.warn(`[yahoo] tier 3 (chart per-symbol) failed: ${r3.error}`);
-  
+
+  // v0.4.2: Tier 4 — Finnhub fallback (FINNHUB_TOKEN 활성 시에만)
+  const finnhubToken = process.env.FINNHUB_TOKEN;
+  if (finnhubToken) {
+    const { fetchFinnhub } = await import('./finnhub.js');
+    const r4 = await fetchFinnhub(symbols, finnhubToken);
+    if (r4.ok) {
+      log.info(`[yahoo] tier 4 (finnhub fallback) succeeded for ${r4.data.length} symbols`);
+      return r4;
+    }
+    log.warn(`[yahoo] tier 4 (finnhub fallback) failed: ${r4.error}`);
+  }
+
   return { ok: false, error: `All Yahoo tiers failed for ${symbols.length} symbols`, latencyMs: 0 };
 }

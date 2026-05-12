@@ -97,7 +97,7 @@ export async function pricesHandler(_req: Request, res: Response): Promise<void>
       singleFlight('source:hyperliquid', SOURCE_TTL_MS.hyperliquid, fetchHyperliquid),
       singleFlight('source:naver',       naverTtl(),                fetchNaver),
       singleFlight('source:yahoo',       SOURCE_TTL_MS.yahoo,
-        () => fetchYahoo(['KRW=X', 'EWY', 'NQ=F', 'ES=F', '^NDX', '^GSPC'])),
+        () => fetchYahoo(['KRW=X', 'EWY', 'QQQ', 'ES=F', '^GSPC'])),
       singleFlight('source:upbit',       SOURCE_TTL_MS.upbit,       fetchUpbit),
       singleFlight('source:binance',     SOURCE_TTL_MS.binance,     fetchBinanceFutures),
       singleFlight('source:bybit',       SOURCE_TTL_MS.bybit,       fetchBybitLinear),
