@@ -31,7 +31,7 @@ export default function App() {
         <div className="brand">
           <span className="logo-dot" aria-hidden />
           <div>
-            <h1>kr-multi-market</h1>
+            <h1>24시간 코스피</h1>
             <div className="sub">Korean × Bloomberg · v0.3.0</div>
           </div>
         </div>
