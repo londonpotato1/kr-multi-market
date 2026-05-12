@@ -46,13 +46,8 @@ type YahooChartResponse = {
   };
 };
 
-function unitFromQuoteType(t?: string): PricePoint['unit'] {
-  if (t === 'CURRENCY') return 'KRW';
-  if (t === 'INDEX' || t === 'FUTURE') return 'pt';
-  return 'USD';
-}
-
-function unitFromInstrument(t?: string): PricePoint['unit'] {
+/** Map Yahoo quoteType / instrumentType → PricePoint.unit. 두 필드는 enum 동일. */
+function unitFromYahooType(t?: string): PricePoint['unit'] {
   if (t === 'CURRENCY') return 'KRW';
   if (t === 'INDEX' || t === 'FUTURE') return 'pt';
   return 'USD';
@@ -81,7 +76,7 @@ async function tryBatchQuote(host: 'query1' | 'query2', symbols: readonly string
         source: 'yahoo',
         symbol: item.symbol,
         price: item.regularMarketPrice,
-        unit: unitFromQuoteType(item.quoteType),
+        unit: unitFromYahooType(item.quoteType),
         change24hPct: typeof item.regularMarketChangePercent === 'number' ? item.regularMarketChangePercent : undefined,
         volume24hUsd: undefined,  // volume is share count, not USD
         status: 'ok',
@@ -134,7 +129,7 @@ async function tryChartPerSymbol(symbols: readonly string[]): Promise<Result<Pri
         source: 'yahoo',
         symbol: meta.symbol ?? sym,
         price: meta.regularMarketPrice,
-        unit: unitFromInstrument(meta.instrumentType),
+        unit: unitFromYahooType(meta.instrumentType),
         change24hPct: change,
         status: 'ok',
         asOf,

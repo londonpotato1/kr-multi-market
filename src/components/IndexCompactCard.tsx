@@ -14,7 +14,7 @@ type Props = {
 
 /** v0.4.2 — NQ headline fallback chain (모든 source = USD/USDT scale, spec §3.2 / §3.3).
  *  Priority: HL > Yahoo > Binance > Bybit > Bitget > Polygon > TwelveData.
- *  Server marks stale sources as status='down'/price=0; 클라이언트 stale 필터 불필요. */
+ *  Stale source (NYSE 휴장 시 Yahoo 등) 는 skip — fresh perp source 우선. */
 function pickHeadlineSource(
   payload: TickerPayload,
   fxAvailable: boolean,
@@ -31,7 +31,7 @@ function pickHeadlineSource(
     [payload.twelvedata, 'TwelveData'],
   ];
   for (const [pp, label] of candidates) {
-    if (pp && Number.isFinite(pp.price) && pp.price > 0) {
+    if (pp && pp.status !== 'stale' && Number.isFinite(pp.price) && pp.price > 0) {
       return { value: pp.price * usdtKrw, label };
     }
   }
