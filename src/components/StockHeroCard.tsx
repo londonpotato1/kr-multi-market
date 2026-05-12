@@ -94,11 +94,11 @@ export function StockHeroCard({ ticker, label, payload, fx, session }: Props) {
     ? (primaryUnit === 'KRW' ? fmtKrw(primaryValue, 0) : fmtUsd(primaryValue))
     : '—';
 
-  // USDT 환산: primary KRW → /usdtKrw. USD primary 시 sub-label 생략 (중복 방지)
+  // USDT 환산 (spec §3.4): primary KRW → /usdtKrw, primary USD → 그대로 (USD ≈ USDT)
   const usdtKrw = fx?.usdtKrw ?? 0;
   const usdtValue = primaryValue !== null && primaryUnit === 'KRW' && usdtKrw > 0
     ? primaryValue / usdtKrw
-    : null;
+    : primaryUnit === 'USD' ? primaryValue : null;
 
   // 종가 변동률 (primary KRW 인 경우만; USD fallback 시 null)
   const previousClose = payload.naver?.previousClose;

@@ -71,7 +71,9 @@ describe('StockHeroCard v0.4.0', () => {
 
   it('USD fallback when fx.usdtKrw === 0 (closed session)', () => {
     render(<StockHeroCard ticker="samsung" label="삼성전자" payload={payloadFull} fx={fxZero} session={sessionClosed} />);
-    expect(screen.getByText(/\$189\.00/)).toBeInTheDocument();
+    // primary $189.00 + sub-label "≈ $189.00 USDT · 환율 없음 — USD 표시" (spec §3.4 USD ≈ USDT)
+    expect(screen.getByText('$189.00', { selector: '.stock-hero-primary' })).toBeInTheDocument();
+    expect(screen.getByText(/≈ \$189\.00 USDT/)).toBeInTheDocument();
     expect(screen.getByText(/환율 없음/)).toBeInTheDocument();
   });
 
