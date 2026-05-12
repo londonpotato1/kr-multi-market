@@ -88,7 +88,7 @@ export async function pricesHandler(_req: Request, res: Response): Promise<void>
   try {
     // v0.4.1: source 별 독립 singleFlight TTL — HL/Binance 1s, Upbit 2s,
     // Yahoo 5s, Naver 장중 2s/휴장 7s (spec §2.1, §2.4)
-    const [hl, naver, yahoo, upbit, binance] = await Promise.all([
+    const [hlResult, naver, yahoo, upbit, binance] = await Promise.all([
       singleFlight('source:hyperliquid', SOURCE_TTL_MS.hyperliquid, fetchHyperliquid),
       singleFlight('source:naver',       naverTtl(),                fetchNaver),
       singleFlight('source:yahoo',       SOURCE_TTL_MS.yahoo,
@@ -96,21 +96,26 @@ export async function pricesHandler(_req: Request, res: Response): Promise<void>
       singleFlight('source:upbit',       SOURCE_TTL_MS.upbit,       fetchUpbit),
       singleFlight('source:binance',     SOURCE_TTL_MS.binance,     fetchBinanceFutures),
     ]);
-    const response = assemblePricesResponse({ hl, naver, yahoo, upbit, binance });
-    if (HL_USE_WS) {
+
+    // v0.4.1: HL WS overlay BEFORE assemble — skew guard (computePremiumWithSkew)
+    // 가 WS asOf 신선도 (<1s) 를 반영하도록 함. spec §2.3 의도.
+    let hl = hlResult;
+    if (HL_USE_WS && hl.ok) {
       const ws = getLatestMids();
       if (ws.connected && ws.mids.size > 0) {
-        for (const payload of Object.values(response.tickers)) {
-          if (payload.hl) {
-            const mid = ws.mids.get(payload.hl.symbol);
-            if (mid !== undefined) {
-              payload.hl.price = mid;
-              payload.hl.asOf = ws.lastUpdate;
-            }
-          }
-        }
+        hl = {
+          ...hl,
+          data: hl.data.map((pp) => {
+            const mid = ws.mids.get(pp.symbol);
+            return mid !== undefined
+              ? { ...pp, price: mid, asOf: ws.lastUpdate }
+              : pp;
+          }),
+        };
       }
     }
+
+    const response = assemblePricesResponse({ hl, naver, yahoo, upbit, binance });
     res.setHeader('Cache-Control', 's-maxage=2, stale-while-revalidate=8');
     res.json(response);
   } catch (err) {

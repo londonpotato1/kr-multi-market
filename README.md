@@ -158,7 +158,7 @@ pnpm dev
 # http://localhost:5173 접속
 ```
 
-데이터는 5초마다 자동 갱신됩니다. 브라우저 localStorage에 z-score 히스토리가 7일간 누적되며, 8분(100 샘플) 이후부터 z-score 기반 시그널이 표시됩니다.
+데이터는 2초마다 자동 갱신됩니다 (v0.4.1 — source 별 cache TTL, "Price refresh rate" 섹션 참조). 브라우저 localStorage에 z-score 히스토리가 7일간 누적되며, 8분(100 샘플) 이후부터 z-score 기반 시그널이 표시됩니다.
 
 ### Vercel 배포 (계정 활성화 후)
 
