@@ -1,4 +1,5 @@
 import { calcZScore, sampleCount, SIGNAL_CONSTANTS } from '../lib/signal';
+import { SIGNAL_TIER_LABEL } from '../lib/labels';
 
 type Props = { ticker: string; currentPct: number };
 
@@ -6,18 +7,18 @@ type Tier = { label: string; className: string };
 
 function tierFromZScore(z: number): Tier {
   const a = Math.abs(z);
-  if (a < 1) return { label: '정상', className: 'sig-normal' };
-  if (a < 2) return { label: 'WATCH', className: 'sig-watch' };
-  if (a < 3) return { label: 'TRADE', className: 'sig-trade' };
-  return { label: 'DISLOCATED', className: 'sig-dislocated' };
+  if (a < 1) return { label: SIGNAL_TIER_LABEL.normal, className: 'sig-normal' };
+  if (a < 2) return { label: SIGNAL_TIER_LABEL.watch, className: 'sig-watch' };
+  if (a < 3) return { label: SIGNAL_TIER_LABEL.trade, className: 'sig-trade' };
+  return { label: SIGNAL_TIER_LABEL.dislocated, className: 'sig-dislocated' };
 }
 
 function tierFromAbs(pct: number): Tier {
   const a = Math.abs(pct);
-  if (a < 1) return { label: '정상', className: 'sig-normal' };
-  if (a < 3) return { label: 'WATCH', className: 'sig-watch' };
-  if (a < 5) return { label: 'TRADE', className: 'sig-trade' };
-  return { label: 'DISLOCATED', className: 'sig-dislocated' };
+  if (a < 1) return { label: SIGNAL_TIER_LABEL.normal, className: 'sig-normal' };
+  if (a < 3) return { label: SIGNAL_TIER_LABEL.watch, className: 'sig-watch' };
+  if (a < 5) return { label: SIGNAL_TIER_LABEL.trade, className: 'sig-trade' };
+  return { label: SIGNAL_TIER_LABEL.dislocated, className: 'sig-dislocated' };
 }
 
 export function SignalBadge({ ticker, currentPct }: Props) {
