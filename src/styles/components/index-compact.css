@@ -17,6 +17,12 @@
   font-variant-numeric: tabular-nums;
   color: var(--text);
 }
+.index-compact-usdt {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  margin-top: -2px;
+}
 .index-compact .venues { margin-top: 4px; }
 .index-compact .krw-conversions {
   font-size: 12px;

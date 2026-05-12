@@ -47,9 +47,14 @@ export function IndexCompactCard({ ticker, label, payload, fx }: Props) {
       </header>
 
       {showKrwHeadline && (
-        <div className="index-compact-headline ts-index-headline">
-          {fmtKrw(headlineKrw!, 0)}
-        </div>
+        <>
+          <div className="index-compact-headline ts-index-headline">
+            {fmtKrw(headlineKrw!, 0)}
+          </div>
+          <div className="index-compact-usdt ts-subtitle">
+            ≈ {fmtUsd(headlineKrw! / usdtKrw)} USDT
+          </div>
+        </>
       )}
       {showUsdHeadline && (
         <div className="index-compact-headline ts-index-headline">

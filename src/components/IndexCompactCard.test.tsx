@@ -88,6 +88,13 @@ describe('IndexCompactCard', () => {
     expect(screen.getByText(/₩283,960/, { selector: '.index-compact-headline' })).toBeInTheDocument();
   });
 
+  // v0.4.0 W4.2: USDT sub-label
+  it('renders USDT sub-label below KRW headline', () => {
+    render(<IndexCompactCard ticker="ewy" label="EWY" payload={payloadEwy} fx={fxOk} />);
+    // headlineKrw = 193.16 * 1470 = 283,945.2 → /1470 ≈ 193.16 → "$193.16 USDT"
+    expect(screen.getByText(/≈ \$193\.16 USDT/)).toBeInTheDocument();
+  });
+
   // Codex #3 ⚠️ gap: spread undefined → SpreadRow null 리턴, 카드는 정상 렌더
   it('renders without SpreadRow when payload.spread is undefined', () => {
     const payload: TickerPayload = {
