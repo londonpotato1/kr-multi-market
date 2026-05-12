@@ -11,7 +11,7 @@ const stubData = {
   ts: now,
   schemaVersion: 1,
   fx: { officialUsdKrw: 1471.7, usdtKrw: 1470, divergencePct: 0 },
-  session: { krx: false, krxAfter: false, krxNight: true, nyseRegular: false, nysePrePost: false, cme: true, hyperliquid: true as const, binance: true as const },
+  session: { krx: false, krxAfter: false, krxNight: true, nyseRegular: false, nysePrePost: false, cme: true, hyperliquid: true as const, binance: true as const, krxMinsUntilOpen: 1020 },
   sourceHealth: {
     hyperliquid: { lastSuccess: now, consecutiveFailures: 0 },
     naver: { lastSuccess: now, consecutiveFailures: 0 },
@@ -22,17 +22,17 @@ const stubData = {
   tickers: {
     samsung: {
       hl: { source: 'hyperliquid' as const, symbol: 'xyz_SMSN', price: 202.19, unit: 'USD' as const, change24hPct: -2.32, status: 'ok' as const, asOf: now, receivedAt: now, schemaVersion: 1 },
-      naver: { source: 'naver' as const, symbol: '005930', price: 285500, unit: 'KRW' as const, status: 'ok' as const, asOf: now, receivedAt: now, schemaVersion: 1 },
+      naver: { source: 'naver' as const, symbol: '005930', price: 285500, unit: 'KRW' as const, status: 'ok' as const, asOf: now, receivedAt: now, schemaVersion: 1, previousClose: 290000, previousCloseSource: 'naver' as const },
       premium: { pctUsd: 4.23, pctUsdt: 4.2, guard: 'normal' as const },
     },
     skhynix: {
       hl: { source: 'hyperliquid' as const, symbol: 'xyz_SKHX', price: 1323, unit: 'USD' as const, change24hPct: 4.99, status: 'ok' as const, asOf: now, receivedAt: now, schemaVersion: 1 },
-      naver: { source: 'naver' as const, symbol: '000660', price: 1880000, unit: 'KRW' as const, status: 'ok' as const, asOf: now, receivedAt: now, schemaVersion: 1 },
+      naver: { source: 'naver' as const, symbol: '000660', price: 1880000, unit: 'KRW' as const, status: 'ok' as const, asOf: now, receivedAt: now, schemaVersion: 1, previousClose: 1860000, previousCloseSource: 'naver' as const },
       premium: { pctUsd: 3.63, pctUsdt: 3.5, guard: 'normal' as const },
     },
     hyundai: {
       hl: { source: 'hyperliquid' as const, symbol: 'xyz_HYUNDAI', price: 441, unit: 'USD' as const, change24hPct: -2.21, status: 'ok' as const, asOf: now, receivedAt: now, schemaVersion: 1 },
-      naver: { source: 'naver' as const, symbol: '005380', price: 646000, unit: 'KRW' as const, status: 'ok' as const, asOf: now, receivedAt: now, schemaVersion: 1 },
+      naver: { source: 'naver' as const, symbol: '005380', price: 646000, unit: 'KRW' as const, status: 'ok' as const, asOf: now, receivedAt: now, schemaVersion: 1, previousClose: 642000, previousCloseSource: 'naver' as const },
       premium: { pctUsd: 0.46, pctUsdt: 0.4, guard: 'normal' as const },
     },
     ewy: {
