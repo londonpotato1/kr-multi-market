@@ -142,14 +142,19 @@ export function StockHeroCard({ ticker, label, payload, fx, session }: Props) {
       <div className="stock-hero-pct-close">
         {pctClose === null ? (
           <span className="pct-close-none">
-            — <span className="pct-close-label">종가 데이터 없음</span>
+            — <span className="pct-close-label">전일 종가 데이터 없음</span>
           </span>
         ) : (
           <>
             <span className={`pct-close-value ${pctCloseClass}`}>
               {pctArrow} {fmtPct(pctClose)}
             </span>
-            <span className="pct-close-label">종가 대비</span>
+            <span
+              className="pct-close-label"
+              title="KRX 직전 영업일 15:30 종가 기준 (Naver Finance)"
+            >
+              전일 종가 대비
+            </span>
           </>
         )}
       </div>

@@ -5,7 +5,10 @@ export function HelpPanel() {
       <div className="help-content">
         <section>
           <h4>가격 변동</h4>
-          <p>▲ 초록 = 상승 / ▼ 빨강 = 하락 / — 회색 = 보합 또는 데이터 없음</p>
+          <p>
+            ▲ 초록 = 상승 / ▼ 빨강 = 하락 / — 회색 = 보합 또는 데이터 없음.
+            "전일 종가" = KRX 직전 영업일 15:30 마감가.
+          </p>
         </section>
         <section>
           <h4>프리미엄 단계</h4>

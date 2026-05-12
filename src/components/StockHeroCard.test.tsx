@@ -51,16 +51,16 @@ describe('StockHeroCard v0.4.0', () => {
     render(<StockHeroCard ticker="samsung" label="삼성전자" payload={payloadFull} fx={fxOk} session={sessionOpen} />);
     // (279000 - 281200) / 281200 * 100 = -0.7824%
     expect(screen.getByText(/-0\.78%/)).toBeInTheDocument();
-    expect(screen.getByText('종가 대비')).toBeInTheDocument();
+    expect(screen.getByText('전일 종가 대비')).toBeInTheDocument();
   });
 
-  it('shows "종가 데이터 없음" when previousClose undefined', () => {
+  it('shows "전일 종가 데이터 없음" when previousClose undefined', () => {
     const payload = {
       ...payloadFull,
       naver: { ...payloadFull.naver!, previousClose: undefined, previousCloseSource: undefined },
     };
     render(<StockHeroCard ticker="samsung" label="삼성전자" payload={payload} fx={fxOk} session={sessionOpen} />);
-    expect(screen.getByText(/종가 데이터 없음/)).toBeInTheDocument();
+    expect(screen.getByText(/전일 종가 데이터 없음/)).toBeInTheDocument();
   });
 
   it('shows USDT sub-label under PRIMARY (open session)', () => {
