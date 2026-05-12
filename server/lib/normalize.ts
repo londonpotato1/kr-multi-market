@@ -111,3 +111,21 @@ export function computePremium(
 
   return { pctUsd, pctUsdt, guard: guard.state };
 }
+
+// spec §2.5: HL vs Naver fetch 시점 격차 > 5s 시 premium 신뢰성 낮음 → null + guard='warn'
+export const MAX_PREMIUM_SKEW_MS = 5000;
+
+export function computePremiumWithSkew(
+  hl: PricePoint | undefined,
+  naver: PricePoint | undefined,
+  fx: FxRates,
+): Premium {
+  if (!hl || !naver) {
+    return { pctUsd: null, pctUsdt: null, guard: 'normal' };
+  }
+  const skewMs = Math.abs(hl.asOf - naver.asOf);
+  if (skewMs > MAX_PREMIUM_SKEW_MS) {
+    return { pctUsd: null, pctUsdt: null, guard: 'warn' };
+  }
+  return computePremium(hl.price, naver.price, fx);
+}

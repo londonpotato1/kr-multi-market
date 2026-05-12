@@ -8,7 +8,7 @@ import type {
   Premium,
   Spread,
 } from '@shared/types/prices.js';
-import { buildFxRates, computePremium } from './normalize.js';
+import { buildFxRates, computePremiumWithSkew } from './normalize.js';
 import { getSessionState } from './session.js';
 import { recordSourceAttempt, getSourceHealth } from './health.js';
 import { resolvePrevClose } from './prev-close-cache.js';
@@ -235,7 +235,7 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
   for (const tickerKey of ['samsung', 'skhynix', 'hyundai']) {
     const t = tickers[tickerKey];
     if (!t || !t.hl) continue;
-    const premium: Premium = computePremium(t.hl.price, t.naver?.price, fx);
+    const premium: Premium = computePremiumWithSkew(t.hl, t.naver, fx);
     tickers[tickerKey] = { ...t, premium };
   }
 
