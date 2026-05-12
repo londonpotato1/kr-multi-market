@@ -1,0 +1,41 @@
+/* help-panel.css — collapsible 도움말 (v0.4.0 W3.2) */
+.help-panel {
+  background: var(--surface);
+  border: 1px solid var(--border-divider);
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin: 16px 0;
+  font-size: 12px;
+}
+.help-panel summary {
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--hanji);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+  list-style: none;
+}
+.help-panel summary::-webkit-details-marker { display: none; }
+.help-panel summary:hover { color: var(--text); }
+.help-content {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 24px;
+}
+.help-content h4 {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+.help-content p {
+  color: var(--text);
+  line-height: 1.5;
+}
+@media (max-width: 639px) {
+  .help-content { grid-template-columns: 1fr; }
+}
