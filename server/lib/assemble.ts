@@ -58,6 +58,11 @@ const BYBIT_SYMBOL_TO_TICKER: Record<string, string> = {
   QQQUSDT: 'nq',
 };
 
+// Map Bitget USDT-M symbol -> ticker key (v0.4.2 — NQ redundancy via QQQ-USDT perp)
+const BITGET_SYMBOL_TO_TICKER: Record<string, string> = {
+  QQQUSDT: 'nq',
+};
+
 // NQ has no Hyperliquid xyz equivalent in the current matrix, so its spread
 // is Yahoo + Binance only when Yahoo is available.
 const MULTI_VENUE_TICKERS = ['ewy', 'sp500', 'nq'] as const;
@@ -236,6 +241,14 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
       const tickerKey = BYBIT_SYMBOL_TO_TICKER[pp.symbol];
       if (!tickerKey) continue;
       tickers[tickerKey] = { ...(tickers[tickerKey] ?? {}), bybit: pp };
+    }
+  }
+
+  if (sources.bitget.ok) {
+    for (const pp of sources.bitget.data) {
+      const tickerKey = BITGET_SYMBOL_TO_TICKER[pp.symbol];
+      if (!tickerKey) continue;
+      tickers[tickerKey] = { ...(tickers[tickerKey] ?? {}), bitget: pp };
     }
   }
 

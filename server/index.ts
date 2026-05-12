@@ -9,6 +9,7 @@ import { fetchYahoo } from './lib/sources/yahoo.js';
 import { fetchUpbit } from './lib/sources/upbit.js';
 import { fetchBinanceFutures } from './lib/sources/binance.js';
 import { fetchBybitLinear } from './lib/sources/bybit.js';
+import { fetchBitgetFutures } from './lib/sources/bitget.js';
 import { startHyperliquidWs, getLatestMids } from './lib/sources/hyperliquid-ws.js';
 import { assemblePricesResponse } from './lib/assemble.js';
 import { APP_VERSION } from './lib/healthz.js';
@@ -89,8 +90,8 @@ export async function pricesHandler(_req: Request, res: Response): Promise<void>
   try {
     // v0.4.1: source 별 독립 singleFlight TTL — HL/Binance/Bybit 1s, Upbit 2s,
     // Yahoo 5s, Naver 장중 2s/휴장 7s (spec §2.1, §2.4)
-    // v0.4.2: bybit/bitget/polygon/twelvedata 추가. bitget/polygon/twelvedata 는
-    //         Task 3/6/7 에서 활성화 — 현재는 disabled stub.
+    // v0.4.2: bybit/bitget/polygon/twelvedata 추가. polygon/twelvedata 는
+    //         Task 6/7 에서 활성화 — 현재는 disabled stub.
     const disabledResult = { ok: false as const, error: 'disabled' as const, latencyMs: 0 };
     const [hlResult, naver, yahoo, upbit, binance, bybit, bitget, polygon, twelvedata] = await Promise.all([
       singleFlight('source:hyperliquid', SOURCE_TTL_MS.hyperliquid, fetchHyperliquid),
@@ -100,7 +101,7 @@ export async function pricesHandler(_req: Request, res: Response): Promise<void>
       singleFlight('source:upbit',       SOURCE_TTL_MS.upbit,       fetchUpbit),
       singleFlight('source:binance',     SOURCE_TTL_MS.binance,     fetchBinanceFutures),
       singleFlight('source:bybit',       SOURCE_TTL_MS.bybit,       fetchBybitLinear),
-      Promise.resolve(disabledResult),  // Task 3: bitget
+      singleFlight('source:bitget',      SOURCE_TTL_MS.bitget,      fetchBitgetFutures),
       Promise.resolve(disabledResult),  // Task 6: polygon (env-gated)
       Promise.resolve(disabledResult),  // Task 7: twelvedata (env-gated)
     ]);
