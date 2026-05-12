@@ -2,6 +2,7 @@ import express, { type NextFunction, type Request, type Response } from 'express
 import cors from 'cors';
 import { log } from './lib/logger.js';
 import { singleFlight } from './lib/cache.js';
+import { SOURCE_TTL_MS, naverTtl } from './lib/source-cache.js';
 import { fetchHyperliquid } from './lib/sources/hyperliquid.js';
 import { fetchNaver } from './lib/sources/naver.js';
 import { fetchYahoo } from './lib/sources/yahoo.js';
@@ -14,7 +15,6 @@ import { getSourceHealth } from './lib/health.js';
 import type {
   HealthzResponse,
   InternalHealthResponse,
-  PricesResponse,
   SourceHealth,
   SourceName,
 } from '@shared/types/prices.js';
@@ -86,17 +86,17 @@ export async function internalHealthHandler(req: Request, res: Response): Promis
 
 export async function pricesHandler(_req: Request, res: Response): Promise<void> {
   try {
-    // Single-flight: dedup concurrent requests, cache 4s
-    const response = await singleFlight<PricesResponse>('prices', 4000, async () => {
-      const [hl, naver, yahoo, upbit, binance] = await Promise.all([
-        fetchHyperliquid(),
-        fetchNaver(),
-        fetchYahoo(['KRW=X', 'EWY', 'NQ=F', 'ES=F', '^NDX', '^GSPC']),
-        fetchUpbit(),
-        fetchBinanceFutures(),
-      ]);
-      return assemblePricesResponse({ hl, naver, yahoo, upbit, binance });
-    });
+    // v0.4.1: source 별 독립 singleFlight TTL — HL/Binance 1s, Upbit 2s,
+    // Yahoo 5s, Naver 장중 2s/휴장 7s (spec §2.1, §2.4)
+    const [hl, naver, yahoo, upbit, binance] = await Promise.all([
+      singleFlight('source:hyperliquid', SOURCE_TTL_MS.hyperliquid, fetchHyperliquid),
+      singleFlight('source:naver',       naverTtl(),                fetchNaver),
+      singleFlight('source:yahoo',       SOURCE_TTL_MS.yahoo,
+        () => fetchYahoo(['KRW=X', 'EWY', 'NQ=F', 'ES=F', '^NDX', '^GSPC'])),
+      singleFlight('source:upbit',       SOURCE_TTL_MS.upbit,       fetchUpbit),
+      singleFlight('source:binance',     SOURCE_TTL_MS.binance,     fetchBinanceFutures),
+    ]);
+    const response = assemblePricesResponse({ hl, naver, yahoo, upbit, binance });
     if (HL_USE_WS) {
       const ws = getLatestMids();
       if (ws.connected && ws.mids.size > 0) {
