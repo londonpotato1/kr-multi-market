@@ -14,9 +14,9 @@ export function usePrices() {
     '/api/prices',
     fetcher,
     {
-      refreshInterval: 5000,
+      refreshInterval: 2000,
       revalidateOnFocus: false,
-      dedupingInterval: 4000,
+      dedupingInterval: 1500,
     },
   );
 

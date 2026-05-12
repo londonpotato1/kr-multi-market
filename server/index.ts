@@ -111,7 +111,7 @@ export async function pricesHandler(_req: Request, res: Response): Promise<void>
         }
       }
     }
-    res.setHeader('Cache-Control', 's-maxage=4, stale-while-revalidate=10');
+    res.setHeader('Cache-Control', 's-maxage=2, stale-while-revalidate=8');
     res.json(response);
   } catch (err) {
     log.error('[/api/prices] unhandled', err);
