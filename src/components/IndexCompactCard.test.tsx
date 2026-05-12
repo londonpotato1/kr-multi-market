@@ -106,3 +106,72 @@ describe('IndexCompactCard', () => {
     expect(container.querySelector('.spread-row')).toBeNull();
   });
 });
+
+// PricePoint 헬퍼 — mkPP 재사용
+const mkNqPP = (source: SourceName, price: number, change = 1.63) => mkPP({
+  source,
+  symbol: source === 'hyperliquid' ? 'xyz_NQ' : 'QQQ',
+  price,
+  unit: (source === 'binance' || source === 'bybit' || source === 'bitget') ? 'USDT' : 'USD',
+  change24hPct: change,
+});
+
+describe('IndexCompactCard NQ — v0.4.2 fallback chain + 5 VenueRow', () => {
+  it('uses Binance when HL+Yahoo missing (priority: hl > yahoo > binance > bybit > bitget)', () => {
+    const payload: TickerPayload = {
+      binance: mkNqPP('binance', 572.45),
+    };
+    render(<IndexCompactCard ticker="nq" label="Nasdaq" payload={payload} fx={fxOk} />);
+    // 572.45 * 1470 = 841,501.5 → 841,502 (rounded)
+    expect(screen.getByText(/₩841,502/, { selector: '.index-compact-headline' })).toBeInTheDocument();
+    expect(screen.getByText(/출처\s+Binance/)).toBeInTheDocument();
+  });
+
+  it('uses Bybit when Binance also missing', () => {
+    const payload: TickerPayload = { bybit: mkNqPP('bybit', 572.45) };
+    render(<IndexCompactCard ticker="nq" label="Nasdaq" payload={payload} fx={fxOk} />);
+    expect(screen.getByText(/출처\s+Bybit/)).toBeInTheDocument();
+  });
+
+  it('uses Bitget when Bybit also missing', () => {
+    const payload: TickerPayload = { bitget: mkNqPP('bitget', 572.45) };
+    render(<IndexCompactCard ticker="nq" label="Nasdaq" payload={payload} fx={fxOk} />);
+    expect(screen.getByText(/출처\s+Bitget/)).toBeInTheDocument();
+  });
+
+  it('uses Polygon when no perp source available', () => {
+    const payload: TickerPayload = { polygon: mkNqPP('polygon', 572.45) };
+    render(<IndexCompactCard ticker="nq" label="Nasdaq" payload={payload} fx={fxOk} />);
+    expect(screen.getByText(/출처\s+Polygon/)).toBeInTheDocument();
+  });
+
+  it('uses TwelveData as last fallback', () => {
+    const payload: TickerPayload = { twelvedata: mkNqPP('twelvedata', 572.45) };
+    render(<IndexCompactCard ticker="nq" label="Nasdaq" payload={payload} fx={fxOk} />);
+    expect(screen.getByText(/출처\s+TwelveData/)).toBeInTheDocument();
+  });
+
+  it('renders bybit + bitget VenueRows when present', () => {
+    const payload: TickerPayload = {
+      binance: mkNqPP('binance', 572.45),
+      bybit: mkNqPP('bybit', 572.50),
+      bitget: mkNqPP('bitget', 572.40),
+    };
+    render(<IndexCompactCard ticker="nq" label="Nasdaq" payload={payload} fx={fxOk} />);
+    expect(screen.getByText('Binance')).toBeInTheDocument();
+    expect(screen.getByText('Bybit')).toBeInTheDocument();
+    expect(screen.getByText('Bitget')).toBeInTheDocument();
+  });
+
+  it('does NOT render Polygon/TwelveData as VenueRow (headline fallback only)', () => {
+    const payload: TickerPayload = {
+      binance: mkNqPP('binance', 572.45),
+      polygon: mkNqPP('polygon', 572.50),
+      twelvedata: mkNqPP('twelvedata', 572.40),
+    };
+    render(<IndexCompactCard ticker="nq" label="Nasdaq" payload={payload} fx={fxOk} />);
+    expect(screen.getByText('Binance')).toBeInTheDocument();
+    expect(screen.queryByText('Polygon', { selector: '.venue-pill' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Twelve Data', { selector: '.venue-pill' })).not.toBeInTheDocument();
+  });
+});

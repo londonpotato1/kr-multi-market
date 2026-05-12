@@ -1,4 +1,4 @@
-import type { TickerPayload, FxRates } from '@shared/types/prices.js';
+import type { TickerPayload, FxRates, PricePoint } from '@shared/types/prices.js';
 import { VenueRow } from './VenueRow';
 import { SpreadRow } from './SpreadRow';
 import { fmtKrw, fmtUsd } from '../lib/format';
@@ -12,8 +12,36 @@ type Props = {
   fx?: FxRates;
 };
 
+/** v0.4.2 — NQ headline fallback chain (모든 source = USD/USDT scale, §2.7).
+ *  Priority: HL > Yahoo > Binance > Bybit > Bitget > Polygon > TwelveData. */
+function pickHeadlineSource(
+  payload: TickerPayload,
+  fxAvailable: boolean,
+  usdtKrw: number,
+): { value: number; source: string; label: string } | null {
+  if (!fxAvailable) return null;
+  const candidates: Array<[string, PricePoint | undefined, string]> = [
+    ['hl',         payload.hl,         'HL'],
+    ['yahoo',      payload.yahoo,      'Yahoo'],
+    ['binance',    payload.binance,    'Binance'],
+    ['bybit',      payload.bybit,      'Bybit'],
+    ['bitget',     payload.bitget,     'Bitget'],
+    ['polygon',    payload.polygon,    'Polygon'],
+    ['twelvedata', payload.twelvedata, 'TwelveData'],
+  ];
+  for (const [name, pp, label] of candidates) {
+    if (pp && Number.isFinite(pp.price) && pp.price > 0) {
+      return { value: pp.price * usdtKrw, source: name, label };
+    }
+  }
+  return null;
+}
+
 export function IndexCompactCard({ ticker, label, payload, fx }: Props) {
-  const hasAnyVenue = !!(payload?.hl || payload?.binance || payload?.yahoo);
+  const hasAnyVenue = !!(
+    payload?.hl || payload?.yahoo || payload?.binance ||
+    payload?.bybit || payload?.bitget || payload?.polygon || payload?.twelvedata
+  );
   if (!payload || !hasAnyVenue) {
     return (
       <article className="card index-compact card-loading" data-testid="index-compact-loading">
@@ -30,13 +58,21 @@ export function IndexCompactCard({ ticker, label, payload, fx }: Props) {
   const fxAvailable = usdtKrw > 0;
   const sp500Multiplier = ticker === 'sp500' ? SP500_REFERENCE_RATIO : 1;
 
+  // NQ 카드: pickHeadlineSource 사용 (v0.4.2). EWY/SP500: 기존 HL→Binance 분기 유지.
+  const useFallbackChain = ticker === 'nq';
+
   const hlKrw = payload.hl && fxAvailable ? payload.hl.price * usdtKrw : null;
   const binanceKrw = payload.binance && fxAvailable
     ? payload.binance.price * usdtKrw * sp500Multiplier
     : null;
-  const headlineKrw = hlKrw ?? binanceKrw;
 
-  const showKrwHeadline = fxAvailable && headlineKrw !== null;
+  const headline = useFallbackChain
+    ? pickHeadlineSource(payload, fxAvailable, usdtKrw)
+    : (hlKrw !== null ? { value: hlKrw, source: 'hl', label: 'HL' }
+       : binanceKrw !== null ? { value: binanceKrw, source: 'binance', label: 'Binance' }
+       : null);
+
+  const showKrwHeadline = fxAvailable && headline !== null;
   const showUsdHeadline = !fxAvailable && !!payload.hl;
 
   return (
@@ -49,10 +85,11 @@ export function IndexCompactCard({ ticker, label, payload, fx }: Props) {
       {showKrwHeadline && (
         <>
           <div className="index-compact-headline ts-index-headline">
-            {fmtKrw(headlineKrw!, 0)}
+            {fmtKrw(headline!.value, 0)}
           </div>
           <div className="index-compact-usdt ts-subtitle">
-            ≈ {fmtUsd(headlineKrw! / usdtKrw)} USDT
+            ≈ {fmtUsd(headline!.value / usdtKrw)} USDT
+            {useFallbackChain && ` · 출처 ${headline!.label}`}
           </div>
         </>
       )}
@@ -66,6 +103,8 @@ export function IndexCompactCard({ ticker, label, payload, fx }: Props) {
         <VenueRow source="hyperliquid" pp={payload.hl} />
         <VenueRow source="yahoo" pp={payload.yahoo} />
         <VenueRow source="binance" pp={payload.binance} />
+        <VenueRow source="bybit" pp={payload.bybit} />
+        <VenueRow source="bitget" pp={payload.bitget} />
       </div>
 
       {ticker === 'sp500' && hlKrw !== null && binanceKrw !== null && (
@@ -73,7 +112,7 @@ export function IndexCompactCard({ ticker, label, payload, fx }: Props) {
           HL: {fmtKrw(hlKrw, 0)} | Binance×10: {fmtKrw(binanceKrw, 0)}
         </div>
       )}
-      {ticker !== 'sp500' && hlKrw !== null && binanceKrw !== null && (
+      {ticker !== 'sp500' && ticker !== 'nq' && hlKrw !== null && binanceKrw !== null && (
         <div className="krw-conversions num">
           HL: {fmtKrw(hlKrw, 0)} | Binance: {fmtKrw(binanceKrw, 0)}
         </div>
