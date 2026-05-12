@@ -121,7 +121,8 @@ export function computePremiumWithSkew(
   fx: FxRates,
 ): Premium {
   if (!hl || !naver) {
-    return { pctUsd: null, pctUsdt: null, guard: 'normal' };
+    // 기존 computePremium 동작 보존: 둘 중 하나 undefined → gdrGuard 'blocked'
+    return { pctUsd: null, pctUsdt: null, guard: 'blocked' };
   }
   const skewMs = Math.abs(hl.asOf - naver.asOf);
   if (skewMs > MAX_PREMIUM_SKEW_MS) {

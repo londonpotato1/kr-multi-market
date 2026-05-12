@@ -30,16 +30,18 @@ describe('computePremiumWithSkew', () => {
     expect(result.guard).toBe('warn');
   });
 
-  it('returns null premium when hl undefined', () => {
+  it('returns null + guard=blocked when hl undefined (matches existing computePremium)', () => {
     const naver = mkPP(279000, now, 'naver');
     const result = computePremiumWithSkew(undefined, naver, fxOk);
     expect(result.pctUsd).toBeNull();
+    expect(result.guard).toBe('blocked');
   });
 
-  it('returns null premium when naver undefined', () => {
+  it('returns null + guard=blocked when naver undefined (matches existing computePremium)', () => {
     const hl = mkPP(189, now);
     const result = computePremiumWithSkew(hl, undefined, fxOk);
     expect(result.pctUsd).toBeNull();
+    expect(result.guard).toBe('blocked');
   });
 
   it('boundary: skew = exactly 5000ms → guard=normal (strict >)', () => {
