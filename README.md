@@ -32,6 +32,29 @@ pnpm dev
 | Nasdaq 100 | — | — | NQ=F + ^NDX | QQQUSDT | 2-3 |
 | USDKRW | xyz_KRW | Upbit USDT-KRW | KRW=X | — | 2-3 |
 
+## Source Matrix (v0.4.2)
+
+| Source | Symbol | 가입 URL | Free quota | Note |
+|---|---|---|---|---|
+| Hyperliquid xyz | xyz:SMSN 등 7 | — | 무제한 | NQ 미상장 |
+| Naver Finance | 005930 등 | — | 권장 7s polling | 한국 주식 |
+| Yahoo Finance | EWY, QQQ, ES=F, ^GSPC | — | rate-limited (한국 IP 차단) | 1차 — NQ=F/^NDX 제거됨 (§2.7) |
+| Finnhub | QQQ | https://finnhub.io/register | 60/min | Yahoo Tier-4 fallback (ETF only) |
+| Binance Futures | EWYUSDT, SPYUSDT, QQQUSDT | — | 6000 weight/min | 1회 재시도 + Retry-After |
+| **Bybit Linear** ★ | QQQUSDT | — | 60 req/s | v0.4.2 신규 |
+| **Bitget USDT-M** ★ | QQQUSDT | — | 20 req/s | v0.4.2 신규 |
+| Polygon.io (opt) | QQQ | https://polygon.io/dashboard/api-keys | 5/min free | paid 권장. ETF only (I:NDX 제외) |
+| TwelveData (opt) | QQQ | https://twelvedata.com/account/api-keys | 800/day free | paid 권장. ETF only (NDX 제외) |
+| Upbit | USDT-KRW | — | 무료 | FX 전용 |
+
+### NQ Unit 정규화 (v0.4.2)
+
+모든 NQ source 가 **QQQ ETF USD 가격** (~$570 range) 으로 통일됨. 이전 버전의 NQ=F futures pt + ^NDX index pt (단위 불일치) 는 v0.4.2 에서 제거.
+
+### Vercel 배포 시 알려진 제약
+
+v0.4.2 옵셔널 source (Polygon/TwelveData) 는 free tier 운영 시 daily quota 소진 위험. 프로덕션은 paid tier 권장.
+
 ## Architecture
 
 ```
