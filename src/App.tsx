@@ -50,7 +50,7 @@ export default function App() {
         <div className="brand">
           <span className="logo-dot" aria-hidden />
           <div>
-            <h1>24시간 코스피</h1>
+            <h1>코스피 24시간 트래커</h1>
             <div className="sub">한국 주식의 24시간 거래소(HL) 가격과 KRX 종가 비교 · v0.4.0</div>
           </div>
         </div>
