@@ -97,8 +97,10 @@ export async function pricesHandler(_req: Request, res: Response): Promise<void>
       singleFlight('source:binance',     SOURCE_TTL_MS.binance,     fetchBinanceFutures),
     ]);
 
-    // v0.4.1: HL WS overlay BEFORE assemble — skew guard (computePremiumWithSkew)
-    // 가 WS asOf 신선도 (<1s) 를 반영하도록 함. spec §2.3 의도.
+    // ⚠️ 회귀 가드 (v0.4.1, spec §2.3) — 이 block 을 절대 `assemblePricesResponse` 아래로
+    // 옮기지 말 것. assemble.ts 안에서 `computePremiumWithSkew(t.hl, t.naver, fx)` 가
+    // `t.hl.asOf` 를 skew 계산에 사용. WS overlay 가 assemble 후 실행되면 skew 가
+    // REST asOf 만 보고 WS 신선도 (<1s) 를 못 반영함 (Codex #2 BLOCK 사고).
     let hl = hlResult;
     if (HL_USE_WS && hl.ok) {
       const ws = getLatestMids();
