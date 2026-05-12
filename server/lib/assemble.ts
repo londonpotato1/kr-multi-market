@@ -69,6 +69,10 @@ const POLYGON_SYMBOL_TO_TICKER: Record<string, string> = {
   QQQ: 'nq',
 };
 
+const TWELVEDATA_SYMBOL_TO_TICKER: Record<string, string> = {
+  QQQ: 'nq',
+};
+
 // NQ has no Hyperliquid xyz equivalent in the current matrix, so its spread
 // is Yahoo + Binance only when Yahoo is available.
 const MULTI_VENUE_TICKERS = ['ewy', 'sp500', 'nq'] as const;
@@ -263,6 +267,14 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
       const tickerKey = POLYGON_SYMBOL_TO_TICKER[pp.symbol];
       if (!tickerKey) continue;
       tickers[tickerKey] = { ...(tickers[tickerKey] ?? {}), polygon: pp };
+    }
+  }
+
+  if (sources.twelvedata.ok) {
+    for (const pp of sources.twelvedata.data) {
+      const tickerKey = TWELVEDATA_SYMBOL_TO_TICKER[pp.symbol];
+      if (!tickerKey) continue;
+      tickers[tickerKey] = { ...(tickers[tickerKey] ?? {}), twelvedata: pp };
     }
   }
 
