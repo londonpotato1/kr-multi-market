@@ -25,7 +25,7 @@ let started = false;
 let loggedFirstMids = false;
 
 function startPing() {
-  pingTimer && clearInterval(pingTimer);
+  if (pingTimer) clearInterval(pingTimer);
   pingTimer = setInterval(() => {
     if (ws?.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({ method: 'ping' }));
@@ -79,8 +79,8 @@ function connect() {
   ws.on('close', () => {
     log.warn('[hl-ws] disconnected, reconnecting in', RECONNECT_DELAY_MS, 'ms');
     state.connected = false;
-    pingTimer && clearInterval(pingTimer);
-    reconnectTimer && clearTimeout(reconnectTimer);
+    if (pingTimer) clearInterval(pingTimer);
+    if (reconnectTimer) clearTimeout(reconnectTimer);
     reconnectTimer = setTimeout(() => connect(), RECONNECT_DELAY_MS);
   });
 
