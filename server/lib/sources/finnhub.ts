@@ -1,4 +1,5 @@
 import type { PricePoint, Result } from '@shared/types/prices.js';
+import { log } from '../logger.js';
 
 const SCHEMA_VERSION = 1;
 const TIMEOUT_MS = 5000;
@@ -36,7 +37,8 @@ export async function fetchFinnhub(
       if (!res.ok) return;
       const raw = (await res.json()) as FinnhubQuote;
       if (typeof raw.c !== 'number' || raw.c <= 0) return;
-      const pct = raw.pc && raw.pc > 0 ? ((raw.c - raw.pc) / raw.pc) * 100 : 0;
+      const safePc = raw.pc && raw.pc > 0 ? raw.pc : undefined;
+      const pct = safePc !== undefined ? ((raw.c - safePc) / safePc) * 100 : undefined;
       result.push({
         source: 'yahoo',  // source slot 유지: Finnhub 은 yahoo 의 Tier-4 fallback
         symbol: sym,
@@ -47,11 +49,15 @@ export async function fetchFinnhub(
         asOf: raw.t ? raw.t * 1000 : Date.now(),
         receivedAt: Date.now(),
         schemaVersion: SCHEMA_VERSION,
-        previousClose: raw.pc && raw.pc > 0 ? raw.pc : undefined,
-        previousCloseSource: raw.pc && raw.pc > 0 ? 'yahoo' : undefined,
+        previousClose: safePc,
+        previousCloseSource: safePc !== undefined ? 'yahoo' : undefined,
       });
-    } catch {
-      // swallow per-symbol error
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        log.warn(`[finnhub] ${sym} timeout`);
+      } else {
+        log.warn(`[finnhub] ${sym} error:`, err instanceof Error ? err.message : err);
+      }
     } finally {
       clearTimeout(timeout);
     }

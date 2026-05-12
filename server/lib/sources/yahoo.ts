@@ -161,12 +161,13 @@ async function tryChartPerSymbol(symbols: readonly string[]): Promise<Result<Pri
 
 /**
  * Fetch Yahoo Finance prices for multiple symbols.
- * 3-tier fallback:
+ * 4-tier fallback (v0.4.2):
  *   1. v7/finance/quote on query2 (batch)
  *   2. v7/finance/quote on query1 (different shard)
  *   3. v8/finance/chart per-symbol
- * 
- * Returns ok:false if all 3 tiers fail.
+ *   4. Finnhub /quote (FINNHUB_TOKEN 활성 시에만, ETF/equity only)
+ *
+ * Returns ok:false if all 4 tiers fail (or all tiers + Finnhub disabled).
  */
 export async function fetchYahoo(symbols: readonly string[]): Promise<Result<PricePoint[]>> {
   // Tier 1: query2 batch
