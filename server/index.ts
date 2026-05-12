@@ -8,6 +8,7 @@ import { fetchNaver } from './lib/sources/naver.js';
 import { fetchYahoo } from './lib/sources/yahoo.js';
 import { fetchUpbit } from './lib/sources/upbit.js';
 import { fetchBinanceFutures } from './lib/sources/binance.js';
+import { fetchBybitLinear } from './lib/sources/bybit.js';
 import { startHyperliquidWs, getLatestMids } from './lib/sources/hyperliquid-ws.js';
 import { assemblePricesResponse } from './lib/assemble.js';
 import { APP_VERSION } from './lib/healthz.js';
@@ -86,15 +87,22 @@ export async function internalHealthHandler(req: Request, res: Response): Promis
 
 export async function pricesHandler(_req: Request, res: Response): Promise<void> {
   try {
-    // v0.4.1: source 별 독립 singleFlight TTL — HL/Binance 1s, Upbit 2s,
+    // v0.4.1: source 별 독립 singleFlight TTL — HL/Binance/Bybit 1s, Upbit 2s,
     // Yahoo 5s, Naver 장중 2s/휴장 7s (spec §2.1, §2.4)
-    const [hlResult, naver, yahoo, upbit, binance] = await Promise.all([
+    // v0.4.2: bybit/bitget/polygon/twelvedata 추가. bitget/polygon/twelvedata 는
+    //         Task 3/6/7 에서 활성화 — 현재는 disabled stub.
+    const disabledResult = { ok: false as const, error: 'disabled' as const, latencyMs: 0 };
+    const [hlResult, naver, yahoo, upbit, binance, bybit, bitget, polygon, twelvedata] = await Promise.all([
       singleFlight('source:hyperliquid', SOURCE_TTL_MS.hyperliquid, fetchHyperliquid),
       singleFlight('source:naver',       naverTtl(),                fetchNaver),
       singleFlight('source:yahoo',       SOURCE_TTL_MS.yahoo,
         () => fetchYahoo(['KRW=X', 'EWY', 'NQ=F', 'ES=F', '^NDX', '^GSPC'])),
       singleFlight('source:upbit',       SOURCE_TTL_MS.upbit,       fetchUpbit),
       singleFlight('source:binance',     SOURCE_TTL_MS.binance,     fetchBinanceFutures),
+      singleFlight('source:bybit',       SOURCE_TTL_MS.bybit,       fetchBybitLinear),
+      Promise.resolve(disabledResult),  // Task 3: bitget
+      Promise.resolve(disabledResult),  // Task 6: polygon (env-gated)
+      Promise.resolve(disabledResult),  // Task 7: twelvedata (env-gated)
     ]);
 
     // ⚠️ 회귀 가드 (v0.4.1, spec §2.3) — 이 block 을 절대 `assemblePricesResponse` 아래로
@@ -117,7 +125,7 @@ export async function pricesHandler(_req: Request, res: Response): Promise<void>
       }
     }
 
-    const response = assemblePricesResponse({ hl, naver, yahoo, upbit, binance });
+    const response = assemblePricesResponse({ hl, naver, yahoo, upbit, binance, bybit, bitget, polygon, twelvedata });
     res.setHeader('Cache-Control', 's-maxage=2, stale-while-revalidate=8');
     res.json(response);
   } catch (err) {

@@ -53,6 +53,11 @@ const BINANCE_SYMBOL_TO_TICKER: Record<string, string> = {
   QQQUSDT: 'nq',
 };
 
+// Map Bybit Linear symbol -> ticker key (v0.4.2 — NQ redundancy via QQQ-USDT perp)
+const BYBIT_SYMBOL_TO_TICKER: Record<string, string> = {
+  QQQUSDT: 'nq',
+};
+
 // NQ has no Hyperliquid xyz equivalent in the current matrix, so its spread
 // is Yahoo + Binance only when Yahoo is available.
 const MULTI_VENUE_TICKERS = ['ewy', 'sp500', 'nq'] as const;
@@ -65,6 +70,10 @@ export type SourceInputs = {
   yahoo: Result<PricePoint[]>;
   upbit: Result<PricePoint[]>;
   binance: Result<PricePoint[]>;
+  bybit: Result<PricePoint[]>;
+  bitget: Result<PricePoint[]>;
+  polygon: Result<PricePoint[]>;
+  twelvedata: Result<PricePoint[]>;
 };
 
 export function computeSpread(payload: TickerPayload, tickerKey: string): Spread | undefined {
@@ -153,6 +162,10 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
   recordSourceAttempt('yahoo', sources.yahoo, ts);
   recordSourceAttempt('binance', sources.binance, ts);
   recordSourceAttempt('upbit', sources.upbit, ts);
+  recordSourceAttempt('bybit', sources.bybit, ts);
+  recordSourceAttempt('bitget', sources.bitget, ts);
+  recordSourceAttempt('polygon', sources.polygon, ts);
+  recordSourceAttempt('twelvedata', sources.twelvedata, ts);
 
   if (sources.hl.ok) {
     for (const pp of sources.hl.data) {
@@ -215,6 +228,14 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
       const tickerKey = BINANCE_SYMBOL_TO_TICKER[pp.symbol];
       if (!tickerKey) continue;
       tickers[tickerKey] = { ...(tickers[tickerKey] ?? {}), binance: pp };
+    }
+  }
+
+  if (sources.bybit.ok) {
+    for (const pp of sources.bybit.data) {
+      const tickerKey = BYBIT_SYMBOL_TO_TICKER[pp.symbol];
+      if (!tickerKey) continue;
+      tickers[tickerKey] = { ...(tickers[tickerKey] ?? {}), bybit: pp };
     }
   }
 
