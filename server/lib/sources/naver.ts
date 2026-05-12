@@ -157,10 +157,11 @@ export async function fetchNaver(symbols: readonly string[] = NAVER_SYMBOLS): Pr
         continue;
       }
       // v0.4.0: 전일 종가 = 현재가 - 전일대비차이 (compareToPreviousClosePriceRaw)
+      // compareRaw === 0 (거래정지/변동없음) 시 도출값 = 현재가 가 되어 오표시 위험 → undefined 로
       const previousCompare = parseNaverNumber(
         item.compareToPreviousClosePriceRaw ?? item.compareToPreviousClosePrice
       );
-      const previousClose = previousCompare !== undefined && price > 0
+      const previousClose = previousCompare !== undefined && previousCompare !== 0 && price > 0
         ? price - previousCompare
         : undefined;
       // sanity guard (음수 또는 0 방지)

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   storePrevClose,
   getPrevClose,
@@ -27,6 +27,23 @@ describe('prev-close-cache', () => {
     expect(getPrevClose('samsung')).toBeUndefined();
     storePrevClose('samsung', -100, 'naver');
     expect(getPrevClose('samsung')).toBeUndefined();
+  });
+
+  // Codex #1 ⚠️ fix: TTL expire 경로 fake-timer 검증
+  it('expires entry after 24h TTL (fake timers)', () => {
+    vi.useFakeTimers();
+    try {
+      storePrevClose('samsung', 285500, 'naver');
+      expect(getPrevClose('samsung')?.value).toBe(285500);
+      // 23시간 59분 → still alive
+      vi.advanceTimersByTime((24 * 60 - 1) * 60 * 1000);
+      expect(getPrevClose('samsung')?.value).toBe(285500);
+      // +2분 = 24시간 1분 → expired
+      vi.advanceTimersByTime(2 * 60 * 1000);
+      expect(getPrevClose('samsung')).toBeUndefined();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 
