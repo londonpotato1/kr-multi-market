@@ -11,6 +11,7 @@ import type {
 import { buildFxRates, computePremium } from './normalize.js';
 import { getSessionState } from './session.js';
 import { recordSourceAttempt, getSourceHealth } from './health.js';
+import { resolvePrevClose } from './prev-close-cache.js';
 import { log } from './logger.js';
 
 const SCHEMA_VERSION = 1;
@@ -185,7 +186,17 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
     const t = tickers[tickerKey];
     if (t?.naver) {
       const naver = applyMarketCloseOverride(t.naver, krxOpen);
-      tickers[tickerKey] = { ...t, naver };
+      if (naver) {
+        // v0.4.0: previousClose 폴백 체인 — naver 직접 → yahoo (현재 한국 종목 미fetch) → 24h cache
+        const fromNaver = naver.previousClose;
+        // Yahoo 가 한국 종목 fetch 시 활성화. 현재는 undefined.
+        const fromYahoo: number | undefined = undefined;
+        const resolved = resolvePrevClose(tickerKey, fromNaver, fromYahoo);
+        const merged: PricePoint = resolved
+          ? { ...naver, previousClose: resolved.value, previousCloseSource: resolved.source }
+          : naver;
+        tickers[tickerKey] = { ...t, naver: merged };
+      }
     }
   }
 

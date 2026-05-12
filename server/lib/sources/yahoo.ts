@@ -127,6 +127,9 @@ async function tryChartPerSymbol(symbols: readonly string[]): Promise<Result<Pri
       const prev = meta.previousClose ?? meta.chartPreviousClose ?? meta.regularMarketPrice;
       const change = prev > 0 ? ((meta.regularMarketPrice - prev) / prev) * 100 : 0;
       const asOf = (meta.regularMarketTime ?? Date.now() / 1000) * 1000;
+      // v0.4.0: previousClose 노출 (Naver fallback 용)
+      const rawPrev = meta.previousClose ?? meta.chartPreviousClose;
+      const safePrevClose = typeof rawPrev === 'number' && rawPrev > 0 ? rawPrev : undefined;
       result.push({
         source: 'yahoo',
         symbol: meta.symbol ?? sym,
@@ -137,6 +140,8 @@ async function tryChartPerSymbol(symbols: readonly string[]): Promise<Result<Pri
         asOf,
         receivedAt: Date.now(),
         schemaVersion: SCHEMA_VERSION,
+        previousClose: safePrevClose,
+        previousCloseSource: safePrevClose !== undefined ? 'yahoo' : undefined,
       });
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') {
