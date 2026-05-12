@@ -32,6 +32,9 @@ type NaverDataItem = {
   aa?: number;
   ms?: 'OPEN' | 'CLOSE' | string;
   marketStatus?: 'OPEN' | 'CLOSE' | string;
+  // v0.4.0: 전일 종가 도출용 (전일대비 차이)
+  compareToPreviousClosePrice?: string;
+  compareToPreviousClosePriceRaw?: string;
 };
 
 type NaverResponse = {
@@ -153,6 +156,16 @@ export async function fetchNaver(symbols: readonly string[] = NAVER_SYMBOLS): Pr
         log.warn(`[naver] skipping invalid item: cd=${symbol}`);
         continue;
       }
+      // v0.4.0: 전일 종가 = 현재가 - 전일대비차이 (compareToPreviousClosePriceRaw)
+      const previousCompare = parseNaverNumber(
+        item.compareToPreviousClosePriceRaw ?? item.compareToPreviousClosePrice
+      );
+      const previousClose = previousCompare !== undefined && price > 0
+        ? price - previousCompare
+        : undefined;
+      // sanity guard (음수 또는 0 방지)
+      const safePrevClose = previousClose !== undefined && previousClose > 0 ? previousClose : undefined;
+
       result.push({
         source: 'naver',
         symbol,
@@ -165,6 +178,8 @@ export async function fetchNaver(symbols: readonly string[] = NAVER_SYMBOLS): Pr
         receivedAt,
         staleReason,
         schemaVersion: SCHEMA_VERSION,
+        previousClose: safePrevClose,
+        previousCloseSource: safePrevClose !== undefined ? 'naver' : undefined,
       });
     }
 
