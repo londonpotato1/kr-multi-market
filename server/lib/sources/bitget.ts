@@ -14,7 +14,6 @@ type BitgetTicker = {
   usdtVolume?: string;        // USDT 단위 (volume24hUsd 매핑)
   fundingRate?: string;
   holdingAmount?: string;     // base asset 단위 OI (USDT 환산 X, 미사용)
-  markPrice?: string;
 };
 
 type BitgetResponse = {
