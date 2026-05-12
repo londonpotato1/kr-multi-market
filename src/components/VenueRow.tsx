@@ -11,7 +11,7 @@ const SOURCE_LABELS: Record<SourceName, string> = {
   bybit: 'Bybit',
   bitget: 'Bitget',
   polygon: 'Polygon',
-  twelvedata: 'TwelveData',
+  twelvedata: 'Twelve Data',  // 공식 브랜드 표기
 };
 
 type Props = { source: SourceName; pp?: PricePoint; note?: string };

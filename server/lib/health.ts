@@ -18,7 +18,9 @@ export function recordSourceAttempt<T>(source: SourceName, result: Result<T>, no
   if (result.ok) {
     state[source] = { lastSuccess: now, consecutiveFailures: 0 };
   } else if (result.error === 'disabled') {
-    // optional source skip — fail count 증가 안 함
+    // v0.4.2: optional source (Polygon, TwelveData) 가 env 키 없으면
+    // `{ok:false, error:'disabled'}` 반환 → sourceHealth 안 오염, fail count 미증가.
+    // Producer 는 Task 6/7 (Wave 5) 에서 추가 — 현재 dead path 이지만 의도된 sequencing.
     return;
   } else {
     state[source] = {
