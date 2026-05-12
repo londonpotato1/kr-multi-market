@@ -53,13 +53,16 @@ export async function fetchTwelveData(
         }
         const price = parseNum(raw.close);
         if (price === undefined) return null;
+        // TwelveData /quote 의 volume = shares (주식 수). USD 환산 = shares × close (polygon 일관성).
+        const shares = parseNum(raw.volume);
+        const volume24hUsd = shares !== undefined ? shares * price : undefined;
         return {
           source: 'twelvedata',
           symbol: sym,
           price,
           unit: 'USD',
           change24hPct: parseNum(raw.percent_change),
-          volume24hUsd: parseNum(raw.volume),
+          volume24hUsd,
           status: 'ok',
           asOf: raw.timestamp ? raw.timestamp * 1000 : Date.now(),
           receivedAt: Date.now(),

@@ -36,6 +36,8 @@ describe('fetchTwelveData (옵셔널 source)', () => {
       unit: 'USD',
     });
     expect(result.data[0].change24hPct).toBeCloseTo(1.63, 2);
+    // volume24hUsd = shares × close = 12345 × 572.45 ≈ 7,066,895 (polygon 일관성)
+    expect(result.data[0].volume24hUsd).toBeCloseTo(7066895, -1);
   });
 
   it('returns ok:false when API returns error code', async () => {
