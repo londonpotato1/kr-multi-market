@@ -64,6 +64,11 @@ const BITGET_SYMBOL_TO_TICKER: Record<string, string> = {
   QQQUSDT: 'nq',
 };
 
+// Polygon/TwelveData: QQQ ETF only — index symbol 제외 (unit 일관성, §2.7)
+const POLYGON_SYMBOL_TO_TICKER: Record<string, string> = {
+  QQQ: 'nq',
+};
+
 // NQ has no Hyperliquid xyz equivalent in the current matrix, so its spread
 // is Yahoo + Binance only when Yahoo is available.
 const MULTI_VENUE_TICKERS = ['ewy', 'sp500', 'nq'] as const;
@@ -250,6 +255,14 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
       const tickerKey = BITGET_SYMBOL_TO_TICKER[pp.symbol];
       if (!tickerKey) continue;
       tickers[tickerKey] = { ...(tickers[tickerKey] ?? {}), bitget: pp };
+    }
+  }
+
+  if (sources.polygon.ok) {
+    for (const pp of sources.polygon.data) {
+      const tickerKey = POLYGON_SYMBOL_TO_TICKER[pp.symbol];
+      if (!tickerKey) continue;
+      tickers[tickerKey] = { ...(tickers[tickerKey] ?? {}), polygon: pp };
     }
   }
 
