@@ -29,7 +29,7 @@ pnpm dev
 | KOSPI200F | xyz_KR200 | — | — | — | 1 |
 | EWY | xyz_EWY | — | EWY | EWYUSDT | 3 |
 | S&P 500 | xyz_SP500 | — | ES=F + ^GSPC | SPYUSDT | 3-4 |
-| Nasdaq 100 | — | — | NQ=F + ^NDX | QQQUSDT | 2-3 |
+| Nasdaq 100 | — | — | QQQ (Tier-4 Finnhub) | QQQUSDT (Bybit/Bitget 추가) | 2-6 |
 | USDKRW | xyz_KRW | Upbit USDT-KRW | KRW=X | — | 2-3 |
 
 ## Source Matrix (v0.4.2)
