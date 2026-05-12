@@ -12,26 +12,27 @@ type Props = {
   fx?: FxRates;
 };
 
-/** v0.4.2 — NQ headline fallback chain (모든 source = USD/USDT scale, §2.7).
- *  Priority: HL > Yahoo > Binance > Bybit > Bitget > Polygon > TwelveData. */
+/** v0.4.2 — NQ headline fallback chain (모든 source = USD/USDT scale, spec §3.2 / §3.3).
+ *  Priority: HL > Yahoo > Binance > Bybit > Bitget > Polygon > TwelveData.
+ *  Server marks stale sources as status='down'/price=0; 클라이언트 stale 필터 불필요. */
 function pickHeadlineSource(
   payload: TickerPayload,
   fxAvailable: boolean,
   usdtKrw: number,
-): { value: number; source: string; label: string } | null {
+): { value: number; label: string } | null {
   if (!fxAvailable) return null;
-  const candidates: Array<[string, PricePoint | undefined, string]> = [
-    ['hl',         payload.hl,         'HL'],
-    ['yahoo',      payload.yahoo,      'Yahoo'],
-    ['binance',    payload.binance,    'Binance'],
-    ['bybit',      payload.bybit,      'Bybit'],
-    ['bitget',     payload.bitget,     'Bitget'],
-    ['polygon',    payload.polygon,    'Polygon'],
-    ['twelvedata', payload.twelvedata, 'TwelveData'],
+  const candidates: Array<[PricePoint | undefined, string]> = [
+    [payload.hl,         'HL'],
+    [payload.yahoo,      'Yahoo'],
+    [payload.binance,    'Binance'],
+    [payload.bybit,      'Bybit'],
+    [payload.bitget,     'Bitget'],
+    [payload.polygon,    'Polygon'],
+    [payload.twelvedata, 'TwelveData'],
   ];
-  for (const [name, pp, label] of candidates) {
+  for (const [pp, label] of candidates) {
     if (pp && Number.isFinite(pp.price) && pp.price > 0) {
-      return { value: pp.price * usdtKrw, source: name, label };
+      return { value: pp.price * usdtKrw, label };
     }
   }
   return null;
@@ -68,8 +69,8 @@ export function IndexCompactCard({ ticker, label, payload, fx }: Props) {
 
   const headline = useFallbackChain
     ? pickHeadlineSource(payload, fxAvailable, usdtKrw)
-    : (hlKrw !== null ? { value: hlKrw, source: 'hl', label: 'HL' }
-       : binanceKrw !== null ? { value: binanceKrw, source: 'binance', label: 'Binance' }
+    : (hlKrw !== null ? { value: hlKrw, label: 'HL' }
+       : binanceKrw !== null ? { value: binanceKrw, label: 'Binance' }
        : null);
 
   const showKrwHeadline = fxAvailable && headline !== null;
