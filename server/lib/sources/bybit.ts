@@ -12,7 +12,8 @@ type BybitTicker = {
   price24hPcnt?: string;
   turnover24h?: string;
   fundingRate?: string;
-  openInterest?: string;
+  openInterest?: string;        // 기초자산 단위 (사용 X)
+  openInterestValue?: string;   // USDT 환산 (이걸 매핑)
 };
 
 type BybitTickersResponse = {
@@ -65,7 +66,7 @@ export async function fetchBybitLinear(
         change24hPct: pctRatio !== undefined ? pctRatio * 100 : undefined,
         volume24hUsd: parseNum(t.turnover24h),
         fundingRate8h: parseNum(t.fundingRate),
-        openInterestUsd: parseNum(t.openInterest),
+        openInterestUsd: parseNum(t.openInterestValue),
         status: 'ok',
         asOf: Date.now(),
         receivedAt: Date.now(),
