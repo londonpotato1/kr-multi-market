@@ -74,3 +74,29 @@
 }
 
 .stock-hero:hover { border-color: var(--celadon-border); }
+
+/* === v0.4.0 — 종가 변동률 + USDT sub === */
+.stock-hero-pct-close {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 8px;
+}
+.pct-close-value {
+  font-size: 28px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.pct-close-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.pct-close-none { color: var(--text-muted); }
+
+@media (max-width: 639px) {
+  .stock-hero-tertiary { display: none; }
+  .stock-hero { padding: 16px 12px; min-height: auto; }
+}
