@@ -4,9 +4,9 @@ import { recordSourceAttempt, getSourceHealth, _resetSourceHealth } from '../lib
 describe('source health tracker', () => {
   beforeEach(() => _resetSourceHealth());
   
-  test('initial state has 5 sources at zero', () => {
+  test('initial state has 9 sources at zero', () => {
     const h = getSourceHealth();
-    expect(Object.keys(h)).toHaveLength(5);
+    expect(Object.keys(h)).toHaveLength(9);
     expect(h.hyperliquid.lastSuccess).toBe(0);
     expect(h.hyperliquid.consecutiveFailures).toBe(0);
   });

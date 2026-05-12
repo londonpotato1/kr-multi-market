@@ -7,6 +7,11 @@ const SOURCE_LABELS: Record<SourceName, string> = {
   binance: 'Binance',
   naver: 'KRX',
   upbit: 'Upbit',
+  // === v0.4.2 신규 ===
+  bybit: 'Bybit',
+  bitget: 'Bitget',
+  polygon: 'Polygon',
+  twelvedata: 'TwelveData',
 };
 
 type Props = { source: SourceName; pp?: PricePoint; note?: string };

@@ -6,12 +6,20 @@ const state: Record<SourceName, SourceHealth> = {
   yahoo:       { lastSuccess: 0, consecutiveFailures: 0 },
   binance:     { lastSuccess: 0, consecutiveFailures: 0 },
   upbit:       { lastSuccess: 0, consecutiveFailures: 0 },
+  bybit:       { lastSuccess: 0, consecutiveFailures: 0 },
+  bitget:      { lastSuccess: 0, consecutiveFailures: 0 },
+  polygon:     { lastSuccess: 0, consecutiveFailures: 0 },
+  twelvedata:  { lastSuccess: 0, consecutiveFailures: 0 },
 };
 
-/** Record one source attempt result. Updates lastSuccess + consecutiveFailures. */
+/** Record one source attempt result. Updates lastSuccess + consecutiveFailures.
+ *  v0.4.2: `error === 'disabled'` (optional source env 키 없음) 은 sourceHealth 안 오염. */
 export function recordSourceAttempt<T>(source: SourceName, result: Result<T>, now: number = Date.now()): void {
   if (result.ok) {
     state[source] = { lastSuccess: now, consecutiveFailures: 0 };
+  } else if (result.error === 'disabled') {
+    // optional source skip — fail count 증가 안 함
+    return;
   } else {
     state[source] = {
       lastSuccess: state[source].lastSuccess,

@@ -1,4 +1,5 @@
-export type SourceName = 'hyperliquid' | 'naver' | 'yahoo' | 'binance' | 'upbit';
+export type SourceName = 'hyperliquid' | 'naver' | 'yahoo' | 'binance' | 'upbit'
+                       | 'bybit' | 'bitget' | 'polygon' | 'twelvedata';
 
 export type SourceStatus = 'ok' | 'stale' | 'degraded' | 'down';
 
@@ -73,6 +74,11 @@ export type TickerPayload = {
   yahoo?: PricePoint;
   binance?: PricePoint;
   upbit?: PricePoint;
+  // === v0.4.2 신규 ===
+  bybit?: PricePoint;
+  bitget?: PricePoint;
+  polygon?: PricePoint;
+  twelvedata?: PricePoint;
   premium?: Premium;
   spread?: Spread;
 };
