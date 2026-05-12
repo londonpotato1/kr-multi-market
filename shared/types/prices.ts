@@ -16,6 +16,9 @@ export type PricePoint = {
   receivedAt: number;
   staleReason?: string;
   schemaVersion: number;
+  // === v0.4.0 신규 (KRX 전일 종가, Naver/Yahoo only) ===
+  previousClose?: number;
+  previousCloseSource?: 'naver' | 'yahoo' | 'cache';
 };
 
 export type Result<T> =
@@ -45,6 +48,9 @@ export type SessionState = {
   cme: boolean;
   hyperliquid: true;
   binance: true;
+  // === v0.4.0 신규 — KRX 카운트다운 ===
+  krxMinsUntilOpen?: number;   // 마감 또는 휴장 시 set
+  krxMinsUntilClose?: number;  // 장중에 set
 };
 
 export type Premium = {
