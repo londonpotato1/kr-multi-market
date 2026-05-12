@@ -5,6 +5,9 @@ import { FxHeader } from './components/FxHeader';
 import { SessionBadges } from './components/SessionBadges';
 import { DegradedBanner } from './components/DegradedBanner';
 import { ThemeToggle } from './components/ThemeToggle';
+import { HelpPanel } from './components/HelpPanel';
+import { getStateBadge } from './lib/market-state';
+import { STATE_BADGE_LABEL } from './lib/labels';
 import './App.css';
 
 const STOCK_TICKERS: Array<{ ticker: string; label: string }> = [
@@ -20,10 +23,26 @@ const INDEX_TICKERS: Array<{ ticker: string; label: string }> = [
   { ticker: 'kospi200f', label: 'KOSPI 200F' },
 ];
 
+function formatMins(mins: number): string {
+  if (mins < 60) return `${mins}분`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m === 0 ? `${h}시간` : `${h}시간 ${m}분`;
+}
+
 export default function App() {
   const { data, error, isLoading } = usePrices();
   const ts = data?.ts;
-  const krxClosed = !!data?.session && !data.session.krx;
+  const badge = data?.session ? getStateBadge(data.session) : null;
+  const badgeLabel = badge ? STATE_BADGE_LABEL[badge] : null;
+  const mins = data?.session
+    ? badge === 'open' ? data.session.krxMinsUntilClose
+    : badge === 'night' ? data.session.krxMinsUntilOpen
+    : undefined
+    : undefined;
+  const countdownSuffix = mins !== undefined
+    ? ` (${badge === 'open' ? '마감' : '개장'}까지 ${formatMins(mins)})`
+    : '';
 
   return (
     <div className="container">
@@ -32,11 +51,16 @@ export default function App() {
           <span className="logo-dot" aria-hidden />
           <div>
             <h1>24시간 코스피</h1>
-            <div className="sub">Korean × Bloomberg · v0.3.0</div>
+            <div className="sub">한국 주식의 24시간 거래소(HL) 가격과 KRX 종가 비교 · v0.4.0</div>
           </div>
         </div>
         <div className="meta">
           <FxHeader fx={data?.fx} />
+          {badge && (
+            <span className={`market-countdown state-${badge}`} aria-live="polite">
+              {badgeLabel}{countdownSuffix}
+            </span>
+          )}
           <SessionBadges session={data?.session} />
           <div className="meta-controls">
             <ThemeToggle />
@@ -53,10 +77,11 @@ export default function App() {
 
       <DegradedBanner sourceHealth={data?.sourceHealth} />
 
+      <HelpPanel />
+
       <section className="stocks-section">
         <h2 className="section-title">
           한국 주식 <span className="section-subtitle">KRX × Hyperliquid</span>
-          {krxClosed && <span className="night-tag">● KRX CLOSED</span>}
         </h2>
         <div className="bento-3up">
           {STOCK_TICKERS.map(({ ticker, label }) => (
@@ -66,6 +91,7 @@ export default function App() {
               label={label}
               payload={data?.tickers?.[ticker]}
               fx={data?.fx}
+              session={data?.session}
             />
           ))}
         </div>
