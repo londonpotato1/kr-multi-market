@@ -97,6 +97,17 @@ export function getSessionState(now: Date = new Date()): SessionState {
     }
   }
 
+  // === v0.4.0 — KRX 카운트다운 ===
+  let krxMinsUntilOpen: number | undefined;
+  let krxMinsUntilClose: number | undefined;
+  const krxCloseMins = 15 * 60 + 30; // 15:30 KST
+
+  if (krx) {
+    krxMinsUntilClose = Math.max(0, krxCloseMins - kstMins);
+  } else {
+    krxMinsUntilOpen = computeMinsUntilNextKrxOpen(now);
+  }
+
   return {
     krx,
     krxAfter,
@@ -106,5 +117,33 @@ export function getSessionState(now: Date = new Date()): SessionState {
     cme,
     hyperliquid: true,
     binance: true,
+    krxMinsUntilOpen,
+    krxMinsUntilClose,
   };
+}
+
+// Compute minutes until next KRX open (09:00 KST on next weekday non-holiday).
+function computeMinsUntilNextKrxOpen(now: Date): number {
+  const kstP = tzParts(now, 'Asia/Seoul');
+  const kstMins = minutesOfDay(now, 'Asia/Seoul');
+  const krxOpenMins = 9 * 60; // 09:00 KST
+
+  // Same-day open (예: 08:00 KST → 09:00 KST 까지)
+  if (isWeekday(kstP.weekday) && !isKrxHoliday(now) && kstMins < krxOpenMins) {
+    return krxOpenMins - kstMins;
+  }
+
+  // Otherwise scan next 7 days for first weekday non-holiday
+  for (let dayOffset = 1; dayOffset <= 7; dayOffset++) {
+    const candidate = new Date(now.getTime() + dayOffset * 24 * 60 * 60 * 1000);
+    const cp = tzParts(candidate, 'Asia/Seoul');
+    if (isWeekday(cp.weekday) && !isKrxHoliday(candidate)) {
+      // Mins from now to candidate day's 09:00 KST
+      const minsTodayRemaining = 24 * 60 - kstMins; // today까지
+      const fullDaysBetween = dayOffset - 1; // intermediate full days
+      const total = minsTodayRemaining + fullDaysBetween * 24 * 60 + krxOpenMins;
+      return total;
+    }
+  }
+  return 0; // 안전 폴백 (7일 내 영업일 없음은 사실상 불가능)
 }
