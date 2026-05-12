@@ -36,7 +36,7 @@ pnpm dev
 
 ```
 ┌─ Browser (Vite + React 18) ─────────────────────────┐
-│  SWR refreshInterval=5s -> /api/prices               │
+│  SWR refreshInterval=2s -> /api/prices               │
 │  localStorage z-score signal (per-user, 7d)          │
 │  PriceCard / IndexCompareCard / SessionBadges        │
 └─────────────────────────────────────────────────────┘
@@ -47,7 +47,7 @@ pnpm dev
 │  buildFxRates + GDR guard + computePremium          │
 │  getSessionState (DST + KRX/NYSE/CME holidays)       │
 │  source health tracker (consecutiveFailures)        │
-│  Cache-Control: s-maxage=4, stale-while-revalidate=10│
+│  Cache-Control: s-maxage=2, stale-while-revalidate=8 │
 └─────────────────────────────────────────────────────┘
                            ↓ vendor APIs
 ┌─ Vendor sources ─────────────────────────────────────┐
@@ -76,7 +76,20 @@ v2 (deferred):
 
 - `GET /api/healthz` — public `{ok, version}` minimal liveness
 - `GET /api/internal/health` — token-protected detailed source health (Bearer auth required)
-- `GET /api/prices` — main payload, 4s server-side cache + 10s stale-while-revalidate
+- `GET /api/prices` — main payload, source 별 server-side cache (HL/Binance 1s · Upbit 2s · Yahoo 5s · Naver 동적) + 8s stale-while-revalidate
+
+## Price refresh rate (v0.4.1)
+
+| Source | TTL | Note |
+|---|---|---|
+| Hyperliquid (HL) | 1s (REST cache); WS 모드 시 <1s | `HL_USE_WS=true` 권장 |
+| Binance Futures | 1s | |
+| Upbit (USDT-KRW) | 2s | |
+| Yahoo Finance | 5s | rate limit 보호 |
+| Naver (KRX) | **장중 2s / 휴장 7s** | KRX session 동적 |
+| SWR client refresh | 2s | server cache 경유 |
+
+**Premium guard**: HL ↔ Naver 시점 격차 > 5s 시 premium null + `guard='warn'` (UI: tier-na). stale-mix 방지.
 
 ## Testing
 
@@ -181,7 +194,7 @@ Trade-off: lose precise night-futures price; gain 4 days + Vercel-friendly deplo
 - **Express 4** + **Node 22** (server, ESM NodeNext)
 - **TypeScript 6** (strict, single-package monorepo via `@shared/*` alias)
 - **Vitest 4** (happy-dom for client, node for server, `test.projects` split)
-- **SWR 2** (client polling, 5s refresh + 4s dedup)
+- **SWR 2** (client polling, 2s refresh + 1.5s dedup)
 - **pnpm 11** (package manager)
 - No Tailwind/CSS-in-JS — plain CSS with Hyperliquid mint `#97FCE4`
 
