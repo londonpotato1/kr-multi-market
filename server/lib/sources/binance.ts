@@ -48,11 +48,14 @@ async function fetchTickers24hr(symbols: readonly string[]): Promise<BinanceTick
   try {
     return await fetchTickers24hrOnce(symbols);
   } catch (err) {
-    // v0.4.2: 1회 재시도. 429 Retry-After 헤더 우선 (5s cap).
+    // v0.4.2: 모든 실패 (timeout/5xx/429) 에 대해 1회 재시도.
+    // 429 시 Retry-After 헤더 우선 (5s cap). HTTP-date 형식은 NaN → 기본 1s fallback.
     let backoffMs = 1000;
     if (err instanceof Response && err.status === 429) {
-      const retryAfter = parseInt(err.headers.get('Retry-After') ?? '1', 10);
-      backoffMs = Math.min(retryAfter * 1000, 5000);
+      const raw = err.headers.get('Retry-After') ?? '1';
+      const parsed = parseInt(raw, 10);
+      const retryAfterSec = Number.isFinite(parsed) ? parsed : 1;
+      backoffMs = Math.min(retryAfterSec * 1000, 5000);
     }
     await new Promise(r => setTimeout(r, backoffMs));
     return await fetchTickers24hrOnce(symbols);
