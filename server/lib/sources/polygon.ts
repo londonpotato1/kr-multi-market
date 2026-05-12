@@ -45,16 +45,19 @@ export async function fetchPolygon(
         const raw = (await res.json()) as PolygonAggsResponse;
         const item = raw.results?.[0];
         if (!item || typeof item.c !== 'number') return null;
-        const prev = item.o && item.o > 0 ? item.o : item.c;
-        const pct = prev > 0 ? ((item.c - prev) / prev) * 100 : 0;
+        // /prev endpoint = 전일 종가. open 없으면 변동률 산출 불가 → undefined (bybit/bitget 일관성).
+        const change24hPct = (item.o !== undefined && item.o > 0)
+          ? ((item.c - item.o) / item.o) * 100
+          : undefined;
         return {
           source: 'polygon',
           symbol: sym,
           price: item.c,
           unit: 'USD',
-          change24hPct: pct,
+          change24hPct,
           volume24hUsd: typeof item.v === 'number' ? item.v * item.c : undefined,
           status: 'ok',
+          // ⚠️ /prev = 전일 바 timestamp (24h+ lag). 신선도는 receivedAt 사용.
           asOf: item.t ?? Date.now(),
           receivedAt: Date.now(),
           schemaVersion: SCHEMA_VERSION,
@@ -70,6 +73,9 @@ export async function fetchPolygon(
     }
     return { ok: true, data, latencyMs: Date.now() - start };
   } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      return { ok: false, error: 'Polygon timeout', latencyMs: Date.now() - start };
+    }
     return { ok: false, error: err instanceof Error ? err.message : String(err), latencyMs: Date.now() - start };
   }
 }
