@@ -23,7 +23,7 @@ type BinancePremiumIndex = {
   time?: number;
 };
 
-async function fetchTickers24hr(symbols: readonly string[]): Promise<BinanceTicker24hr[]> {
+async function fetchTickers24hrOnce(symbols: readonly string[]): Promise<BinanceTicker24hr[]> {
   // Batch via JSON array param
   const symbolsParam = encodeURIComponent(JSON.stringify([...symbols]));
   const url = `${FAPI_BASE}/fapi/v1/ticker/24hr?symbols=${symbolsParam}`;
@@ -32,11 +32,30 @@ async function fetchTickers24hr(symbols: readonly string[]): Promise<BinanceTick
   try {
     const res = await fetch(url, { signal: controller.signal });
     if (!res.ok) {
+      // v0.4.2: 429 시 Response 객체 자체를 throw (retry wrapper 가 Retry-After 헤더 사용)
+      if (res.status === 429) {
+        throw res;
+      }
       throw new Error(`Binance ticker HTTP ${res.status}`);
     }
     return await res.json() as BinanceTicker24hr[];
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+async function fetchTickers24hr(symbols: readonly string[]): Promise<BinanceTicker24hr[]> {
+  try {
+    return await fetchTickers24hrOnce(symbols);
+  } catch (err) {
+    // v0.4.2: 1회 재시도. 429 Retry-After 헤더 우선 (5s cap).
+    let backoffMs = 1000;
+    if (err instanceof Response && err.status === 429) {
+      const retryAfter = parseInt(err.headers.get('Retry-After') ?? '1', 10);
+      backoffMs = Math.min(retryAfter * 1000, 5000);
+    }
+    await new Promise(r => setTimeout(r, backoffMs));
+    return await fetchTickers24hrOnce(symbols);
   }
 }
 
