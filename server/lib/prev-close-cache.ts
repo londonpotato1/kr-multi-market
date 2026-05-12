@@ -25,12 +25,13 @@ export function getPrevClose(ticker: string): { value: number; source: 'cache' }
   return { value: entry.value, source: 'cache' };
 }
 
-// Resolve previousClose using fallback chain: live Naver/Yahoo → cache.
+// Resolve previousClose using fallback chain: live source → cache.
 // Caller passes already-resolved values; we just pick the best + persist.
+// fromYahoo is optional — only pass when Yahoo Korean stock fetch is wired.
 export function resolvePrevClose(
   ticker: string,
   fromNaver: number | undefined,
-  fromYahoo: number | undefined
+  fromYahoo?: number
 ): { value: number; source: 'naver' | 'yahoo' | 'cache' } | undefined {
   if (fromNaver !== undefined && fromNaver > 0) {
     storePrevClose(ticker, fromNaver, 'naver');

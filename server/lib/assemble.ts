@@ -187,11 +187,9 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
     if (t?.naver) {
       const naver = applyMarketCloseOverride(t.naver, krxOpen);
       if (naver) {
-        // v0.4.0: previousClose 폴백 체인 — naver 직접 → yahoo (현재 한국 종목 미fetch) → 24h cache
-        const fromNaver = naver.previousClose;
-        // Yahoo 가 한국 종목 fetch 시 활성화. 현재는 undefined.
-        const fromYahoo: number | undefined = undefined;
-        const resolved = resolvePrevClose(tickerKey, fromNaver, fromYahoo);
+        // v0.4.0: previousClose 폴백 체인 — naver 직접 → 24h cache
+        // (Yahoo Korean stock fetch 추가 시 resolvePrevClose 3번째 인자에 yahoo PricePoint.previousClose 전달)
+        const resolved = resolvePrevClose(tickerKey, naver.previousClose);
         const merged: PricePoint = resolved
           ? { ...naver, previousClose: resolved.value, previousCloseSource: resolved.source }
           : naver;
