@@ -19,6 +19,28 @@ pnpm dev
 # Open browser: http://localhost:5173
 ```
 
+## 종목 검색 (v0.5.0)
+
+대시보드 상단 검색바에 종목명 또는 ticker 입력:
+
+| 입력 예 | Tier 1 hit | Tier 2 hit | Tier 3 hit |
+|---|---|---|---|
+| `Apple`, `AAPL` | Finnhub `/search` (NASDAQ) | `AAPLUSDT` (Binance/Bybit/Bitget perp) | `xyz:AAPL` (HL xyz) |
+| `삼성전자`, `005930` | Naver autocomplete (`ac.stock.naver.com/ac`, KRX) | — | — |
+| `JP225` | Finnhub 0 hit | `JP225USDT` 0 hit | `xyz:JP225` (HL xyz) |
+
+**검색 라우팅**: 한글 입력 → Naver Tier 1 (Finnhub fallback X). 영문 입력 → Finnhub Tier 1 → CEX perp probe (binance>bybit>bitget first-match) → HL xyz allMids.
+
+**제약**:
+- 주식/ETF 만 지원 (Finnhub `Common Stock`/`ETF` filter, 코인 자동 제외)
+- 최대 50 종목 watchlist (localStorage 영구, multi-device sync X)
+- 검색 source fail (Finnhub 429 / Naver 차단) graceful degradation (`tier: null`, `reason: 'naver_unavailable'` 등)
+- `FINNHUB_TOKEN` 미설정 시 영문 Tier 1 비활성 (startup `WARN [search] FINNHUB_TOKEN not set ...` 출력)
+
+**환경 변수**:
+- `FINNHUB_TOKEN`: Finnhub.io 무료 키 (영문 검색 필수, [Source Matrix](#source-matrix-v042) 참조)
+- 기타 v0.4.x 와 동일
+
 ## 종목 매트릭스
 
 | 종목 | Hyperliquid xyz | KRX (Naver) | Yahoo | Binance Futures | venues |
