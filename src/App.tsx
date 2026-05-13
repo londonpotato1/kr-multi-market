@@ -1,4 +1,5 @@
 import { usePrices } from './hooks/usePrices';
+import { useWatchlist } from './hooks/useWatchlist';
 import { StockHeroCard } from './components/StockHeroCard';
 import { IndexCompactCard } from './components/IndexCompactCard';
 import { FxHeader } from './components/FxHeader';
@@ -6,6 +7,8 @@ import { SessionBadges } from './components/SessionBadges';
 import { DegradedBanner } from './components/DegradedBanner';
 import { ThemeToggle } from './components/ThemeToggle';
 import { HelpPanel } from './components/HelpPanel';
+import { SearchBar } from './components/SearchBar';
+import { WatchlistSection } from './components/WatchlistSection';
 import { getStateBadge } from './lib/market-state';
 import { STATE_BADGE_LABEL } from './lib/labels';
 import './App.css';
@@ -31,7 +34,9 @@ function formatMins(mins: number): string {
 }
 
 export default function App() {
-  const { data, error, isLoading } = usePrices();
+  const { entries, add, remove } = useWatchlist();
+  const watchlistQuery = entries.map(e => `${e.key}:${e.source}:${e.symbol}`).join(',');
+  const { data, error, isLoading } = usePrices(watchlistQuery || undefined);
   const ts = data?.ts;
   const badge = data?.session ? getStateBadge(data.session) : null;
   const badgeLabel = badge ? STATE_BADGE_LABEL[badge] : null;
@@ -75,6 +80,8 @@ export default function App() {
         </div>
       </header>
 
+      <SearchBar onAdd={add} />
+
       <DegradedBanner sourceHealth={data?.sourceHealth} />
 
       <HelpPanel />
@@ -113,6 +120,8 @@ export default function App() {
           ))}
         </div>
       </section>
+
+      <WatchlistSection entries={entries} prices={data} fx={data?.fx} onRemove={remove} />
     </div>
   );
 }

@@ -9,9 +9,12 @@ const fetcher = async (url: string): Promise<PricesResponse> => {
   return res.json();
 };
 
-export function usePrices() {
+export function usePrices(watchlistQuery?: string) {
+  const url = watchlistQuery
+    ? `/api/prices?watchlist=${encodeURIComponent(watchlistQuery)}`
+    : '/api/prices';
   const { data, error, isLoading } = useSWR<PricesResponse>(
-    '/api/prices',
+    url,
     fetcher,
     {
       refreshInterval: 2000,

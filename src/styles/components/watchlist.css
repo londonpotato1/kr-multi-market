@@ -1,0 +1,90 @@
+.search-bar-wrap {
+  position: relative;
+  margin: 1rem auto;
+  max-width: 600px;
+}
+
+.search-bar-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.search-bar-input {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: 1px solid var(--border-color, #d4c5a8);
+  border-radius: 6px;
+}
+
+.search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--card-bg, #f5ede0);
+  border: 1px solid var(--border-color, #d4c5a8);
+  border-radius: 6px;
+  margin-top: 0.25rem;
+  z-index: 10;
+}
+
+.search-dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-color, #e8dcc4);
+  cursor: pointer;
+}
+
+.search-dropdown-item:hover {
+  background: var(--hover-bg, #ede0c4);
+}
+
+.watchlist-section {
+  margin: 2rem 1rem;
+}
+
+.watchlist-section-title {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.watchlist-section-empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted, #8a7d68);
+}
+
+.watchlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.watchlist-card-wrap {
+  position: relative;
+}
+
+.watchlist-card-remove {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+  .watchlist-grid {
+    grid-template-columns: 1fr;
+  }
+}
