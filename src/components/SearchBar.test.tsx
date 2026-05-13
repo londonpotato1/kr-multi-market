@@ -34,4 +34,29 @@ describe('SearchBar', () => {
     await screen.findByRole('option');
     expect(screen.getByText('Apple Inc.')).toBeInTheDocument();
   });
+
+  it('rejects q with special chars before API call', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    render(<SearchBar onAdd={vi.fn()} />);
+    fireEvent.change(screen.getByLabelText('종목 검색'), { target: { value: 'a;b' } });
+    fireEvent.click(screen.getByText('추가'));
+    await screen.findByText(/허용되지 않는 문자/);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('shows inline error when onAdd throws (no alert)', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({
+        tier: 1,
+        results: [{ source: 'yahoo', symbol: 'AAPL', label: 'Apple Inc.', tier: 1 }],
+      }), { status: 200 }) as unknown as Response,
+    );
+    const onAdd = vi.fn(() => { throw new Error('duplicate key'); });
+    render(<SearchBar onAdd={onAdd} />);
+    fireEvent.change(screen.getByLabelText('종목 검색'), { target: { value: 'Apple' } });
+    fireEvent.click(screen.getByText('추가'));
+    const option = await screen.findByRole('option');
+    fireEvent.click(option);
+    expect(await screen.findByRole('alert')).toHaveTextContent('duplicate key');
+  });
 });

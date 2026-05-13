@@ -17,6 +17,13 @@
   border-radius: 6px;
 }
 
+.search-bar-error {
+  color: var(--error, #c33);
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+}
+
 .search-dropdown {
   position: absolute;
   top: 100%;
@@ -29,6 +36,12 @@
   z-index: 10;
 }
 
+.search-dropdown-empty {
+  padding: 1rem;
+  color: var(--text-muted, #8a7d68);
+  text-align: center;
+}
+
 .search-dropdown-item {
   display: block;
   width: 100%;
@@ -38,6 +51,10 @@
   border: none;
   border-bottom: 1px solid var(--border-color, #e8dcc4);
   cursor: pointer;
+}
+
+.search-dropdown-item:last-child {
+  border-bottom: none;
 }
 
 .search-dropdown-item:hover {
@@ -81,6 +98,11 @@
   border-radius: 50%;
   cursor: pointer;
   font-size: 0.875rem;
+}
+
+.watchlist-card-remove:focus-visible {
+  outline: 2px solid var(--hl-teal, #00d4a3);
+  outline-offset: 2px;
 }
 
 @media (max-width: 640px) {

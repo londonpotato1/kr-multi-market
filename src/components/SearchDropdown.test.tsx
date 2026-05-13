@@ -29,4 +29,13 @@ describe('SearchDropdown', () => {
     expect(onPick).toHaveBeenCalledWith(expect.objectContaining({ symbol: 'AAPL' }));
     expect(onClose).toHaveBeenCalled();
   });
+
+  it('ESC key triggers onClose', () => {
+    const onClose = vi.fn();
+    render(<SearchDropdown
+      response={{ tier: 1, results: [{ source: 'yahoo', symbol: 'AAPL', label: 'Apple', tier: 1 }] }}
+      onPick={vi.fn()} onClose={onClose} />);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(onClose).toHaveBeenCalled();
+  });
 });

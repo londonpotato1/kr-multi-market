@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import type { SearchResult, SearchResponse } from '@shared/types/prices.js';
 
 type Props = {
@@ -16,6 +17,13 @@ const REASON_MESSAGES: Record<NonNullable<SearchResponse['reason']>, string> = {
 };
 
 export function SearchDropdown({ response, onPick, onClose }: Props) {
+  useEffect(() => {
+    if (!response) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [response, onClose]);
+
   if (!response) return null;
   return (
     <div className="search-dropdown" role="listbox">

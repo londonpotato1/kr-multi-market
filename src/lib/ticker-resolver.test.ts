@@ -30,4 +30,22 @@ describe('searchTicker', () => {
     const res = await searchTicker('Apple');
     expect(res.results).toEqual([]);
   });
+
+  it('returns empty results on malformed response (results not array)', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ tier: 1 }), { status: 200 }) as unknown as Response,
+    );
+    const res = await searchTicker('Apple');
+    expect(res.results).toEqual([]);
+    expect(res.reason).toBe('not_found');
+  });
+
+  it('passes AbortSignal to fetch', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ tier: 1, results: [] }), { status: 200 }) as unknown as Response,
+    );
+    const controller = new AbortController();
+    await searchTicker('Apple', controller.signal);
+    expect(fetchSpy).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ signal: controller.signal }));
+  });
 });

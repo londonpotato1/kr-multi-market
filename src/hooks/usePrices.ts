@@ -20,6 +20,7 @@ export function usePrices(watchlistQuery?: string) {
       refreshInterval: 2000,
       revalidateOnFocus: false,
       dedupingInterval: 1500,
+      keepPreviousData: true,
     },
   );
 

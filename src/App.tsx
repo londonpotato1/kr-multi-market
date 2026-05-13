@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { usePrices } from './hooks/usePrices';
 import { useWatchlist } from './hooks/useWatchlist';
 import { StockHeroCard } from './components/StockHeroCard';
@@ -35,7 +36,10 @@ function formatMins(mins: number): string {
 
 export default function App() {
   const { entries, add, remove } = useWatchlist();
-  const watchlistQuery = entries.map(e => `${e.key}:${e.source}:${e.symbol}`).join(',');
+  const watchlistQuery = useMemo(
+    () => entries.map(e => `${e.key}:${e.source}:${e.symbol}`).join(','),
+    [entries],
+  );
   const { data, error, isLoading } = usePrices(watchlistQuery || undefined);
   const ts = data?.ts;
   const badge = data?.session ? getStateBadge(data.session) : null;
