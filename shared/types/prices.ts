@@ -106,3 +106,29 @@ export type InternalHealthResponse = {
   ok: boolean;
   sources: Record<SourceName, { status: SourceStatus; lastSuccessAgoMs: number }>;
 };
+
+// === v0.5.0 신규 (ticker 검색 + watchlist) ===
+
+/** localStorage 에 저장되는 watchlist entry. server 응답에 `key` 로 매핑. */
+export type WatchlistEntry = {
+  key: string;         // 사용자 display key (lowercase alphanumeric + hyphen, /^[a-z0-9][a-z0-9-]*$/, 최대 32자)
+  source: SourceName;  // 9 keys 중 하나
+  symbol: string;      // source 별 ticker (/^[A-Za-z0-9_]+$/, 최대 32자 — HL lowercase xyz_ prefix 포함)
+  label: string;       // UI display ("Apple Inc.", "삼성전자") — server query 제외
+  tier: 1 | 2 | 3;     // 어느 tier 에서 hit
+};
+
+/** `/api/search` 응답 entry. WatchlistEntry 와 거의 동일하지만 description 추가. */
+export type SearchResult = {
+  source: SourceName;
+  symbol: string;
+  label: string;
+  description?: string;  // "NASDAQ", "KRX", "Binance Perp" 등
+  tier: 1 | 2 | 3;
+};
+
+export type SearchResponse = {
+  tier: 1 | 2 | 3 | null;
+  results: SearchResult[];
+  reason?: 'not_found' | 'empty_query' | 'invalid_chars' | 'too_short' | 'too_long' | 'naver_unavailable';
+};
