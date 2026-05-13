@@ -48,13 +48,22 @@ export function useWatchlist() {
     if (entriesRef.current.length >= MAX_ENTRIES) {
       throw new Error(`최대 ${MAX_ENTRIES}개 까지만 추가 가능합니다`);
     }
-    // 충돌 시 auto-suffix — base 를 30자로 잘라 '-N' 추가해도 32자 안 넘게
+    // 충돌 시 auto-suffix — suffix 길이 동적 계산 (i 자릿수 변동) 후 base 잘라서 합 32자 보장
     let key = entry.key;
     if (entriesRef.current.some(e => e.key === key)) {
-      const base = entry.key.slice(0, 30);
       let i = 1;
-      while (entriesRef.current.some(e => e.key === `${base}-${i}`)) i++;
-      key = `${base}-${i}`;
+      // 1차 추정 (suffix 1자리) 으로 base 결정 후 충돌 검사
+      // i 가 자릿수 늘면 base 다시 조정해서 32자 유지
+      while (true) {
+        const suffix = `-${i}`;
+        const base = entry.key.slice(0, 32 - suffix.length);
+        const candidate = `${base}${suffix}`;
+        if (!entriesRef.current.some(e => e.key === candidate)) {
+          key = candidate;
+          break;
+        }
+        i++;
+      }
     }
     const next = [...entriesRef.current, { ...entry, key }];
     entriesRef.current = next;

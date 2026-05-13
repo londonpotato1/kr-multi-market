@@ -61,4 +61,22 @@ describe('useWatchlist', () => {
     const { result } = renderHook(() => useWatchlist());
     expect(result.current.entries).toEqual([]);
   });
+
+  it('auto-suffix keeps key length <= 32 even with 2-digit suffix (i=10+)', () => {
+    const { result } = renderHook(() => useWatchlist());
+    const longKey = 'a'.repeat(32);  // 32자 max
+    act(() => {
+      for (let n = 0; n < 12; n++) {
+        result.current.add({ ...sample, key: longKey, symbol: `T${n}USDT` });
+      }
+    });
+    expect(result.current.entries).toHaveLength(12);
+    // 모든 key 길이 <= 32
+    for (const e of result.current.entries) {
+      expect(e.key.length).toBeLessThanOrEqual(32);
+    }
+    // i=10 까지 도달 — 2자리 suffix 검증
+    expect(result.current.entries[10].key).toMatch(/-10$/);
+    expect(result.current.entries[11].key).toMatch(/-11$/);
+  });
 });
