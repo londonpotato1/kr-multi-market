@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { mutate } from 'swr';
 import type { WatchlistEntry } from '@shared/types/prices.js';
 
@@ -35,7 +35,8 @@ function saveToStorage(entries: WatchlistEntry[]): void {
 }
 
 export function useWatchlist() {
-  const [entries, setEntries] = useState<WatchlistEntry[]>(() => loadFromStorage());
+  const entriesRef = useRef<WatchlistEntry[]>(loadFromStorage());
+  const [entries, setEntries] = useState<WatchlistEntry[]>(() => entriesRef.current);
 
   const add = useCallback((entry: WatchlistEntry): void => {
     if (!KEY_REGEX.test(entry.key) || entry.key.length > 32) {
@@ -44,30 +45,29 @@ export function useWatchlist() {
     if (!SYMBOL_REGEX.test(entry.symbol) || entry.symbol.length > 32) {
       throw new Error(`잘못된 symbol 형식: ${entry.symbol}`);
     }
-    if (entries.length >= MAX_ENTRIES) {
+    if (entriesRef.current.length >= MAX_ENTRIES) {
       throw new Error(`최대 ${MAX_ENTRIES}개 까지만 추가 가능합니다`);
     }
-    setEntries(prev => {
-      // 충돌 시 auto-suffix
-      let key = entry.key;
-      if (prev.some(e => e.key === key)) {
-        let i = 1;
-        while (prev.some(e => e.key === `${entry.key}-${i}`)) i++;
-        key = `${entry.key}-${i}`.slice(0, 32);
-      }
-      const next = [...prev, { ...entry, key }];
-      saveToStorage(next);
-      return next;
-    });
+    // 충돌 시 auto-suffix — base 를 30자로 잘라 '-N' 추가해도 32자 안 넘게
+    let key = entry.key;
+    if (entriesRef.current.some(e => e.key === key)) {
+      const base = entry.key.slice(0, 30);
+      let i = 1;
+      while (entriesRef.current.some(e => e.key === `${base}-${i}`)) i++;
+      key = `${base}-${i}`;
+    }
+    const next = [...entriesRef.current, { ...entry, key }];
+    entriesRef.current = next;
+    setEntries(next);
+    saveToStorage(next);
     mutate((swrKey: unknown) => typeof swrKey === 'string' && swrKey.startsWith('/api/prices'));
-  }, [entries.length]);
+  }, []);
 
   const remove = useCallback((key: string): void => {
-    setEntries(prev => {
-      const next = prev.filter(e => e.key !== key);
-      saveToStorage(next);
-      return next;
-    });
+    const next = entriesRef.current.filter(e => e.key !== key);
+    entriesRef.current = next;
+    setEntries(next);
+    saveToStorage(next);
     mutate((swrKey: unknown) => typeof swrKey === 'string' && swrKey.startsWith('/api/prices'));
   }, []);
 

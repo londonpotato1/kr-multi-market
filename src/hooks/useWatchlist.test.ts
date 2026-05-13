@@ -32,15 +32,18 @@ describe('useWatchlist', () => {
     expect(result.current.entries[1].key).toBe('aapl-1');
   });
 
-  it('rejects when MAX_ENTRIES reached', () => {
+  it('rejects when MAX_ENTRIES reached (single batch)', () => {
     const { result } = renderHook(() => useWatchlist());
+    let err: Error | null = null;
     act(() => {
-      for (let i = 0; i < MAX_ENTRIES; i++) {
-        result.current.add({ ...sample, key: `t${i}`, symbol: `T${i}USDT` });
+      try {
+        for (let i = 0; i < MAX_ENTRIES + 1; i++) {
+          result.current.add({ ...sample, key: `t${i}`, symbol: `T${i}USDT` });
+        }
+      } catch (e) {
+        err = e as Error;
       }
     });
-    let err: Error | null = null;
-    act(() => { try { result.current.add({ ...sample, key: 'overflow' }); } catch (e) { err = e as Error; } });
     expect(err?.message).toMatch(/최대|50/);
     expect(result.current.entries).toHaveLength(MAX_ENTRIES);
   });
