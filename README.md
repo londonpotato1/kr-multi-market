@@ -187,37 +187,44 @@ pnpm build
 - Telegram alert hook (DISLOCATED z-score)
 - Calendar 2027+ refresh
 
-## Deploy Status — Local Only (v0.1.0)
+## Deploy Status — Local Only (v0.5.3)
 
-**현재 v0.1.0은 로컬 운영 전용입니다.** Vercel 어댑터 코드 (`api/*.ts` + `vercel.json`)는 준비되어 있으나, 계정 결제 이슈로 production deploy 보류 상태입니다.
+**현재 v0.5.3은 로컬 운영 전용입니다.** 누구나 clone 후 `pnpm install + pnpm dev` 로 실행할 수 있습니다 (License: MIT).
 
-### 로컬 운영 (사용자 권장)
+### 로컬 실행 (사용자 권장)
 
 ```bash
-# 처음 한 번
+# 1) Clone + install
+git clone https://github.com/londonpotato1/kr-multi-market.git
+cd kr-multi-market
 pnpm install
-cp .env.example .env.local
-# .env.local에 HEALTH_TOKEN 채우기 (openssl rand -hex 32)
 
-# 매번 실행
+# 2) Setup env
+cp .env.example .env.local
+# .env.local 에 HEALTH_TOKEN (`openssl rand -hex 32`) 채우기
+# (선택) FINNHUB_TOKEN 채우면 영문 ticker 검색 활성 (https://finnhub.io 무료 60/min)
+# (선택) HL_USE_WS=true 면 Hyperliquid 실시간 WS, false 면 1s REST
+
+# 3) Run (concurrently: Vite client :5173 + Express server :3001)
 pnpm dev
 # http://localhost:5173 접속
 ```
 
-데이터는 2초마다 자동 갱신됩니다 (v0.4.1 — source 별 cache TTL, "Price refresh rate" 섹션 참조). 브라우저 localStorage에 z-score 히스토리가 7일간 누적되며, 8분(100 샘플) 이후부터 z-score 기반 시그널이 표시됩니다.
+데이터는 2초마다 자동 갱신됩니다 (v0.4.1 — source 별 cache TTL, "Price refresh rate" 섹션 참조). 브라우저 localStorage에 z-score 히스토리가 7일간 누적되며, 8분(100 샘플) 이후부터 z-score 기반 시그널이 표시됩니다. v0.5.0 부터 종목 검색 + 관심 종목 (최대 50개, localStorage 영구) 지원.
 
-### Vercel 배포 (계정 활성화 후)
+### 환경 변수 요약
 
-코드는 이미 Vercel-ready. 결제 활성화 (https://vercel.com/teams/londonpotato1s-projects/settings/billing) 후:
+| 변수 | 필수? | 비고 |
+|---|---|---|
+| `HEALTH_TOKEN` | production 만 | `openssl rand -hex 32` |
+| `HL_USE_WS` | No (default false) | `true` 권장 (로컬 dev). Vercel/serverless 는 `false` |
+| `FINNHUB_TOKEN` | No (graceful) | 영문 검색 / Yahoo Tier-4 fallback. 없으면 영문 Tier 1 비활성 |
+| `POLYGON_API_KEY` | No | NQ Tier-5 fallback (옵션) |
+| `TWELVEDATA_API_KEY` | No | NQ Tier-6 fallback (옵션) |
 
-```bash
-vercel link --yes --project kr-multi-market
-vercel env add HEALTH_TOKEN production   # openssl rand -hex 32
-vercel env add HL_USE_WS production       # false
-vercel --prod
-```
+### 서버리스 배포 (옵션 — 미검증)
 
-`api/*.ts` (Vercel serverless) 와 `dist/` (Vite 정적 빌드) 가 자동 라우팅됩니다.
+Vercel 어댑터 코드 (`api/*.ts` + `vercel.json`) 가 준비되어 있지만 maintainer 환경에서 미검증입니다. 시도 시 `HL_USE_WS=false` 필수 (serverless 는 long-lived WS 불가능).
 
 **Vercel 배포 시 알려진 제약**:
 - Naver finance polling — Vercel 미국 IP에서 차단 가능. `.KS` Yahoo fallback 으로 graceful degrade.
