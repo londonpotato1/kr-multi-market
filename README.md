@@ -36,6 +36,7 @@ pnpm dev
 - 최대 50 종목 watchlist (localStorage 영구, multi-device sync X)
 - 검색 source fail (Finnhub 429 / Naver 차단) graceful degradation (`tier: null`, `reason: 'naver_unavailable'` 등)
 - `FINNHUB_TOKEN` 미설정 시 영문 Tier 1 비활성 (startup `WARN [search] FINNHUB_TOKEN not set ...` 출력)
+- `upbit` source: `parseWatchlist` 가 허용하지만 동적 hydration 미지원 (fetcher 가 정적 KRW-USDT pair only, 검색 시스템도 upbit entry 생성 X). 사용자 직접 curl 시 silent miss — v0.5.1 follow-up.
 
 **환경 변수**:
 - `FINNHUB_TOKEN`: Finnhub.io 무료 키 (영문 검색 필수, [Source Matrix](#source-matrix-v042) 참조)

@@ -12,6 +12,7 @@ import { buildFxRates, computePremiumWithSkew } from './normalize.js';
 import { getSessionState } from './session.js';
 import { recordSourceAttempt, getSourceHealth } from './health.js';
 import { resolvePrevClose } from './prev-close-cache.js';
+import { getLatestMids } from './sources/hyperliquid-ws.js';
 import { log } from './logger.js';
 
 const SCHEMA_VERSION = 1;
@@ -285,13 +286,34 @@ export function assemblePricesResponse(
   // 정적 ticker 매핑이 모두 끝난 뒤 watchlist entry 별로 tickers[key] 추가.
   // 정적 ticker key 와 충돌 시 skip (client add 시 거부했어야 함, 방어).
   for (const entry of watchlist) {
-    const sourceKey = entry.source === 'hyperliquid' ? 'hl' : entry.source;
-    const sourceData = sources[sourceKey as keyof SourceInputs];
+    if (tickers[entry.key]) continue;
+
+    if (entry.source === 'hyperliquid') {
+      // Codex review #4 BLOCK 2: REST sources.hl 은 정적 7 ticker only — 임의 xyz 심볼
+      // (예: xyz_AAPL) hydration 불가. WS allMids map 직접 lookup 으로 spec §3.3
+      // hyperliquid source 전체 universe 지원.
+      const ws = getLatestMids();
+      const price = ws.mids.get(entry.symbol);
+      if (price === undefined) continue;
+      const pp: PricePoint = {
+        source: 'hyperliquid',
+        symbol: entry.symbol,
+        price,
+        unit: 'USD',
+        status: 'ok',
+        asOf: ws.lastUpdate,
+        receivedAt: ts,
+        schemaVersion: SCHEMA_VERSION,
+      };
+      tickers[entry.key] = { hl: pp };
+      continue;
+    }
+
+    const sourceData = sources[entry.source as keyof SourceInputs];
     if (!sourceData?.ok) continue;
     const pp = sourceData.data.find(p => p.symbol === entry.symbol);
     if (!pp) continue;
-    if (tickers[entry.key]) continue;
-    tickers[entry.key] = { [sourceKey]: pp } as TickerPayload;
+    tickers[entry.key] = { [entry.source]: pp } as TickerPayload;
   }
 
   const yahooKrwX = sources.yahoo.ok

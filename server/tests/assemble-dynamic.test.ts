@@ -1,6 +1,18 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+// hyperliquid-ws WS map mock — assemble.ts 의 동적 hyperliquid 분기가
+// REST sources.hl 대신 WS allMids 를 직접 lookup 한다는 사실을 확인.
+vi.mock('../lib/sources/hyperliquid-ws.js', () => ({
+  getLatestMids: vi.fn(() => ({
+    mids: new Map<string, number>(),
+    lastUpdate: 0,
+    connected: false,
+  })),
+}));
+
 import { assemblePricesResponse, type SourceInputs } from '../lib/assemble.js';
 import { _resetSourceHealth } from '../lib/health.js';
+import { getLatestMids } from '../lib/sources/hyperliquid-ws.js';
 import type { PricePoint } from '@shared/types/prices.js';
 
 const now = Date.now();
@@ -64,5 +76,35 @@ describe('assemble — dynamic watchlist mapping', () => {
     ]);
     expect(resp.tickers.aapl.binance?.price).toBe(195);
     expect(resp.tickers.kakao.naver?.price).toBe(50000);
+  });
+
+  it('hydrates hyperliquid entry from WS allMids (not sources.hl REST)', () => {
+    // sources.hl 은 REST 정적 7 ticker only — xyz_AAPL 없음.
+    // WS map 에는 있는 상태로 mock → tickers[entry.key].hl 채워져야 함.
+    const wsUpdate = now - 1000;
+    vi.mocked(getLatestMids).mockReturnValueOnce({
+      mids: new Map([['xyz_AAPL', 195.42]]),
+      lastUpdate: wsUpdate,
+      connected: true,
+    });
+    const resp = assemblePricesResponse(minimal(), [
+      { key: 'aapl-hl', source: 'hyperliquid', symbol: 'xyz_AAPL' },
+    ]);
+    const t = resp.tickers['aapl-hl'];
+    expect(t?.hl).toBeDefined();
+    expect(t?.hl?.source).toBe('hyperliquid');
+    expect(t?.hl?.symbol).toBe('xyz_AAPL');
+    expect(t?.hl?.price).toBe(195.42);
+    expect(t?.hl?.unit).toBe('USD');
+    expect(t?.hl?.status).toBe('ok');
+    expect(t?.hl?.asOf).toBe(wsUpdate);
+  });
+
+  it('skips hyperliquid entry when WS map has no symbol', () => {
+    // WS map empty (default mock) — entry 건너뛰어야 함.
+    const resp = assemblePricesResponse(minimal(), [
+      { key: 'aapl-hl', source: 'hyperliquid', symbol: 'xyz_AAPL' },
+    ]);
+    expect(resp.tickers['aapl-hl']).toBeUndefined();
   });
 });

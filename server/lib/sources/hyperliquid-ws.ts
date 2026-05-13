@@ -4,7 +4,6 @@ import { log } from '../logger.js';
 const WS_URL = 'wss://api.hyperliquid.xyz/ws';
 const RECONNECT_DELAY_MS = 3000;
 const PING_INTERVAL_MS = 30_000;
-const TARGET_SYMBOLS = ['SMSN', 'SKHX', 'HYUNDAI', 'KR200', 'EWY', 'SP500', 'KRW'] as const;
 
 type MidsState = {
   mids: Map<string, number>;
@@ -53,22 +52,24 @@ function connect() {
     try {
       const msg = JSON.parse(data.toString());
       // allMids message shape: { channel: 'allMids', data: { mids: { 'xyz:SMSN': '205.23', ... } } }
+      // v0.5.0: allMids 전체 저장 (Tier 3 search 및 동적 watchlist hydration 위해).
+      //         정적 7-ticker dashboard 는 assemble.ts HL_SYMBOL_TO_TICKER 가 REST fetcher
+      //         (hyperliquid.ts) 결과 사용 — 본 WS map 과 무관, 동작 유지.
       if (msg.channel === 'allMids' && msg.data?.mids) {
         const mids = msg.data.mids as Record<string, string>;
-        for (const symbol of TARGET_SYMBOLS) {
-          const apiKey = `xyz:${symbol}`;
+        for (const apiKey in mids) {
+          if (!Object.prototype.hasOwnProperty.call(mids, apiKey)) continue;
           const v = mids[apiKey];
-          if (v !== undefined) {
-            const num = Number(v);
-            if (Number.isFinite(num)) {
-              state.mids.set(`xyz_${symbol}`, num);
-            }
-          }
+          if (typeof v !== 'string') continue;
+          const num = Number(v);
+          if (!Number.isFinite(num)) continue;
+          // key 'xyz:SMSN' → 'xyz_SMSN' (search Tier 3 + assemble entry.symbol 일관).
+          state.mids.set(apiKey.replace(':', '_'), num);
         }
         state.lastUpdate = Date.now();
         if (!loggedFirstMids) {
           loggedFirstMids = true;
-          log.info('[hl-ws] received first allMids update, cached', state.mids.size, 'targets');
+          log.info('[hl-ws] received first allMids update, cached', state.mids.size, 'mids');
         }
       }
     } catch (err) {
