@@ -16,6 +16,7 @@ import { startHyperliquidWs, getLatestMids } from './lib/sources/hyperliquid-ws.
 import { assemblePricesResponse } from './lib/assemble.js';
 import { APP_VERSION } from './lib/healthz.js';
 import { getSourceHealth } from './lib/health.js';
+import { searchHandler } from './routes/search.js';
 import type {
   HealthzResponse,
   InternalHealthResponse,
@@ -139,6 +140,7 @@ export async function pricesHandler(_req: Request, res: Response): Promise<void>
 app.get('/api/healthz', healthzHandler);
 app.get('/api/internal/health', internalHealthHandler);
 app.get('/api/prices', pricesHandler);
+app.get('/api/search', searchHandler);
 
 const isVercelEnv = !!process.env.VERCEL;
 if (!isVercelEnv && process.env.NODE_ENV !== 'test') {
