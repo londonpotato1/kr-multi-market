@@ -22,7 +22,7 @@ describe('SearchBar', () => {
   });
 
   it('submits search + shows dropdown', async () => {
-    vi.spyOn(global, 'fetch').mockResolvedValue(
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({
         tier: 1,
         results: [{ source: 'yahoo', symbol: 'AAPL', label: 'Apple Inc.', tier: 1 }],

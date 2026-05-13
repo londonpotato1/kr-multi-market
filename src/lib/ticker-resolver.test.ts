@@ -5,7 +5,7 @@ afterEach(() => vi.restoreAllMocks());
 
 describe('searchTicker', () => {
   it('returns response from /api/search', async () => {
-    vi.spyOn(global, 'fetch').mockResolvedValue(
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({
         tier: 1,
         results: [{ source: 'yahoo', symbol: 'AAPL', label: 'Apple Inc.', description: 'Common Stock', tier: 1 }],
@@ -17,7 +17,7 @@ describe('searchTicker', () => {
   });
 
   it('returns empty results on 400', async () => {
-    vi.spyOn(global, 'fetch').mockResolvedValue(
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ tier: null, results: [], reason: 'too_short' }), { status: 400 }) as unknown as Response,
     );
     const res = await searchTicker('a');
@@ -26,7 +26,7 @@ describe('searchTicker', () => {
   });
 
   it('returns empty results on network error', async () => {
-    vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network'));
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('network'));
     const res = await searchTicker('Apple');
     expect(res.results).toEqual([]);
   });
