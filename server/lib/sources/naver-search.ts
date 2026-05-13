@@ -35,7 +35,7 @@ export async function searchNaver(q: string): Promise<SearchResult[]> {
         source: 'naver',
         symbol: item.cd,
         label: item.nm,
-        description: item.tpcd ?? 'KRX',
+        description: item.tpcd || 'KRX',  // tpcd 가 빈 문자열도 KRX fallback (비공식 endpoint 방어)
         tier: 1,
       });
       if (results.length >= 5) break;
