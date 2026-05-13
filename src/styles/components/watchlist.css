@@ -80,8 +80,10 @@
 .search-dropdown-item:last-child {
   border-bottom: none;
 }
-.search-dropdown-item:hover {
+.search-dropdown-item:hover,
+.search-dropdown-item:focus-visible {
   background: var(--hl-teal-soft);
+  outline: none;
 }
 
 .watchlist-section {

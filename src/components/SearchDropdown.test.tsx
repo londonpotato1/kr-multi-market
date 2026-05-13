@@ -30,11 +30,11 @@ describe('SearchDropdown', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('naver_unavailable reason → KRX 6자리 코드 안내 (v0.5.1)', () => {
+  it('naver_unavailable reason → Naver 서버 응답 없음 안내 (v0.5.1 follow-up)', () => {
     render(<SearchDropdown
       response={{ tier: null, results: [], reason: 'naver_unavailable' }}
       onPick={vi.fn()} onClose={vi.fn()} />);
-    expect(screen.getByText(/KRX 6자리 코드/)).toBeInTheDocument();
+    expect(screen.getByText(/Naver 서버 응답 없음/)).toBeInTheDocument();
   });
 
   it('ESC key triggers onClose', () => {

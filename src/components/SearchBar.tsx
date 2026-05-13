@@ -11,9 +11,9 @@ const Q_REGEX = /^[a-zA-Z0-9가-힣\s.-]+$/;
 
 /** v0.5.1: symbol 기반 (한글 label "item" fallback 회피). 충돌 해소는 useWatchlist.add 가 책임 (auto-suffix). */
 function buildKey(symbol: string): string {
+  // _ 도 [^a-z0-9]+ 가 흡수 — 별도 step 불필요 (double hyphen 회피)
   return symbol.toLowerCase()
-    .replace(/_/g, '-')
-    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
     .slice(0, 32) || 'item';
 }
