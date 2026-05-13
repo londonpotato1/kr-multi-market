@@ -25,6 +25,7 @@ export function WatchlistCard({ entry, payload, fx, onRemove }: Props) {
         label={entry.label}
         payload={payload}
         fx={fx}
+        hideVenues
       />
     </div>
   );

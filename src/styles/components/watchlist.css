@@ -112,6 +112,12 @@
   position: relative;
 }
 
+/* v0.5.2: watchlist 카드 ticker 영역에 X 버튼 (24px + right 8px = 32px) 공간 확보.
+ * scope 한정 — 정적 카드(.card .card-head)에는 영향 없음. */
+.watchlist-card-wrap .card-head {
+  padding-right: 40px;
+}
+
 .watchlist-card-remove {
   position: absolute;
   top: 0.5rem;

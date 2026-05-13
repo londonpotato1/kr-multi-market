@@ -10,6 +10,7 @@ type Props = {
   label: string;
   payload?: TickerPayload;
   fx?: FxRates;
+  hideVenues?: boolean;  // v0.5.2: 단일 venue watchlist 카드용 (venues 섹션 중복 제거)
 };
 
 /** v0.4.2 — NQ headline fallback chain (모든 source = USD/USDT scale, spec §3.2 / §3.3).
@@ -38,7 +39,7 @@ function pickHeadlineSource(
   return null;
 }
 
-export function IndexCompactCard({ ticker, label, payload, fx }: Props) {
+export function IndexCompactCard({ ticker, label, payload, fx, hideVenues }: Props) {
   const hasAnyVenue = !!(
     payload?.hl || payload?.yahoo || payload?.binance ||
     payload?.bybit || payload?.bitget || payload?.polygon || payload?.twelvedata ||
@@ -110,14 +111,16 @@ export function IndexCompactCard({ ticker, label, payload, fx }: Props) {
         </div>
       )}
 
-      <div className="venues">
-        <VenueRow source="hyperliquid" pp={payload.hl} />
-        <VenueRow source="yahoo" pp={payload.yahoo} />
-        <VenueRow source="binance" pp={payload.binance} />
-        <VenueRow source="bybit" pp={payload.bybit} />
-        <VenueRow source="bitget" pp={payload.bitget} />
-        <VenueRow source="naver" pp={payload.naver} />
-      </div>
+      {!hideVenues && (
+        <div className="venues">
+          <VenueRow source="hyperliquid" pp={payload.hl} />
+          <VenueRow source="yahoo" pp={payload.yahoo} />
+          <VenueRow source="binance" pp={payload.binance} />
+          <VenueRow source="bybit" pp={payload.bybit} />
+          <VenueRow source="bitget" pp={payload.bitget} />
+          <VenueRow source="naver" pp={payload.naver} />
+        </div>
+      )}
 
       {ticker === 'sp500' && hlKrw !== null && binanceKrw !== null && (
         <div className="krw-conversions num" title="Both venues normalized to KRW via Upbit USDT-KRW + server reference ratio 10x for SPY">
