@@ -6,17 +6,30 @@ vi.mock('../../lib/sources/finnhub.js', async (importOriginal) => {
   return { ...actual, searchFinnhub: vi.fn() };
 });
 vi.mock('../../lib/sources/naver-search.js', () => ({ searchNaver: vi.fn() }));
+vi.mock('../../lib/sources/binance.js', () => ({ fetchBinanceFutures: vi.fn() }));
+vi.mock('../../lib/sources/bybit.js', () => ({ fetchBybitLinear: vi.fn() }));
+vi.mock('../../lib/sources/bitget.js', () => ({ fetchBitgetFutures: vi.fn() }));
 
 import { app } from '../../index.js';
 import { searchFinnhub } from '../../lib/sources/finnhub.js';
 import { searchNaver } from '../../lib/sources/naver-search.js';
+import { fetchBinanceFutures } from '../../lib/sources/binance.js';
+import { fetchBybitLinear } from '../../lib/sources/bybit.js';
+import { fetchBitgetFutures } from '../../lib/sources/bitget.js';
 
 const mockFinnhub = searchFinnhub as ReturnType<typeof vi.fn>;
 const mockNaver = searchNaver as ReturnType<typeof vi.fn>;
+const mockBinance = fetchBinanceFutures as ReturnType<typeof vi.fn>;
+const mockBybit = fetchBybitLinear as ReturnType<typeof vi.fn>;
+const mockBitget = fetchBitgetFutures as ReturnType<typeof vi.fn>;
 
 beforeEach(() => {
   mockFinnhub.mockReset();
   mockNaver.mockReset();
+  // Tier 2 default: all miss (테스트가 hit 시키려면 override)
+  mockBinance.mockResolvedValue({ ok: false, error: 'not found', latencyMs: 0 });
+  mockBybit.mockResolvedValue({ ok: false, error: 'not found', latencyMs: 0 });
+  mockBitget.mockResolvedValue({ ok: false, error: 'not found', latencyMs: 0 });
 });
 
 describe('GET /api/search', () => {
@@ -76,11 +89,22 @@ describe('GET /api/search', () => {
 
   it('English + Tier 1/2/3 모두 miss → not_found', async () => {
     mockFinnhub.mockResolvedValue([]);
-    // Tier 2 mock 안 함 — 실제 fetchX 호출, test env 에서 invalid symbol 응답 (빈 결과)
-    // Tier 3 = getLatestMids() = test env 비어있음
+    // Tier 2 beforeEach default = all miss. Tier 3 = test env getLatestMids 빈 Map.
     const res = await request(app).get('/api/search?q=NOEXIST');
     expect(res.status).toBe(200);
     expect(res.body.tier).toBeNull();
     expect(res.body.reason).toBe('not_found');
-  }, 15_000);
+  });
+
+  it('Tier 2 hit: Binance first-match-wins (binance > bybit > bitget)', async () => {
+    mockFinnhub.mockResolvedValue([]);
+    mockBinance.mockResolvedValue({ ok: true, data: [{ source: 'binance', symbol: 'TSLAUSDT', price: 250, unit: 'USDT', status: 'ok', asOf: 0, receivedAt: 0, schemaVersion: 1 }], latencyMs: 10 });
+    mockBybit.mockResolvedValue({ ok: true, data: [{ source: 'bybit', symbol: 'TSLAUSDT', price: 250.1, unit: 'USDT', status: 'ok', asOf: 0, receivedAt: 0, schemaVersion: 1 }], latencyMs: 10 });
+    const res = await request(app).get('/api/search?q=TSLA');
+    expect(res.status).toBe(200);
+    expect(res.body.tier).toBe(2);
+    expect(res.body.results).toHaveLength(1);
+    expect(res.body.results[0].source).toBe('binance');
+    expect(res.body.results[0].symbol).toBe('TSLAUSDT');
+  });
 });

@@ -5,15 +5,27 @@ import { fetchBinanceFutures } from '../lib/sources/binance.js';
 import { fetchBybitLinear } from '../lib/sources/bybit.js';
 import { fetchBitgetFutures } from '../lib/sources/bitget.js';
 import { getLatestMids } from '../lib/sources/hyperliquid-ws.js';
+import { log } from '../lib/logger.js';
 import type { SearchResponse, SearchResult } from '@shared/types/prices.js';
 
 const Q_REGEX = /^[a-zA-Z0-9가-힣\s.-]+$/;
 const HANGUL_REGEX = /[가-힣]/;
 
+// Startup warn: FINNHUB_TOKEN 미설정 시 영문 Tier 1 always miss
+if (!process.env.FINNHUB_TOKEN && process.env.NODE_ENV !== 'test') {
+  log.warn('[search] FINNHUB_TOKEN not set — English Tier 1 (Finnhub /search) will always return []');
+}
+
 export async function searchHandler(req: Request, res: Response): Promise<void> {
   const q = String(req.query.q ?? '').trim();
+  // 검사 순서: empty → invalid_chars → too_short → too_long
+  // (보안 신호 우선 — 특수문자 1자도 invalid_chars 로 정확 reject, security 우선 spec §6 의도)
   if (q.length === 0) {
     res.status(400).json({ tier: null, results: [], reason: 'empty_query' } as SearchResponse);
+    return;
+  }
+  if (!Q_REGEX.test(q)) {
+    res.status(400).json({ tier: null, results: [], reason: 'invalid_chars' } as SearchResponse);
     return;
   }
   if (q.length < 2) {
@@ -22,10 +34,6 @@ export async function searchHandler(req: Request, res: Response): Promise<void> 
   }
   if (q.length > 32) {
     res.status(400).json({ tier: null, results: [], reason: 'too_long' } as SearchResponse);
-    return;
-  }
-  if (!Q_REGEX.test(q)) {
-    res.status(400).json({ tier: null, results: [], reason: 'invalid_chars' } as SearchResponse);
     return;
   }
 
@@ -51,9 +59,9 @@ export async function searchHandler(req: Request, res: Response): Promise<void> 
   const TICKER = q.toUpperCase();
   const cexSymbol = `${TICKER}USDT`;
   const [binResult, bybitResult, bitgetResult] = await Promise.all([
-    fetchBinanceFutures([cexSymbol]).catch(() => null),
-    fetchBybitLinear([cexSymbol]).catch(() => null),
-    fetchBitgetFutures([cexSymbol]).catch(() => null),
+    fetchBinanceFutures([cexSymbol]).catch((err) => { log.warn('[search] binance probe failed', err instanceof Error ? err.message : err); return null; }),
+    fetchBybitLinear([cexSymbol]).catch((err) => { log.warn('[search] bybit probe failed', err instanceof Error ? err.message : err); return null; }),
+    fetchBitgetFutures([cexSymbol]).catch((err) => { log.warn('[search] bitget probe failed', err instanceof Error ? err.message : err); return null; }),
   ]);
 
   const tier2Hits: SearchResult[] = [];
