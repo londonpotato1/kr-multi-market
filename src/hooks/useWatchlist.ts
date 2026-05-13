@@ -46,12 +46,10 @@ function saveToStorage(entries: WatchlistEntry[]): void {
  * localStorage 가 source of truth, page reload 시 복원.
  */
 export function useWatchlist() {
-  // useRef lazy init pattern — useRef 는 native lazy initializer 없음, 직접 분기.
-  const entriesRef = useRef<WatchlistEntry[] | null>(null);
-  if (entriesRef.current === null) {
-    entriesRef.current = loadFromStorage();
-  }
-  const [entries, setEntries] = useState<WatchlistEntry[]>(() => entriesRef.current!);
+  // useState lazy initializer + useRef(entries) — first render 에 loadFromStorage 1회 호출.
+  // 이후 entriesRef.current 를 동기 source-of-truth 로 사용 (add/remove 안에서 직접 mutate).
+  const [entries, setEntries] = useState<WatchlistEntry[]>(loadFromStorage);
+  const entriesRef = useRef<WatchlistEntry[]>(entries);
   const { mutate } = useSWRConfig();
 
   const add = useCallback((entry: WatchlistEntry): void => {
@@ -61,25 +59,25 @@ export function useWatchlist() {
     if (!SYMBOL_REGEX.test(entry.symbol) || entry.symbol.length > 32) {
       throw new Error(`잘못된 symbol 형식: ${entry.symbol}`);
     }
-    if (entriesRef.current!.length >= MAX_ENTRIES) {
+    if (entriesRef.current.length >= MAX_ENTRIES) {
       throw new Error(`최대 ${MAX_ENTRIES}개 까지만 추가 가능합니다`);
     }
     // 충돌 시 auto-suffix — suffix 길이 동적 계산 후 base 잘라서 합 32자 보장
     let key = entry.key;
-    if (entriesRef.current!.some(e => e.key === key)) {
+    if (entriesRef.current.some(e => e.key === key)) {
       let i = 1;
       while (true) {
         const suffix = `-${i}`;
         const base = entry.key.slice(0, 32 - suffix.length);
         const candidate = `${base}${suffix}`;
-        if (!entriesRef.current!.some(e => e.key === candidate)) {
+        if (!entriesRef.current.some(e => e.key === candidate)) {
           key = candidate;
           break;
         }
         i++;
       }
     }
-    const next = [...entriesRef.current!, { ...entry, key }];
+    const next = [...entriesRef.current, { ...entry, key }];
     entriesRef.current = next;
     setEntries(next);
     saveToStorage(next);
@@ -87,7 +85,7 @@ export function useWatchlist() {
   }, [mutate]);
 
   const remove = useCallback((key: string): void => {
-    const next = entriesRef.current!.filter(e => e.key !== key);
+    const next = entriesRef.current.filter(e => e.key !== key);
     entriesRef.current = next;
     setEntries(next);
     saveToStorage(next);

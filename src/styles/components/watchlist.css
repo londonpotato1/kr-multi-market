@@ -18,7 +18,7 @@
 }
 
 .search-bar-error {
-  color: var(--error, #c33);
+  color: var(--danger-text);
   padding: 0.5rem;
   margin-top: 0.25rem;
   font-size: 0.875rem;

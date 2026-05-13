@@ -41,7 +41,10 @@ export function SearchBar({ onAdd }: Props) {
     controllerRef.current = controller;
     setLoading(true);
     const res = await searchTicker(q, controller.signal);
-    if (controller.signal.aborted) return;  // 새 요청이 진행 중 — state 업데이트 skip
+    if (controller.signal.aborted) {
+      setLoading(false);  // defensive — abort 후 unmount 가 아닌 케이스 방어
+      return;
+    }
     setResponse(res);
     setLoading(false);
   }, [query]);
@@ -83,7 +86,7 @@ export function SearchBar({ onAdd }: Props) {
         </button>
       </form>
       {errorMessage && (
-        <div className="search-bar-error" role="alert" aria-live="polite">
+        <div className="search-bar-error" role="alert">
           {errorMessage}
         </div>
       )}
