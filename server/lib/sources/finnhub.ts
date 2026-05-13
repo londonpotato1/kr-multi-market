@@ -1,8 +1,11 @@
-import type { PricePoint, Result } from '@shared/types/prices.js';
+import type { PricePoint, Result, SearchResult } from '@shared/types/prices.js';
 import { log } from '../logger.js';
 
 const SCHEMA_VERSION = 1;
 const TIMEOUT_MS = 5000;
+const FINNHUB_BASE = 'https://finnhub.io';
+const SEARCH_TIMEOUT_MS = 5000;
+const ALLOWED_TYPES = new Set(['Common Stock', 'ETF']);
 
 type FinnhubQuote = {
   c?: number;   // current price
@@ -67,4 +70,56 @@ export async function fetchFinnhub(
     return { ok: false, error: 'Finnhub returned 0 valid items', latencyMs: Date.now() - start };
   }
   return { ok: true, data: result, latencyMs: Date.now() - start };
+}
+
+type FinnhubSearchItem = {
+  symbol?: string;
+  description?: string;
+  type?: string;
+};
+
+type FinnhubSearchResponse = {
+  count?: number;
+  result?: FinnhubSearchItem[];
+};
+
+/** Finnhub /search endpoint — 종목명/ticker 검색.
+ *  Returns top 5 results filtered by type (Common Stock + ETF). 코인 자연 제외. */
+export async function searchFinnhub(q: string, token: string): Promise<SearchResult[]> {
+  if (!token || !q) return [];
+  const url = `${FINNHUB_BASE}/api/v1/search?q=${encodeURIComponent(q)}&token=${encodeURIComponent(token)}`;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), SEARCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    if (!res.ok) {
+      log.warn(`[finnhub-search] HTTP ${res.status}`);
+      return [];
+    }
+    const raw = (await res.json()) as FinnhubSearchResponse;
+    const items = raw.result ?? [];
+    const results: SearchResult[] = [];
+    for (const item of items) {
+      if (!item.symbol || !item.description || !item.type) continue;
+      if (!ALLOWED_TYPES.has(item.type)) continue;
+      results.push({
+        source: 'yahoo',  // Tier 1 미국 주식 source slot = yahoo (Finnhub 가 yahoo 의 Tier-4 fallback, v0.4.2 Task 4 패턴)
+        symbol: item.symbol,
+        label: item.description,
+        description: item.type,
+        tier: 1,
+      });
+      if (results.length >= 5) break;
+    }
+    return results;
+  } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      log.warn('[finnhub-search] timeout');
+    } else {
+      log.warn('[finnhub-search] error:', err instanceof Error ? err.message : err);
+    }
+    return [];
+  } finally {
+    clearTimeout(timeout);
+  }
 }
