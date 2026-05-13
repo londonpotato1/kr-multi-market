@@ -187,4 +187,43 @@ describe('IndexCompactCard NQ — v0.4.2 fallback chain + 5 VenueRow', () => {
     expect(screen.queryByText('Polygon', { selector: '.venue-pill' })).not.toBeInTheDocument();
     expect(screen.queryByText('Twelve Data', { selector: '.venue-pill' })).not.toBeInTheDocument();
   });
+
+  it('shows price even when naver is stale (KRX market_closed, v0.5.3)', () => {
+    const stalePayload: TickerPayload = {
+      naver: {
+        source: 'naver',
+        symbol: '012330',
+        price: 649000,
+        unit: 'KRW',
+        status: 'stale',
+        staleReason: 'market_closed',
+        asOf: Date.now(),
+        receivedAt: Date.now(),
+        schemaVersion: 1,
+        previousClose: 548000,
+      },
+    };
+    render(<IndexCompactCard ticker="mobis" label="현대모비스" payload={stalePayload} fx={fxOk} />);
+    expect(screen.getByText(/₩649,000/, { selector: '.index-compact-headline' })).toBeInTheDocument();
+    expect(screen.getByText(/KRX 휴장 \(마지막 가격\)/)).toBeInTheDocument();
+  });
+
+  it('does not show stale note when naver status is ok (v0.5.3)', () => {
+    const okPayload: TickerPayload = {
+      naver: {
+        source: 'naver',
+        symbol: '012330',
+        price: 649000,
+        unit: 'KRW',
+        status: 'ok',
+        asOf: Date.now(),
+        receivedAt: Date.now(),
+        schemaVersion: 1,
+        previousClose: 548000,
+      },
+    };
+    render(<IndexCompactCard ticker="mobis" label="현대모비스" payload={okPayload} fx={fxOk} />);
+    expect(screen.getByText(/₩649,000/, { selector: '.index-compact-headline' })).toBeInTheDocument();
+    expect(screen.queryByText(/KRX 휴장/)).not.toBeInTheDocument();
+  });
 });

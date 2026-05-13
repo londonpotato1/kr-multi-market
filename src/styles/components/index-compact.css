@@ -23,6 +23,11 @@
   font-variant-numeric: tabular-nums;
   margin-top: -2px;
 }
+.index-compact-stale-note {
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-top: 2px;
+}
 .index-compact .venues { margin-top: 4px; }
 .index-compact .krw-conversions {
   font-size: 12px;

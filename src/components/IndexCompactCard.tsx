@@ -69,10 +69,15 @@ export function IndexCompactCard({ ticker, label, payload, fx, hideVenues }: Pro
     ? payload.binance.price * usdtKrw * sp500Multiplier
     : null;
 
-  // v0.5.1: naver source 는 KRW 원형 (fx 변환 불필요) — 한국 주식 watchlist 카드 우선
-  const naverKrw = payload.naver && payload.naver.status !== 'stale'
+  // v0.5.3: stale 도 가격 표시 (KRX 휴장 시 한국 주식 watchlist 카드 fallback 없음).
+  // 정적 dashboard 의 StockHeroCard 와 일관 (stale 시 가격 + footer 시그널).
+  const naverKrw = payload.naver
+    && Number.isFinite(payload.naver.price)
+    && payload.naver.price > 0
     ? payload.naver.price
     : null;
+  const naverMarketClosed = payload.naver?.status === 'stale'
+    && payload.naver.staleReason === 'market_closed';
 
   const headline = naverKrw !== null
     ? { value: naverKrw, label: 'Naver' }
@@ -97,6 +102,11 @@ export function IndexCompactCard({ ticker, label, payload, fx, hideVenues }: Pro
           <div className="index-compact-headline ts-index-headline">
             {fmtKrw(headline!.value, 0)}
           </div>
+          {naverMarketClosed && (
+            <div className="index-compact-stale-note ts-subtitle">
+              KRX 휴장 (마지막 가격)
+            </div>
+          )}
           {naverKrw === null && (
             <div className="index-compact-usdt ts-subtitle">
               ≈ {fmtUsd(headline!.value / usdtKrw)} USDT
