@@ -44,6 +44,26 @@ describe('SearchBar', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
+  it('handlePick builds key from result.symbol, not label (v0.5.1)', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({
+        tier: 1,
+        results: [{ source: 'naver', symbol: '012330', label: '현대모비스', tier: 1 }],
+      }), { status: 200 }) as unknown as Response,
+    );
+    const onAdd = vi.fn();
+    render(<SearchBar onAdd={onAdd} />);
+    fireEvent.change(screen.getByLabelText('종목 검색'), { target: { value: '012330' } });
+    fireEvent.click(screen.getByText('추가'));
+    const option = await screen.findByRole('option');
+    fireEvent.click(option);
+    expect(onAdd).toHaveBeenCalledWith(expect.objectContaining({
+      key: '012330',           // ← symbol 기반 (이전 label 기반은 한글 → "item")
+      symbol: '012330',
+      label: '현대모비스',
+    }));
+  });
+
   it('shows inline error when onAdd throws (no alert)', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({

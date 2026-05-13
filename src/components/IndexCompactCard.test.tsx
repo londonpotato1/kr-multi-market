@@ -163,6 +163,19 @@ describe('IndexCompactCard NQ — v0.4.2 fallback chain + 5 VenueRow', () => {
     expect(screen.getByText('Bitget')).toBeInTheDocument();
   });
 
+  it('v0.5.1: naver-only payload → KRW headline (no USDT 환산)', () => {
+    const payload: TickerPayload = {
+      naver: mkPP({ source: 'naver', symbol: '012330', price: 646000, unit: 'KRW', change24hPct: 17.88 }),
+    };
+    render(<IndexCompactCard ticker="mobis" label="현대모비스" payload={payload} fx={fxOk} />);
+    // 646,000 KRW 원형 (fx 변환 없이)
+    expect(screen.getByText(/₩646,000/, { selector: '.index-compact-headline' })).toBeInTheDocument();
+    // USDT 환산 hidden
+    expect(screen.queryByText(/≈.*USDT/)).not.toBeInTheDocument();
+    // VenueRow 에 KRX 렌더
+    expect(screen.getByText('KRX')).toBeInTheDocument();
+  });
+
   it('does NOT render Polygon/TwelveData as VenueRow (headline fallback only)', () => {
     const payload: TickerPayload = {
       binance: mkNqPP('binance', 572.45),

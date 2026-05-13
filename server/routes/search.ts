@@ -10,6 +10,7 @@ import type { SearchResponse, SearchResult } from '@shared/types/prices.js';
 
 const Q_REGEX = /^[a-zA-Z0-9가-힣\s.-]+$/;
 const HANGUL_REGEX = /[가-힣]/;
+const KRX_CODE_REGEX = /^\d{6}$/;
 
 // Startup warn: FINNHUB_TOKEN 미설정 시 영문 Tier 1 always miss
 if (!process.env.FINNHUB_TOKEN && process.env.NODE_ENV !== 'test') {
@@ -37,10 +38,11 @@ export async function searchHandler(req: Request, res: Response): Promise<void> 
     return;
   }
 
-  const isHangul = HANGUL_REGEX.test(q);
+  // v0.5.1: 한글 OR 6자리 KRX 코드 → Naver 라우팅 (사용자 보고: "012330" not_found 버그)
+  const isKorean = HANGUL_REGEX.test(q) || KRX_CODE_REGEX.test(q);
 
-  // Tier 1: KRX (한글) 또는 NASDAQ (영문)
-  const tier1Results = isHangul
+  // Tier 1: KRX (한글/6자리 코드) 또는 NASDAQ (영문)
+  const tier1Results = isKorean
     ? await searchNaver(q)
     : await searchFinnhub(q, process.env.FINNHUB_TOKEN ?? '');
 
@@ -49,8 +51,8 @@ export async function searchHandler(req: Request, res: Response): Promise<void> 
     return;
   }
 
-  // 한글 입력 + Naver 결과 0개 → Finnhub fallback X (한글 미지원). 영문 입력 권고.
-  if (isHangul) {
+  // 한국 입력 + Naver 결과 0개 → Finnhub/CEX fallback X (한국 종목 미지원). 안내 메시지.
+  if (isKorean) {
     res.json({ tier: null, results: [], reason: 'naver_unavailable' } as SearchResponse);
     return;
   }

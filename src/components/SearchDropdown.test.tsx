@@ -30,6 +30,13 @@ describe('SearchDropdown', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it('naver_unavailable reason → KRX 6자리 코드 안내 (v0.5.1)', () => {
+    render(<SearchDropdown
+      response={{ tier: null, results: [], reason: 'naver_unavailable' }}
+      onPick={vi.fn()} onClose={vi.fn()} />);
+    expect(screen.getByText(/KRX 6자리 코드/)).toBeInTheDocument();
+  });
+
   it('ESC key triggers onClose', () => {
     const onClose = vi.fn();
     render(<SearchDropdown

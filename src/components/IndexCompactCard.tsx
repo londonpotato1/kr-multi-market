@@ -41,7 +41,8 @@ function pickHeadlineSource(
 export function IndexCompactCard({ ticker, label, payload, fx }: Props) {
   const hasAnyVenue = !!(
     payload?.hl || payload?.yahoo || payload?.binance ||
-    payload?.bybit || payload?.bitget || payload?.polygon || payload?.twelvedata
+    payload?.bybit || payload?.bitget || payload?.polygon || payload?.twelvedata ||
+    payload?.naver
   );
   if (!payload || !hasAnyVenue) {
     return (
@@ -67,13 +68,20 @@ export function IndexCompactCard({ ticker, label, payload, fx }: Props) {
     ? payload.binance.price * usdtKrw * sp500Multiplier
     : null;
 
-  const headline = useFallbackChain
-    ? pickHeadlineSource(payload, fxAvailable, usdtKrw)
-    : (hlKrw !== null ? { value: hlKrw, label: 'HL' }
-       : binanceKrw !== null ? { value: binanceKrw, label: 'Binance' }
-       : null);
+  // v0.5.1: naver source 는 KRW 원형 (fx 변환 불필요) — 한국 주식 watchlist 카드 우선
+  const naverKrw = payload.naver && payload.naver.status !== 'stale'
+    ? payload.naver.price
+    : null;
 
-  const showKrwHeadline = fxAvailable && headline !== null;
+  const headline = naverKrw !== null
+    ? { value: naverKrw, label: 'Naver' }
+    : useFallbackChain
+      ? pickHeadlineSource(payload, fxAvailable, usdtKrw)
+      : (hlKrw !== null ? { value: hlKrw, label: 'HL' }
+         : binanceKrw !== null ? { value: binanceKrw, label: 'Binance' }
+         : null);
+
+  const showKrwHeadline = (naverKrw !== null) || (fxAvailable && headline !== null);
   const showUsdHeadline = !fxAvailable && !!payload.hl;
 
   return (
@@ -88,10 +96,12 @@ export function IndexCompactCard({ ticker, label, payload, fx }: Props) {
           <div className="index-compact-headline ts-index-headline">
             {fmtKrw(headline!.value, 0)}
           </div>
-          <div className="index-compact-usdt ts-subtitle">
-            ≈ {fmtUsd(headline!.value / usdtKrw)} USDT
-            {useFallbackChain && ` · 출처 ${headline!.label}`}
-          </div>
+          {naverKrw === null && (
+            <div className="index-compact-usdt ts-subtitle">
+              ≈ {fmtUsd(headline!.value / usdtKrw)} USDT
+              {useFallbackChain && ` · 출처 ${headline!.label}`}
+            </div>
+          )}
         </>
       )}
       {showUsdHeadline && (
@@ -106,6 +116,7 @@ export function IndexCompactCard({ ticker, label, payload, fx }: Props) {
         <VenueRow source="binance" pp={payload.binance} />
         <VenueRow source="bybit" pp={payload.bybit} />
         <VenueRow source="bitget" pp={payload.bitget} />
+        <VenueRow source="naver" pp={payload.naver} />
       </div>
 
       {ticker === 'sp500' && hlKrw !== null && binanceKrw !== null && (

@@ -96,6 +96,18 @@ describe('GET /api/search', () => {
     expect(res.body.reason).toBe('not_found');
   });
 
+  it('Tier 1: routes 6-digit KRX code to Naver (v0.5.1)', async () => {
+    mockNaver.mockResolvedValue([
+      { source: 'naver', symbol: '012330', label: '현대모비스', description: 'KOSPI', tier: 1 },
+    ]);
+    const res = await request(app).get('/api/search?q=012330');
+    expect(res.status).toBe(200);
+    expect(res.body.tier).toBe(1);
+    expect(res.body.results[0].label).toBe('현대모비스');
+    expect(mockNaver).toHaveBeenCalledWith('012330');
+    expect(mockFinnhub).not.toHaveBeenCalled();
+  });
+
   it('Tier 2 hit: Binance first-match-wins (binance > bybit > bitget)', async () => {
     mockFinnhub.mockResolvedValue([]);
     mockBinance.mockResolvedValue({ ok: true, data: [{ source: 'binance', symbol: 'TSLAUSDT', price: 250, unit: 'USDT', status: 'ok', asOf: 0, receivedAt: 0, schemaVersion: 1 }], latencyMs: 10 });

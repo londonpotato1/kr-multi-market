@@ -12,7 +12,7 @@ const REASON_MESSAGES: Record<NonNullable<SearchResponse['reason']>, string> = {
   too_short: '검색어는 2자 이상이어야 합니다',
   too_long: '검색어는 32자 이하여야 합니다',
   invalid_chars: '허용되지 않는 문자가 포함됨',
-  naver_unavailable: '한국 주식 검색 일시 장애. 영문 ticker (예: 005930) 로 직접 입력하세요',
+  naver_unavailable: '한국 주식 검색 일시 장애. 잠시 후 재시도 또는 KRX 6자리 코드 직접 입력 (예: 005930)',
   not_found: '검색 결과 없음 (Tier 1/2/3 모두 miss)',
 };
 

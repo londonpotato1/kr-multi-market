@@ -11,10 +11,32 @@
 
 .search-bar-input {
   flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border-divider);
+  color: var(--text);
   padding: 0.5rem 1rem;
   font-size: 1rem;
-  border: 1px solid var(--border-color, #d4c5a8);
-  border-radius: 6px;
+  border-radius: 8px;
+}
+.search-bar-input:focus-visible {
+  outline: 2px solid var(--hl-teal);
+  outline-offset: 2px;
+}
+
+.search-bar-form button {
+  background: var(--celadon-soft);
+  border: 1px solid var(--hl-teal-border);
+  color: var(--text);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.search-bar-form button:hover:not(:disabled) {
+  background: var(--celadon-mid);
+}
+.search-bar-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .search-bar-error {
@@ -29,17 +51,19 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: var(--card-bg, #f5ede0);
-  border: 1px solid var(--border-color, #d4c5a8);
-  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border-divider);
+  box-shadow: var(--shadow);
+  backdrop-filter: var(--glass-blur);
+  border-radius: 8px;
   margin-top: 0.25rem;
   z-index: 10;
 }
 
 .search-dropdown-empty {
   padding: 1rem;
-  color: var(--text-muted, #8a7d68);
   text-align: center;
+  color: var(--text-muted);
 }
 
 .search-dropdown-item {
@@ -49,16 +73,15 @@
   text-align: left;
   background: none;
   border: none;
-  border-bottom: 1px solid var(--border-color, #e8dcc4);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text);
   cursor: pointer;
 }
-
 .search-dropdown-item:last-child {
   border-bottom: none;
 }
-
 .search-dropdown-item:hover {
-  background: var(--hover-bg, #ede0c4);
+  background: var(--hl-teal-soft);
 }
 
 .watchlist-section {
@@ -68,12 +91,13 @@
 .watchlist-section-title {
   font-size: 1.25rem;
   margin-bottom: 1rem;
+  color: var(--text);
 }
 
 .watchlist-section-empty {
   padding: 2rem;
   text-align: center;
-  color: var(--text-muted, #8a7d68);
+  color: var(--text-muted);
 }
 
 .watchlist-grid {
@@ -93,15 +117,22 @@
   z-index: 2;
   width: 24px;
   height: 24px;
-  border: none;
-  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-divider);
+  background: var(--surface);
+  color: var(--text-muted);
   border-radius: 50%;
   cursor: pointer;
   font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
+.watchlist-card-remove:hover {
+  background: var(--ju-red-soft);
+  color: var(--ju-red);
+}
 .watchlist-card-remove:focus-visible {
-  outline: 2px solid var(--hl-teal, #00d4a3);
+  outline: 2px solid var(--hl-teal);
   outline-offset: 2px;
 }
 
