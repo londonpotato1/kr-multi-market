@@ -60,6 +60,7 @@ const VALID_SOURCES = new Set<SourceName>([
   'hyperliquid', 'naver', 'yahoo', 'binance', 'upbit',
   'bybit', 'bitget', 'polygon', 'twelvedata',
 ]);
+const MAX_WATCHLIST_ENTRIES = 50;
 
 export function parseWatchlist(
   query: string | undefined,
@@ -67,6 +68,7 @@ export function parseWatchlist(
   if (!query) return [];
   const entries: Array<{ key: string; source: SourceName; symbol: string }> = [];
   for (const part of query.split(',')) {
+    if (entries.length >= MAX_WATCHLIST_ENTRIES) break;
     const [key, source, symbol] = part.split(':');
     if (!key || !source || !symbol) continue;
     if (key.length > 32 || !KEY_REGEX.test(key)) continue;
@@ -132,23 +134,35 @@ export async function pricesHandler(_req: Request, res: Response): Promise<void>
       wlBySource[entry.source].push(entry.symbol);
     }
 
+    // ⚠️ CRITICAL — singleFlight cache stale 반환 방지:
+    // watchlist 있는 source 는 bypass (Client A 의 wl 결과가 Client B 에 cache hit 으로 새는 correctness bug 차단).
+    // watchlist 없으면 기존 singleFlight 그대로 (정적 7-ticker 대시보드 동시 요청 dedup 유지).
+    // hyperliquid/upbit: 정적 universe. 동적 watchlist entry 는 silent-skip (Task 5 범위 외, WS allMids 통합은 follow-up).
     const [hlResult, naver, yahoo, upbit, binance, bybit, bitget, polygon, twelvedata] = await Promise.all([
       singleFlight('source:hyperliquid', SOURCE_TTL_MS.hyperliquid, fetchHyperliquid),
-      singleFlight('source:naver',       naverTtl(),
-        () => fetchNaver(Array.from(new Set([...NAVER_SYMBOLS, ...wlBySource.naver])))),
-      singleFlight('source:yahoo',       SOURCE_TTL_MS.yahoo,
-        () => fetchYahoo(Array.from(new Set(['KRW=X', 'EWY', 'QQQ', 'ES=F', '^GSPC', ...wlBySource.yahoo])))),
-      singleFlight('source:upbit',       SOURCE_TTL_MS.upbit,       fetchUpbit),
-      singleFlight('source:binance',     SOURCE_TTL_MS.binance,
-        () => fetchBinanceFutures(Array.from(new Set([...BINANCE_SYMBOLS, ...wlBySource.binance])))),
-      singleFlight('source:bybit',       SOURCE_TTL_MS.bybit,
-        () => fetchBybitLinear(Array.from(new Set([...BYBIT_SYMBOLS, ...wlBySource.bybit])))),
-      singleFlight('source:bitget',      SOURCE_TTL_MS.bitget,
-        () => fetchBitgetFutures(Array.from(new Set([...BITGET_SYMBOLS, ...wlBySource.bitget])))),
-      singleFlight('source:polygon',     SOURCE_TTL_MS.polygon,
-        () => fetchPolygon(Array.from(new Set(['QQQ', ...wlBySource.polygon])))),
-      singleFlight('source:twelvedata',  SOURCE_TTL_MS.twelvedata,
-        () => fetchTwelveData(Array.from(new Set(['QQQ', ...wlBySource.twelvedata])))),
+      wlBySource.naver.length > 0
+        ? fetchNaver(Array.from(new Set([...NAVER_SYMBOLS, ...wlBySource.naver])))
+        : singleFlight('source:naver', naverTtl(), fetchNaver),
+      wlBySource.yahoo.length > 0
+        ? fetchYahoo(Array.from(new Set(['KRW=X', 'EWY', 'QQQ', 'ES=F', '^GSPC', ...wlBySource.yahoo])))
+        : singleFlight('source:yahoo', SOURCE_TTL_MS.yahoo,
+            () => fetchYahoo(['KRW=X', 'EWY', 'QQQ', 'ES=F', '^GSPC'])),
+      singleFlight('source:upbit', SOURCE_TTL_MS.upbit, fetchUpbit),
+      wlBySource.binance.length > 0
+        ? fetchBinanceFutures(Array.from(new Set([...BINANCE_SYMBOLS, ...wlBySource.binance])))
+        : singleFlight('source:binance', SOURCE_TTL_MS.binance, fetchBinanceFutures),
+      wlBySource.bybit.length > 0
+        ? fetchBybitLinear(Array.from(new Set([...BYBIT_SYMBOLS, ...wlBySource.bybit])))
+        : singleFlight('source:bybit', SOURCE_TTL_MS.bybit, fetchBybitLinear),
+      wlBySource.bitget.length > 0
+        ? fetchBitgetFutures(Array.from(new Set([...BITGET_SYMBOLS, ...wlBySource.bitget])))
+        : singleFlight('source:bitget', SOURCE_TTL_MS.bitget, fetchBitgetFutures),
+      wlBySource.polygon.length > 0
+        ? fetchPolygon(Array.from(new Set(['QQQ', ...wlBySource.polygon])))
+        : singleFlight('source:polygon', SOURCE_TTL_MS.polygon, () => fetchPolygon(['QQQ'])),
+      wlBySource.twelvedata.length > 0
+        ? fetchTwelveData(Array.from(new Set(['QQQ', ...wlBySource.twelvedata])))
+        : singleFlight('source:twelvedata', SOURCE_TTL_MS.twelvedata, () => fetchTwelveData(['QQQ'])),
     ]);
 
     // ⚠️ 회귀 가드 (v0.4.1, spec §2.3) — 이 block 을 절대 `assemblePricesResponse` 아래로
