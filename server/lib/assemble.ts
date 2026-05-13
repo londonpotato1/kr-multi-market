@@ -167,7 +167,10 @@ function applyMarketCloseOverride(
   return pp;
 }
 
-export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
+export function assemblePricesResponse(
+  sources: SourceInputs,
+  watchlist: ReadonlyArray<{ key: string; source: SourceName; symbol: string }> = [],
+): PricesResponse {
   const ts = Date.now();
   const session = getSessionState(new Date());
   const tickers: Record<string, TickerPayload> = {};
@@ -276,6 +279,19 @@ export function assemblePricesResponse(sources: SourceInputs): PricesResponse {
       if (!tickerKey) continue;
       tickers[tickerKey] = { ...(tickers[tickerKey] ?? {}), twelvedata: pp };
     }
+  }
+
+  // === v0.5.0: 동적 watchlist mapping ===
+  // 정적 ticker 매핑이 모두 끝난 뒤 watchlist entry 별로 tickers[key] 추가.
+  // 정적 ticker key 와 충돌 시 skip (client add 시 거부했어야 함, 방어).
+  for (const entry of watchlist) {
+    const sourceKey = entry.source === 'hyperliquid' ? 'hl' : entry.source;
+    const sourceData = sources[sourceKey as keyof SourceInputs];
+    if (!sourceData?.ok) continue;
+    const pp = sourceData.data.find(p => p.symbol === entry.symbol);
+    if (!pp) continue;
+    if (tickers[entry.key]) continue;
+    tickers[entry.key] = { [sourceKey]: pp } as TickerPayload;
   }
 
   const yahooKrwX = sources.yahoo.ok

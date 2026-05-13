@@ -4,12 +4,12 @@ import { log } from './lib/logger.js';
 import { singleFlight } from './lib/cache.js';
 import { SOURCE_TTL_MS, naverTtl } from './lib/source-cache.js';
 import { fetchHyperliquid } from './lib/sources/hyperliquid.js';
-import { fetchNaver } from './lib/sources/naver.js';
+import { fetchNaver, NAVER_SYMBOLS } from './lib/sources/naver.js';
 import { fetchYahoo } from './lib/sources/yahoo.js';
 import { fetchUpbit } from './lib/sources/upbit.js';
-import { fetchBinanceFutures } from './lib/sources/binance.js';
-import { fetchBybitLinear } from './lib/sources/bybit.js';
-import { fetchBitgetFutures } from './lib/sources/bitget.js';
+import { fetchBinanceFutures, BINANCE_SYMBOLS } from './lib/sources/binance.js';
+import { fetchBybitLinear, BYBIT_SYMBOLS } from './lib/sources/bybit.js';
+import { fetchBitgetFutures, BITGET_SYMBOLS } from './lib/sources/bitget.js';
 import { fetchPolygon } from './lib/sources/polygon.js';
 import { fetchTwelveData } from './lib/sources/twelvedata.js';
 import { startHyperliquidWs, getLatestMids } from './lib/sources/hyperliquid-ws.js';
@@ -53,6 +53,30 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+// === v0.5.0: watchlist 쿼리 파싱 ===
+const KEY_REGEX = /^[a-z0-9][a-z0-9-]*$/;
+const SYMBOL_REGEX = /^[A-Za-z0-9_]+$/;
+const VALID_SOURCES = new Set<SourceName>([
+  'hyperliquid', 'naver', 'yahoo', 'binance', 'upbit',
+  'bybit', 'bitget', 'polygon', 'twelvedata',
+]);
+
+export function parseWatchlist(
+  query: string | undefined,
+): Array<{ key: string; source: SourceName; symbol: string }> {
+  if (!query) return [];
+  const entries: Array<{ key: string; source: SourceName; symbol: string }> = [];
+  for (const part of query.split(',')) {
+    const [key, source, symbol] = part.split(':');
+    if (!key || !source || !symbol) continue;
+    if (key.length > 32 || !KEY_REGEX.test(key)) continue;
+    if (symbol.length > 32 || !SYMBOL_REGEX.test(symbol)) continue;
+    if (!VALID_SOURCES.has(source as SourceName)) continue;
+    entries.push({ key, source: source as SourceName, symbol });
+  }
+  return entries;
+}
+
 export async function healthzHandler(_req: Request, res: Response): Promise<void> {
   const response: HealthzResponse = { ok: true, version: APP_VERSION };
   res.json(response);
@@ -95,17 +119,36 @@ export async function pricesHandler(_req: Request, res: Response): Promise<void>
     // Yahoo 5s, Naver 장중 2s/휴장 7s (spec §2.1, §2.4)
     // v0.4.2: bybit/bitget/polygon/twelvedata 추가. polygon (Wave 5a) + twelvedata (Wave 5b) 활성화.
     //         두 source 모두 env 키 없으면 fetcher 내부에서 disabled 반환 (sourceHealth 면제).
+    // v0.5.0: ?watchlist=KEY:SOURCE:SYMBOL,... 동적 ticker 추가. source-별 symbol 합집합으로
+    //         기존 fetcher 호출. fetchHyperliquid/fetchUpbit 은 시그니처 인자 없음 — 정적 universe 유지.
+    const watchlist = parseWatchlist(
+      typeof _req.query.watchlist === 'string' ? _req.query.watchlist : undefined,
+    );
+    const wlBySource: Record<SourceName, string[]> = {
+      hyperliquid: [], naver: [], yahoo: [], binance: [], upbit: [],
+      bybit: [], bitget: [], polygon: [], twelvedata: [],
+    };
+    for (const entry of watchlist) {
+      wlBySource[entry.source].push(entry.symbol);
+    }
+
     const [hlResult, naver, yahoo, upbit, binance, bybit, bitget, polygon, twelvedata] = await Promise.all([
       singleFlight('source:hyperliquid', SOURCE_TTL_MS.hyperliquid, fetchHyperliquid),
-      singleFlight('source:naver',       naverTtl(),                fetchNaver),
+      singleFlight('source:naver',       naverTtl(),
+        () => fetchNaver(Array.from(new Set([...NAVER_SYMBOLS, ...wlBySource.naver])))),
       singleFlight('source:yahoo',       SOURCE_TTL_MS.yahoo,
-        () => fetchYahoo(['KRW=X', 'EWY', 'QQQ', 'ES=F', '^GSPC'])),
+        () => fetchYahoo(Array.from(new Set(['KRW=X', 'EWY', 'QQQ', 'ES=F', '^GSPC', ...wlBySource.yahoo])))),
       singleFlight('source:upbit',       SOURCE_TTL_MS.upbit,       fetchUpbit),
-      singleFlight('source:binance',     SOURCE_TTL_MS.binance,     fetchBinanceFutures),
-      singleFlight('source:bybit',       SOURCE_TTL_MS.bybit,       fetchBybitLinear),
-      singleFlight('source:bitget',      SOURCE_TTL_MS.bitget,      fetchBitgetFutures),
-      singleFlight('source:polygon',     SOURCE_TTL_MS.polygon,     () => fetchPolygon(['QQQ'])),
-      singleFlight('source:twelvedata',  SOURCE_TTL_MS.twelvedata,  () => fetchTwelveData(['QQQ'])),
+      singleFlight('source:binance',     SOURCE_TTL_MS.binance,
+        () => fetchBinanceFutures(Array.from(new Set([...BINANCE_SYMBOLS, ...wlBySource.binance])))),
+      singleFlight('source:bybit',       SOURCE_TTL_MS.bybit,
+        () => fetchBybitLinear(Array.from(new Set([...BYBIT_SYMBOLS, ...wlBySource.bybit])))),
+      singleFlight('source:bitget',      SOURCE_TTL_MS.bitget,
+        () => fetchBitgetFutures(Array.from(new Set([...BITGET_SYMBOLS, ...wlBySource.bitget])))),
+      singleFlight('source:polygon',     SOURCE_TTL_MS.polygon,
+        () => fetchPolygon(Array.from(new Set(['QQQ', ...wlBySource.polygon])))),
+      singleFlight('source:twelvedata',  SOURCE_TTL_MS.twelvedata,
+        () => fetchTwelveData(Array.from(new Set(['QQQ', ...wlBySource.twelvedata])))),
     ]);
 
     // ⚠️ 회귀 가드 (v0.4.1, spec §2.3) — 이 block 을 절대 `assemblePricesResponse` 아래로
@@ -128,7 +171,7 @@ export async function pricesHandler(_req: Request, res: Response): Promise<void>
       }
     }
 
-    const response = assemblePricesResponse({ hl, naver, yahoo, upbit, binance, bybit, bitget, polygon, twelvedata });
+    const response = assemblePricesResponse({ hl, naver, yahoo, upbit, binance, bybit, bitget, polygon, twelvedata }, watchlist);
     res.setHeader('Cache-Control', 's-maxage=2, stale-while-revalidate=8');
     res.json(response);
   } catch (err) {
